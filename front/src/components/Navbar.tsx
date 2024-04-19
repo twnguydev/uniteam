@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { Login } from './Login';
+import { Home } from './Home';
 
 export const Navbar: React.FC = () => {
   return (
@@ -20,6 +21,7 @@ export const Navbar: React.FC = () => {
         </nav>
 
         <Routes>
+          <Route path="/" Component={Home as React.ComponentType} />
           <Route path="/auth" Component={Login as React.ComponentType} />
         </Routes>
       </div>
