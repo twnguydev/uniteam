@@ -1,0 +1,12 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "token": "SJDA?922NDN",
+            "mail": "test@test.fr",
+            "password": "test123",
+            "firstname": "Romain",
+            "lastname": "FARINACCI"
+        }
+    ]
+}
