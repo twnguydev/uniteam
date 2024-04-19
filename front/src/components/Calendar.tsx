@@ -87,8 +87,8 @@ export const Calendar: React.FC = () => {
 
     return (
         <div className="antialiased sans-serif bg-gray-100 h-screen">
-            <div className="container mx-auto px-4 py-2 md:py-24">
-                <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="container mx-auto px-4 py-18 flex flex-col lg:grid lg:grid-cols-10 lg:gap-x-16">
+                <div className="bg-white rounded-lg shadow overflow-hidden lg:col-start-1 lg:col-end-13 lg:row-start-1 lg:mt-9 xl:col-start-9">
                     <div className="flex items-center justify-between py-2 px-6">
                         <div>
                             <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
