@@ -45,7 +45,7 @@ export const Calendar: React.FC = () => {
     const [eventTitle, setEventTitle] = useState('');
     const [eventDate, setEventDate] = useState<Date | null>(null);
     const formatDate = (date: Date) => {
-        return format(date, "EEEE, d MMMM yyyy", { locale: fr });
+        return format(date, "EEEE d MMMM yyyy", { locale: fr });
     };
     const [eventTheme, setEventTheme] = useState('blue');
 
@@ -133,12 +133,15 @@ export const Calendar: React.FC = () => {
                             {noOfDays.map((date, index) => (
                                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="px-4 pt-2 border-r border-b relative">
                                     <div
-                                        onClick={() => { setOpenEventModal(true); setEventDate(new Date(date, month, year)); }}
+                                        onClick={() => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }}
                                         className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
                                         {date}
                                     </div>
                                     <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                                        {events.filter(e => new Date(e.event_date).toDateString() === new Date(date, month, year).toDateString()).map((event, idx) => (
+                                        {events.filter(e => {
+                                            const eventDate = new Date(e.event_date);
+                                            return eventDate.getFullYear() === year && eventDate.getMonth() === month && eventDate.getDate() === date;
+                                        }).map((event, idx) => (
                                             <div
                                                 key={idx}
                                                 className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${{
@@ -151,6 +154,7 @@ export const Calendar: React.FC = () => {
                                                 <p className="text-sm truncate leading-tight">{event.event_title}</p>
                                             </div>
                                         ))}
+
                                     </div>
                                 </div>
                             ))}
