@@ -166,20 +166,20 @@ export const Calendar: React.FC = () => {
                             </div>
 
                             <div className="shadow w-full rounded-lg bg-white overflow-hidden w-full block p-8">
-                                <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Add Event Details</h2>
+                                <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
 
                                 <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Event title</label>
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Nom de l'événement</label>
                                     <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
                                 </div>
 
                                 <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Event date</label>
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date</label>
                                     <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value={eventDate?.toDateString() || ''} readOnly />
                                 </div>
 
                                 <div className="inline-block w-64 mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Select a theme</label>
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Couleur du badge</label>
                                     <div className="relative">
                                         <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
                                             value={eventTheme}
@@ -196,10 +196,10 @@ export const Calendar: React.FC = () => {
 
                                 <div className="mt-8 text-right">
                                     <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2" onClick={() => setOpenEventModal(false)}>
-                                        Cancel
+                                        Annuler
                                     </button>
                                     <button type="button" className="bg-gray-800 hover:bg-gray-700 text-white font-semibold py-2 px-4 border border-gray-700 rounded-lg shadow-sm" onClick={addEvent}>
-                                        Save Event
+                                        Ajouter
                                     </button>
                                 </div>
                             </div>
