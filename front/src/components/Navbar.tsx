@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { Login } from './Login';
 import { Home } from './Home';
 import { Calendar } from './Calendar';
-import { CalendarTest } from './CalendarTest';
 
 export const Navbar: React.FC = () => {
   return (
@@ -26,7 +25,6 @@ export const Navbar: React.FC = () => {
           <Route path="/" Component={Home as React.ComponentType} />
           <Route path="/auth" Component={Login as React.ComponentType} />
           <Route path="/calendar" Component={Calendar as React.ComponentType} />
-          <Route path="/calendar-test" Component={CalendarTest as React.ComponentType} />
         </Routes>
       </div>
     </Router>
