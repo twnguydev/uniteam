@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { Error } from './Error';
 import { Login } from './Login';
 import { Home } from './Home';
 import { Calendar } from './Calendar';
@@ -27,6 +28,7 @@ export const Navbar: React.FC = () => {
           <Route path="/auth" Component={Login as React.ComponentType} />
           <Route path="/calendar" Component={Calendar as React.ComponentType} />
           <Route path="/schedule" Component={Schedule as React.ComponentType} />
+          <Route path="*" Component={Error as React.ComponentType} />
         </Routes>
       </div>
     </Router>
