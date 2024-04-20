@@ -24,12 +24,6 @@ export const Navbar: React.FC = () => {
           </div>
         </nav>
 
-        {/* <Routes>
-          <Route path="/" Component={Home as React.ComponentType} />
-          <Route path="/auth" Component={Login as React.ComponentType} />
-          <Route path="*" Component={Error as React.ComponentType} />
-        </Routes> */}
-
         <AuthProvider>
           <Routes>
             <Route path="/" Component={Home as React.ComponentType} />

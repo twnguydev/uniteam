@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import userData from '../data/users.json';
 
 export const Login: React.FC = () => {
     const { login } = useAuth();
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -17,8 +19,7 @@ export const Login: React.FC = () => {
 
         if (user) {
             login(email, password);
-            console.log('Connecté !');
-            console.log(user);
+            navigate(`/member/${user.id}/schedule`);
         } else {
             setError('Adresse e-mail ou mot de passe incorrect.');
         }

@@ -1,8 +1,8 @@
 import React from 'react';
-// import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 
 export const Home: React.FC = () => {
-    // const { user } = useAuth();
+    const { user } = useAuth();
 
     return (
         <section className="bg-gray-50 dark:bg-gray-900">
@@ -13,14 +13,14 @@ export const Home: React.FC = () => {
                 <a href="#" className="flex items-center mb-16 text-2xl font-semibold text-gray-600">
                     Uniteam by Epitech
                 </a>
-                {/* {user ? (
+                {user ? (
                     <div>
                         <h2>Bienvenue, {user.firstname} {user.lastname} !</h2>
                         <p>Email: {user.email}</p>
                     </div>
                 ) : (
                     <p>Connectez-vous pour accéder à votre compte.</p>
-                )} */}
+                )}
                 <div className="flex flex-col sm:flex-row justify-around gap-4 m-8">
                     <div className="block max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">
                         <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900">Planifiez vos réunions en toute simplicité</h5>
