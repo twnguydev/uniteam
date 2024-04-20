@@ -5,6 +5,8 @@ from pydantic import BaseModel
 class User(BaseModel):
     id: int
     is_admin: bool = False
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
     email: str
     password: str
     groupId: int
