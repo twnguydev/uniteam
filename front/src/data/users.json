@@ -6,7 +6,8 @@
             "email": "test@test.fr",
             "password": "test123",
             "firstname": "Romain",
-            "lastname": "FARINACCI"
+            "lastname": "FARINACCI",
+            "groupId": 1
         }
     ]
 }
