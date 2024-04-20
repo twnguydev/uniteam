@@ -1,6 +1,7 @@
 {
     "events": [
         {
+            "id": 1,
             "name": "Event 1",
             "date_start": "2017-01-01 12:00:00",
             "date_end": "2017-01-01 14:00:00",
@@ -10,40 +11,34 @@
             "statusId": 1
         },
         {
+            "id": 2,
             "name": "Event 2",
             "date_start": "2017-01-01 12:00:00",
             "date_end": "2017-01-01 14:00:00",
-            "roomId": 1,
-            "groupId": 1,
+            "roomId": 2,
+            "groupId": 2,
             "description": "Description 2",
-            "statusId": 1
+            "statusId": 2
         },
         {
+            "id": 3,
             "name": "Event 3",
             "date_start": "2017-01-01 12:00:00",
             "date_end": "2017-01-01 14:00:00",
-            "roomId": 1,
-            "groupId": 1,
+            "roomId": 3,
+            "groupId": 3,
             "description": "Description 3",
-            "statusId": 1
+            "statusId": 3
         },
         {
+            "id": 4,
             "name": "Event 4",
             "date_start": "2017-01-01 12:00:00",
             "date_end": "2017-01-01 14:00:00",
-            "roomId": 1,
-            "groupId": 1,
+            "roomId": 4,
+            "groupId": 4,
             "description": "Description 4",
-            "statusId": 1
-        },
-        {
-            "name": "Event 5",
-            "date_start": "2017-01-01 12:00:00",
-            "date_end": "2017-01-01 14:00:00",
-            "roomId": 1,
-            "groupId": 1,
-            "description": "Description 5",
-            "statusId": 1
+            "statusId": 4
         }
     ]
 }

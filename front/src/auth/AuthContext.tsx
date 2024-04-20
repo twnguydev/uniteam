@@ -1,7 +1,6 @@
-// AuthContext.tsx
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import userData from '../data/users.json';
+import groupData from '../data/groups.json';
 
 interface User {
     id: number;
@@ -10,6 +9,13 @@ interface User {
     email: string;
     token: string;
     admin: boolean;
+    groupId: number;
+    groupName: string | null;
+}
+
+interface Group {
+    id: number;
+    name: string;
 }
 
 interface AuthContextType {
@@ -43,6 +49,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 email: foundUser.email,
                 token: foundUser.token,
                 admin: foundUser.admin,
+                groupId: foundUser.groupId,
+                groupName: getUserGroupName(foundUser.groupId),
             };
             setUser(newUser);
             localStorage.setItem('user', JSON.stringify(newUser));
@@ -54,6 +62,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         setUser(null);
         localStorage.removeItem('user');
+    };
+
+    const getUserGroupName = (groupId: number): string | null => {
+        const foundGroup = groupData.groups.find((group: Group) => group.id === groupId);
+        return foundGroup ? foundGroup.name : null;
     };
 
     return (

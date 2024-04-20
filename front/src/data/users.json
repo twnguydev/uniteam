@@ -7,7 +7,7 @@
             "password": "test123",
             "firstname": "Romain",
             "lastname": "FARINACCI",
-            "groupId": 1,
+            "groupId": 3,
             "admin": true
         }
     ]

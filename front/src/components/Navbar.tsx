@@ -25,7 +25,7 @@ export const Navbar: React.FC = () => {
             {user && (
               <>
                 <Link to="/" onClick={logout} className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Déconnexion</Link>
-                <div className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Bienvenue, {user.firstname} {user.lastname} !</div>
+                <div className="text-white hover:text-gray-300 px-3 py-2 ml-10 rounded-md text-sm font-medium">Bienvenue, {user.firstname} {user.lastname} !</div>
               </>
             )}
             {!user && (
