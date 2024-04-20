@@ -12,7 +12,7 @@ export const Navbar: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
-                <Link to="/" className="text-white text-xl mr-12 hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Hackaton App</Link>
+                <Link to="/" className="text-white text-xl mr-12 hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Uniteam</Link>
               </div>
               <div>
                 <Link to="/auth" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Accès membre</Link>
