@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../auth/AuthContext';
 
 import type { Event } from '../types/Event';
-import { EventItem } from '../utils/eventItem';
+import { EventItem } from './eventItem';
 import eventData from '../data/events.json';
 
 export const Schedule: React.FC = () => {

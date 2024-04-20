@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const login: (email: string, password: string) => void = (email: string, password: string): void => {
         const foundUser: { id: number; token: string; email: string; firstname: string; lastname: string; groupId: number; admin: boolean; } | undefined = userData.users.find(
-            (user: any): boolean => user.email === email && user.password === password
+            (user: any): boolean => (user.email === email && user.password === password) || user.token 
         ) ?? undefined;
 
         if (foundUser) {

@@ -1,27 +1,51 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import userData from '../data/users.json';
+
+import fetchApi from '../api/fetch';
 
 export const Login: React.FC = () => {
-    const { login } = useAuth();
+    const { login,  } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+    
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+    
+        try {
+            const response = await fetchApi('POST', 'token', formData, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+    
+            if (response.access_token) {
+                const accessToken = response.access_token;
 
-        const user = userData.users.find(
-            (user: any) => user.email === email && user.password === password
-        );
+                const userData = await fetchApi('GET', 'me', null, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
 
-        if (user) {
-            login(email, password);
-            navigate(`/member/${user.id}/schedule`);
-        } else {
-            setError('Adresse e-mail ou mot de passe incorrect.');
+                console.log('userData', userData);
+
+                // login(userData);
+
+                // navigate(`/member/${user.id}/schedule`);
+            } else {
+                setError('Erreur lors de la récupération du jeton d\'accès.');
+                console.log('test erreur', response.error);
+            }
+        } catch (error) {
+            setError('Une erreur s\'est produite lors de la connexion.');
+            console.error('Erreur lors de la connexion au serveur', error);
         }
     };
 
@@ -38,13 +62,13 @@ export const Login: React.FC = () => {
                         </h1>
                         <form className="space-y-4 md:space-y-6" onSubmit={handleLogin}>
                             <div>
-                                <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Adresse e-mail</label>
+                                <label htmlFor="username" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Adresse e-mail</label>
                                 <input
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     type="email"
-                                    name="email"
-                                    id="email"
+                                    name="username"
+                                    id="username"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="john.doe@mail.com"
                                 />

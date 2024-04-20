@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Event } from '../types/Event';
-import { Badge } from './badge';
-import { Room } from './room';
-import { Group } from './group';
-import { formatDate, formatDateHour } from './date';
+import type { Event } from '../types/Event';
+import { Badge } from '../utils/badge';
+import { Room } from '../utils/room';
+import { Group } from '../utils/group';
+import { User } from '../utils/user';
+import { formatDate, formatDateHour } from '../utils/date';
 
-export const EventItem: React.FC<Event> = ({ statusId, date_start, date_end, name, description, roomId, groupId }) => {
+export const EventItem: React.FC<Event> = ({ statusId, creatorId, date_start, date_end, name, description, roomId, groupId }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = (e: React.MouseEvent) => {
@@ -13,8 +14,8 @@ export const EventItem: React.FC<Event> = ({ statusId, date_start, date_end, nam
         setIsOpen(!isOpen);
     };
 
-    const formattedStartDate = formatDate(date_start.toString());
-    const formattedEndDate = formatDateHour(date_end.toString());
+    const formattedStartDate: string = formatDate(date_start.toString());
+    const formattedEndDate: string = formatDateHour(date_end.toString());
 
     return (
         <div className="relative">
@@ -38,6 +39,9 @@ export const EventItem: React.FC<Event> = ({ statusId, date_start, date_end, nam
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">
+                                        Initiateur
+                                    </th>
+                                    <th scope="col" className="px-6 py-3">
                                         Salle
                                     </th>
                                     <th scope="col" className="px-6 py-3">
@@ -53,6 +57,9 @@ export const EventItem: React.FC<Event> = ({ statusId, date_start, date_end, nam
                             </thead>
                             <tbody>
                                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                        <User userId={creatorId} />
+                                    </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <Room roomId={roomId} />
                                     </th>
