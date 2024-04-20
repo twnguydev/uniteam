@@ -36,7 +36,7 @@ export const Login: React.FC = () => {
                     console.log('accessToken', accessToken);
     
                     try {
-                        const userResponse = await fetchApi<User>('GET', 'users/me', undefined, {
+                        const userResponse = await fetchApi<User>('GET', 'me', undefined, {
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
                                 Accept: 'application/json',
