@@ -8,6 +8,7 @@ const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 interface Event {
     event_date: Date;
     event_title: string;
+    event_desc: string;
     event_theme: string;
     start_time?: string;
     end_time?: string;
@@ -15,10 +16,9 @@ interface Event {
 
 const themes = [
     { value: "blue", label: "MSc" },
-    { value: "red", label: "Rouge" },
-    { value: "yellow", label: "Jaune" },
-    { value: "green", label: "Vert" },
-    { value: "purple", label: "Violet" },
+    { value: "red", label: "Web@cademie" },
+    { value: "yellow", label: "PGE" },
+    { value: "green", label: "Peda" },
 ];
 
 export const Calendar: React.FC = () => {
@@ -29,6 +29,7 @@ export const Calendar: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [openEventModal, setOpenEventModal] = useState(false);
     const [eventTitle, setEventTitle] = useState('');
+    const [eventDesc, setEventDesc] = useState('');
     const [eventDate, setEventDate] = useState<Date | null>(null);
     const formatDate = (date: Date) => {
         return format(date, "EEEE d MMMM yyyy", { locale: fr });
@@ -58,10 +59,12 @@ export const Calendar: React.FC = () => {
             const newEvent: Event = {
                 event_date: eventDate,
                 event_title: eventTitle,
+                event_desc: eventDesc,
                 event_theme: eventTheme
             };
             setEvents([...events, newEvent]);
             setEventTitle('');
+            setEventDesc('');
             setEventDate(null);
             setStartTime('');
             setEndTime('');
@@ -71,7 +74,7 @@ export const Calendar: React.FC = () => {
 
     return (
         <div className="antialiased sans-serif bg-gray-100 h-screen">
-            <div className="container-fluid mx-auto px-4 py-2 md:py-24">
+            <div className="container mx-auto px-4 py-2 md:py-24">
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="flex items-center justify-between py-2 px-6">
                         <div>
@@ -144,78 +147,80 @@ export const Calendar: React.FC = () => {
                 </div>
 
                 {openEventModal && (
-                    <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} className="fixed z-50 top-0 right-0 left-0 bottom-0 h-full w-full">
-                        <div className="p-4 max-w-xl mx-auto relative absolute left-0 right-0 overflow-hidden mt-24">
-                            <div className="shadow absolute right-0 top-0 w-10 h-10 rounded-full bg-white text-gray-500 hover:text-gray-800 inline-flex items-center justify-center cursor-pointer"
-                                onClick={() => setOpenEventModal(false)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} className="fixed z-50 top-0 right-0 left-0 bottom-0 h-full w-full">
+                    <div className="p-4 max-w-xl mx-auto relative absolute left-0 right-0 overflow-hidden mt-24">
+                        <div className="shadow absolute right-0 top-0 w-10 h-10 rounded-full bg-white text-gray-500 hover:text-gray-800 inline-flex items-center justify-center cursor-pointer"
+                            onClick={() => setOpenEventModal(false)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+
+                        <div className="shadow w-full rounded-lg bg-white overflow-hidden block max-h-[80vh] overflow-y-auto p-8">
+                            <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Nouvel Événement</h2>
+
+                            <div className="mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
+                                <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                    type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
                             </div>
 
-                            <div className="shadow w-full rounded-lg bg-white overflow-hidden w-full block p-8">
-                                <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Nouvel Événement</h2>
+                            <div className="mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
+                                <textarea name="eventDesc" rows="4" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                    value={eventDesc} onChange={(e) => setEventDesc(e.target.value)}/>
+                            </div>
+                            
+                            <div className="flex justify-between space-x-4 mb-4">
+                                <div className="w-2/3">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="text"
+                                        value={eventDate ? formatDate(eventDate) : ''}
+                                        readOnly
+                                    />
+                                </div>
+                                <div className="w-1/3">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="time"
+                                        value={startTime}
+                                        onChange={(e) => setStartTime(e.target.value)}
+                                    />
+                                </div>
+                            </div>
 
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
-                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                        type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
-                                </div>
+                            <div className="mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
+                                <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                    type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                            </div>
+                            <div className="inline-block w-64 mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Thème de l'événement</label>
+                                <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                    value={eventTheme} onChange={(e) => setEventTheme(e.target.value)}>
+                                    {themes.map((theme, index) => (
+                                        <option key={index} value={theme.value}>{theme.label}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                <div className="flex justify-between space-x-4 mb-4">
-                                    <div className="w-2/3">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
-                                        <input
-                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                            type="text"
-                                            value={eventDate ? formatDate(eventDate) : ''}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/3">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
-                                        <input
-                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                            type="time"
-                                            value={startTime}
-                                            onChange={(e) => setStartTime(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
-                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                        type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-                                </div>
-                                <div className="inline-block w-64 mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Thème de l'événement</label>
-                                    <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                        value={eventTheme} onChange={(e) => setEventTheme(e.target.value)}>
-                                        {themes.map((theme, index) => (
-                                            <option key={index} value={theme.value}>{theme.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <input type="text"/>
-                                </div>
-
-                                <div className="mt-8 text-right">
-                                    <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
-                                        onClick={() => setOpenEventModal(false)}>
-                                        Annuler
-                                    </button>
-                                    <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
-                                        onClick={addEvent}>
-                                        Enregistrer
-                                    </button>
-                                </div>
+                            <div className="mt-8 text-right">
+                                <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
+                                    onClick={() => setOpenEventModal(false)}>
+                                    Annuler
+                                </button>
+                                <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
+                                    onClick={addEvent}>
+                                    Enregistrer
+                                </button>
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
             </div>
     );
 }
