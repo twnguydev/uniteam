@@ -1,3 +1,5 @@
+import { useAuth } from '../auth/AuthContext';
+
 const badges = [
     {
         color: 'green',
@@ -36,6 +38,8 @@ const Badge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 export const Schedule: React.FC = () => {
+    const { user } = useAuth();
+
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
             <div className="max-w-screen-xl px-4 py-8 mx-auto lg:px-6 sm:py-16 lg:py-24">
@@ -43,6 +47,15 @@ export const Schedule: React.FC = () => {
                     <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">
                         Agenda
                     </h2>
+
+                    {user ? (
+                        <div>
+                            <h2>Bienvenue, {user.firstname} {user.lastname} !</h2>
+                            <p>Email: {user.email}</p>
+                        </div>
+                    ) : (
+                        <p>Connectez-vous pour accéder à votre compte.</p>
+                    )}
 
                     <div className="mt-4">
                         <a href="#" title=""

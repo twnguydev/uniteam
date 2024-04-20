@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { AuthProvider } from '../auth/AuthContext';
 import { Error } from './Error';
 import { Login } from './Login';
 import { Home } from './Home';
@@ -23,13 +24,22 @@ export const Navbar: React.FC = () => {
           </div>
         </nav>
 
-        <Routes>
+        {/* <Routes>
           <Route path="/" Component={Home as React.ComponentType} />
           <Route path="/auth" Component={Login as React.ComponentType} />
-          <Route path="/calendar" Component={Calendar as React.ComponentType} />
-          <Route path="/schedule" Component={Schedule as React.ComponentType} />
           <Route path="*" Component={Error as React.ComponentType} />
-        </Routes>
+        </Routes> */}
+
+        <AuthProvider>
+          <Routes>
+            <Route path="/" Component={Home as React.ComponentType} />
+            <Route path="/auth" Component={Login as React.ComponentType} />
+            <Route path="*" Component={Error as React.ComponentType} />
+            <Route path="/calendar" Component={Calendar as React.ComponentType} />
+            <Route path="/admin/schedule" Component={Schedule as React.ComponentType} />
+            <Route path="/member/:id/schedule" Component={Schedule as React.ComponentType} />
+          </Routes>
+        </AuthProvider>
       </div>
     </Router>
   );
