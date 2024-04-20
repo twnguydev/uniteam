@@ -20,10 +20,10 @@ class Events(Base):
     name = Column(String)
     dateStart = Column(DateTime)
     dateEnd = Column(DateTime)
-    roomId = Column(Integer), ForeignKey("rooms.id")
+    roomId = Column(Integer, ForeignKey("rooms.id"))
     groupId = Column(Integer, ForeignKey("groups.id"))
     description = Column(String)
-    statusId = Column(Integer, default=4), ForeignKey("status.id")
+    statusId = Column(Integer, ForeignKey("status.id"), default=4)
     hostId = Column(Integer, ForeignKey("users.id"))
 
 
