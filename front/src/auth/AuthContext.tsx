@@ -1,6 +1,6 @@
 // AuthContext.tsx
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import userData from '../data/users.json';
 
 interface User {
@@ -9,6 +9,7 @@ interface User {
     lastname: string;
     email: string;
     token: string;
+    admin: boolean;
 }
 
 interface AuthContextType {
@@ -22,13 +23,29 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
 
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
+
     const login = (email: string, password: string) => {
         const foundUser = userData.users.find(
             (user: any) => user.email === email && user.password === password
         );
 
         if (foundUser) {
-            setUser({ id: foundUser.id, firstname: foundUser.firstname, lastname: foundUser.lastname, email: foundUser.email, token: foundUser.token });
+            const newUser: User = {
+                id: foundUser.id,
+                firstname: foundUser.firstname,
+                lastname: foundUser.lastname,
+                email: foundUser.email,
+                token: foundUser.token,
+                admin: foundUser.admin,
+            };
+            setUser(newUser);
+            localStorage.setItem('user', JSON.stringify(newUser));
         } else {
             console.log('Adresse e-mail ou mot de passe incorrect.');
         }
@@ -36,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = () => {
         setUser(null);
+        localStorage.removeItem('user');
     };
 
     return (
