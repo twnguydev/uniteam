@@ -9,6 +9,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True, index=True)
     password = Column(String)
+    firstName = Column(String)
+    lastName = Column(String)
     groupId = Column(Integer, ForeignKey("groups.id"))
     is_admin = Column(Boolean, default=False)
 

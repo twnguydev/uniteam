@@ -6,6 +6,8 @@ class User(BaseModel):
     id: int
     is_admin: bool = False
     email: str
+    firstName: str | None
+    lastName: str | None
     password: str
     groupId: int
 
