@@ -1,0 +1,8 @@
+{
+    "groups": [
+        { "id": 1, "name": "MSc" },
+        { "id": 2, "name": "PGE" },
+        { "id": 3, "name": "Web@cademie" },
+        { "id": 4, "name": "Peda" }
+    ]
+}
