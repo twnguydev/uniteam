@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-origins = [
+origins: List[str] = [
     "http://localhost:3000",
 ]
 
@@ -108,12 +108,12 @@ async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> mode
 
 
 @app.get("/users/", response_model=List[schemas.User])
-async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.User]:
+async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> List[models.User]:
     return crud.get_users(db, skip=skip, limit=limit)
 
 
 @app.get("/users/{user_id}", response_model=schemas.User)
-async def read_user(user_id: int, db: Session = Depends(get_db)) -> models.User:
+async def read_user(user_id: int, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> models.User:
     db_user: models.User | None = crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -124,20 +124,20 @@ async def create_event(event: schemas.Event, db: Session = Depends(get_db), curr
     return crud.create_event(db=db, event=event, current_user=current_user)
 
 @app.delete("/events/{event_id}")
-async def delete_event(event_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+async def delete_event(event_id: int, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> dict[str, str]:
     crud.delete_event(db, event_id=event_id)
     return {"message": "Events deleted"}
 
 @app.put("/events/{event_id}", response_model=schemas.Event)
-async def update_event(event_id: int, event: schemas.Event, db: Session = Depends(get_db)) -> models.Events:
+async def update_event(event_id: int, event: schemas.Event, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> models.Events:
     return crud.update_event(db=db, event_id=event_id, event=event)
 
 @app.get("/events/", response_model=List[schemas.Event])
-async def read_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Events]:
+async def read_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> List[models.Events]:
     return crud.get_events(db, skip=skip, limit=limit)
 
 @app.get("/events/{event_id}", response_model=schemas.Event)
-async def read_event(event_id: int, db: Session = Depends(get_db)) -> models.Events:
+async def read_event(event_id: int, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> models.Events:
     event: models.Events = crud.get_event(db, event_id=event_id)
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")

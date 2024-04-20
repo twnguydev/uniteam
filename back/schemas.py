@@ -8,6 +8,8 @@ class User(BaseModel):
     firstName: Optional[str] = None
     lastName: Optional[str] = None
     email: str
+    firstName: str | None
+    lastName: str | None
     password: str
     groupId: int
 
