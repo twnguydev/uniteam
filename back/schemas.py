@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 
@@ -14,8 +14,8 @@ class User(BaseModel):
 class Event(BaseModel):
     id: int
     name: str
-    dateStart: Optional[date] = None
-    dateEnd: Optional[date] = None
+    dateStart: Optional[datetime] = None
+    dateEnd: Optional[datetime] = None
     roomId: int
     groupId: int
     description: Optional[str] = None
