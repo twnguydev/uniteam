@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+import type { User } from '../types/user';
+
 import fetchApi from '../api/fetch';
 
 export const Login: React.FC = () => {
-    const { login,  } = useAuth();
+    const { login } = useAuth();
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -25,27 +27,39 @@ export const Login: React.FC = () => {
                 },
             });
     
-            if (response.access_token) {
-                const accessToken = response.access_token;
-
-                const userData = await fetchApi('GET', 'me', null, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                });
-
-                console.log('userData', userData);
-
-                // login(userData);
-
-                // navigate(`/member/${user.id}/schedule`);
+            console.log('response', response);
+    
+            if (response.success) {
+                const accessToken: string | undefined = (response.data as { access_token?: string })?.access_token;
+    
+                if (accessToken) {
+                    console.log('accessToken', accessToken);
+    
+                    try {
+                        const userResponse = await fetchApi<User>('GET', 'users/me', undefined, {
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`,
+                                Accept: 'application/json',
+                            },
+                        });
+    
+                        if (userResponse.success) {
+                            const user: User | undefined = userResponse.data;
+                            console.log('user', user);
+                        } else {
+                            setError('Erreur lors de la récupération des informations utilisateur.');
+                        }
+                    } catch (error) {
+                        setError('Une erreur s\'est produite lors de la récupération des informations utilisateur.');
+                    }
+                } else {
+                    setError('Erreur lors de la récupération du jeton d\'accès.');
+                }
             } else {
-                setError('Erreur lors de la récupération du jeton d\'accès.');
-                console.log('test erreur', response.error);
+                setError('Erreur lors de la connexion.');
             }
         } catch (error) {
             setError('Une erreur s\'est produite lors de la connexion.');
-            console.error('Erreur lors de la connexion au serveur', error);
         }
     };
 

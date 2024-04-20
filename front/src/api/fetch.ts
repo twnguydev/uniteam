@@ -16,7 +16,7 @@ const handleError = (error: AxiosError): ApiResponse<any> => {
 };
 
 const handleResponse = <T>(response: AxiosResponse<T>): ApiResponse<any> => {
-    return { success: true, data: response };
+    return { success: true, data: response.data };
 };
 
 const fetchApi = async <T>(
