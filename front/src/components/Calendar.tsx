@@ -9,6 +9,8 @@ interface Event {
     event_date: Date;
     event_title: string;
     event_theme: string;
+    start_time?: string;
+    end_time?: string;
 }
 
 const themes = [
@@ -32,6 +34,8 @@ export const Calendar: React.FC = () => {
         return format(date, "EEEE d MMMM yyyy", { locale: fr });
     };
     const [eventTheme, setEventTheme] = useState('blue');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
 
     useEffect(() => {
         const getNoOfDays = () => {
@@ -59,6 +63,8 @@ export const Calendar: React.FC = () => {
             setEvents([...events, newEvent]);
             setEventTitle('');
             setEventDate(null);
+            setStartTime('');
+            setEndTime('');
             setOpenEventModal(false);
         }
     };
@@ -156,11 +162,32 @@ export const Calendar: React.FC = () => {
                                         type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
                                 </div>
 
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'evenement</label>
-                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value={eventDate ? formatDate(eventDate) : ''} readOnly />
+                                <div className="flex justify-between space-x-4 mb-4">
+                                    <div className="w-2/3">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="text"
+                                            value={eventDate ? formatDate(eventDate) : ''}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/3">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="time"
+                                            value={startTime}
+                                            onChange={(e) => setStartTime(e.target.value)}
+                                        />
+                                    </div>
                                 </div>
 
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
+                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
+                                </div>
                                 <div className="inline-block w-64 mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Thème de l'événement</label>
                                     <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
@@ -169,6 +196,10 @@ export const Calendar: React.FC = () => {
                                             <option key={index} value={theme.value}>{theme.label}</option>
                                         ))}
                                     </select>
+                                </div>
+
+                                <div>
+                                    <input type="text"/>
                                 </div>
 
                                 <div className="mt-8 text-right">
