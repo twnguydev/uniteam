@@ -13,8 +13,8 @@ export const EventItem: React.FC<Event> = ({ statusId, date_start, date_end, nam
         setIsOpen(!isOpen);
     };
 
-    const formattedStartDate = formatDate(date_start);
-    const formattedEndDate = formatDateHour(date_end);
+    const formattedStartDate = formatDate(date_start.toString());
+    const formattedEndDate = formatDateHour(date_end.toString());
 
     return (
         <div className="relative">

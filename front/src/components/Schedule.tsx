@@ -7,7 +7,10 @@ import eventData from '../data/events.json';
 
 export const Schedule: React.FC = () => {
     const { user } = useAuth();
-    const events: Event[] = eventData.events;
+    const events: Event[] = eventData.events.map(event => ({
+        ...event,
+        creatorId: user?.id || 0,
+    }));
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">

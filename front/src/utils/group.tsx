@@ -6,3 +6,13 @@ export const Group: React.FC<{ groupId: number }> = ({ groupId }) => {
 
     return <span>{groupName}</span>;
 }
+
+export function findGroupId(groupName: string): number | undefined {
+    const group = groupData.groups.find(group => group.name === groupName);
+    return group ? group.id : undefined;
+}
+
+export function findGroupName(groupId: number): string | undefined {
+    const group = groupData.groups.find(group => group.id === groupId);
+    return group ? group.name : undefined;
+}

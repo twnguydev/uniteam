@@ -8,7 +8,7 @@
             "firstname": "Romain",
             "lastname": "FARINACCI",
             "groupId": 3,
-            "admin": false
+            "admin": true
         }
     ]
 }
