@@ -27,8 +27,8 @@ def get_db() -> Generator[Session, Any, None]:
     finally:
         db.close()
 
-def authenticate_user(username: str, password: str, db) -> models.User | None:    
-    if user := crud.get_user_by_username(db, username):
+def authenticate_user(email: str, password: str, db) -> models.User | None:    
+    if user := crud.get_user_by_email(db, email):
         return user if verify_password(password, user.password) else None
     else:
         return None
@@ -50,13 +50,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     )
     try:
         payload: dict[str, Any] = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = schemas.TokenData(email=email)
     except JWTError as e:
         raise credentials_exception from e
-    user: models.User | None = crud.get_user_by_username(db, username=token_data.username)
+    user: models.User | None = crud.get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
@@ -65,16 +65,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ) -> schemas.Token:
-    user: models.User | None = authenticate_user(form_data.username, form_data.password, db)
+    user: models.User | None = authenticate_user(form_data.email, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token: str = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
 
@@ -88,8 +88,8 @@ async def read_users_me(
 
 @app.post("/users/", response_model=schemas.User)
 async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> models.User:
-    if crud.get_user_by_username(db, username=user.username):
-        raise HTTPException(status_code=400, detail="username already registered")
+    if crud.get_user_by_email(db, email=user.email):
+        raise HTTPException(status_code=400, detail="email already registered")
     return crud.create_user(db=db, user=user)
 
 

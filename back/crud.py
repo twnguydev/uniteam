@@ -9,8 +9,8 @@ def get_user(db: Session, user_id: int) -> models.User | None:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def get_user_by_username(db: Session, username: str) -> models.User | None:
-    return db.query(models.User).filter(models.User.username == username).first()
+def get_user_by_email(db: Session, email: str) -> models.User | None:
+    return db.query(models.User).filter(models.User.email == email).first()
 
 
 def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[models.User]:
@@ -19,7 +19,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100) -> List[models.User]
 
 def create_user(db: Session, user: schemas.User) -> models.User:
     hashed_password: str = get_password_hash(user.password)
-    db_user = models.User(username=user.username, email=user.email, password=hashed_password)
+    db_user = models.User(email=user.email, email=user.email, password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
