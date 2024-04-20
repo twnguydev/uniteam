@@ -23,7 +23,7 @@ class Events(Base):
     roomId = Column(Integer)
     groupId = Column(Integer, ForeignKey("groups.id"))
     description = Column(String)
-    statusId = Column(Integer), ForeignKey("status.id")
+    statusId = Column(Integer, default=4), ForeignKey("status.id")
     hostId = Column(Integer, ForeignKey("users.id"))
 
 
