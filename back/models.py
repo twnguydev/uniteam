@@ -20,7 +20,7 @@ class Events(Base):
     name = Column(String)
     dateStart = Column(DateTime)
     dateEnd = Column(DateTime)
-    roomId = Column(Integer)
+    roomId = Column(Integer), ForeignKey("rooms.id")
     groupId = Column(Integer, ForeignKey("groups.id"))
     description = Column(String)
     statusId = Column(Integer, default=4), ForeignKey("status.id")
@@ -35,6 +35,12 @@ class Groups(Base):
 
 class Status(Base):
     __tablename__: str = "status"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+
+class Rooms(Base):
+    __tablename__: str = "rooms"
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
