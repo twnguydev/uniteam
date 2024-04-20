@@ -7,6 +7,7 @@ class User(BaseModel):
     is_admin: bool
     email: str
     password: str
+    groupId: int
 
     class Config:
         orm_mode = True
