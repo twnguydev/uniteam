@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { Login } from './Login';
 import { Home } from './Home';
 import { Calendar } from './Calendar';
+import { Schedule } from './Schedule';
 
 export const Navbar: React.FC = () => {
   return (
@@ -12,7 +13,7 @@ export const Navbar: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center">
-                <Link to="/" className="text-white text-xl mr-12 hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Uniteam</Link>
+                <Link to="/" className="text-white text-xl mr-12 hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">UniTeam</Link>
               </div>
               <div>
                 <Link to="/auth" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Accès membre</Link>
@@ -25,6 +26,7 @@ export const Navbar: React.FC = () => {
           <Route path="/" Component={Home as React.ComponentType} />
           <Route path="/auth" Component={Login as React.ComponentType} />
           <Route path="/calendar" Component={Calendar as React.ComponentType} />
+          <Route path="/schedule" Component={Schedule as React.ComponentType} />
         </Routes>
       </div>
     </Router>

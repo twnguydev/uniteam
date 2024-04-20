@@ -14,7 +14,7 @@ interface Event {
 }
 
 const themes = [
-    { value: "blue", label: "Bleu" },
+    { value: "blue", label: "MSc" },
     { value: "red", label: "Rouge" },
     { value: "yellow", label: "Jaune" },
     { value: "green", label: "Vert" },
@@ -71,7 +71,7 @@ export const Calendar: React.FC = () => {
 
     return (
         <div className="antialiased sans-serif bg-gray-100 h-screen">
-            <div className="container mx-auto px-4 py-2 md:py-24">
+            <div className="container-fluid mx-auto px-4 py-2 md:py-24">
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="flex items-center justify-between py-2 px-6">
                         <div>
