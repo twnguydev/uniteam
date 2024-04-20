@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '../auth/AuthContext';
 
 const MONTH_NAMES = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -38,6 +39,8 @@ export const Calendar: React.FC = () => {
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
 
+    const { user } = useAuth();
+
     useEffect(() => {
         const getNoOfDays = () => {
             const firstDayOfMonth = new Date(year, month, 1);
@@ -55,20 +58,18 @@ export const Calendar: React.FC = () => {
     }, [month, year]);
 
     const addEvent = () => {
-        if (eventTitle && eventDate) {
+        if (user?.admin && eventTitle && eventDate) {
             const newEvent: Event = {
                 event_date: eventDate,
                 event_title: eventTitle,
                 event_desc: eventDesc,
-                event_theme: eventTheme
+                event_theme: eventTheme,
+                start_time: startTime,
+                end_time: endTime,
             };
             setEvents([...events, newEvent]);
-            setEventTitle('');
-            setEventDesc('');
-            setEventDate(null);
-            setStartTime('');
-            setEndTime('');
-            setOpenEventModal(false);
+        } else {
+            alert("You are not authorized to add events.");
         }
     };
 
@@ -146,7 +147,7 @@ export const Calendar: React.FC = () => {
                     </div>
                 </div>
 
-                {openEventModal && (
+                {openEventModal && user?.admin && (
                 <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} className="fixed z-50 top-0 right-0 left-0 bottom-0 h-full w-full">
                     <div className="p-4 max-w-xl mx-auto relative absolute left-0 right-0 overflow-hidden mt-24">
                         <div className="shadow absolute right-0 top-0 w-10 h-10 rounded-full bg-white text-gray-500 hover:text-gray-800 inline-flex items-center justify-center cursor-pointer"
@@ -221,7 +222,7 @@ export const Calendar: React.FC = () => {
                     </div>
                 </div>
             )}
-            </div>
+        </div>
     );
 }
 
