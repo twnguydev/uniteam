@@ -1,4 +1,3 @@
-import React from 'react';
 import userData from '../data/users.json';
 
 export function findUserLastname(userId: number): string | undefined {

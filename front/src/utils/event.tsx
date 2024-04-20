@@ -1,4 +1,3 @@
-import React from 'react';
 import eventData from '../data/events.json';
 
 export function findEventId(eventName: string): number | undefined {
