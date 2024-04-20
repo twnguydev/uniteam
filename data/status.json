@@ -1,0 +1,8 @@
+{
+    "status": [
+        { "id": 1, "name": "Validé" },
+        { "id": 2, "name": "Refusé" },
+        { "id": 3, "name": "Annulé" },
+        { "id": 4, "name": "En cours" }
+    ]
+}
