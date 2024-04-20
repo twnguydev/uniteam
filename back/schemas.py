@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class User(BaseModel):
     id: int
-    is_admin: bool
+    is_admin: bool = False
     email: str
     password: str
     groupId: int
