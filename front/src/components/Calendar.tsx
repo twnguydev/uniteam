@@ -21,9 +21,6 @@ import fetchApi from '../api/fetch';
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-const groups: Group[] = [];
-const rooms: Room[] = [];
-
 export const Calendar: React.FC = () => {
     const { user } = useAuth();
     const [selectedGroup, setSelectedGroup] = useState<string>('');
@@ -44,6 +41,9 @@ export const Calendar: React.FC = () => {
     const [startTime, setStartTime] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
 
+    const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
+    const [loadedRooms, setLoadedRooms] = useState<Room[]>([]);
+
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(event.target.value);
     };
@@ -60,34 +60,22 @@ export const Calendar: React.FC = () => {
     }, [month, year]);
 
     useEffect(() => {
-        const fetchEvents = async (): Promise<void> => {
+        const fetchData = async (): Promise<void> => {
             if (!user) {
                 return;
             }
             const fetchedEvents = await findAllEvents<User>(user);
             setEvents(fetchedEvents || []);
+
+            const fetchedGroups = await findAllGroups<User>(user);
+            setLoadedGroups(fetchedGroups || []);
+
+            const fetchedRooms = await findAllRooms<User>(user);
+            setLoadedRooms(fetchedRooms || []);
         };
 
-        const fetchGroups = async (): Promise<void> => {
-            if (!user) {
-                return;
-            }
-            const fetchedGroups = await findAllGroups<User>(user);
-            groups.push(...fetchedGroups);
-        }
-
-        const fetchRooms = async (): Promise<void> => {
-            if (!user) {
-                return;
-            }
-            const fetchedRooms = await findAllRooms<User>(user);
-            rooms.push(...fetchedRooms);
-        }
-
-        fetchGroups();
-        fetchRooms();
-        fetchEvents();
-    }, []);
+        fetchData();
+    }, [user]);
 
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
@@ -238,7 +226,7 @@ export const Calendar: React.FC = () => {
                                     onChange={handleGroupChange}
                                 >
                                     <option value="">Sans filtres</option>
-                                    {groups.map(group => (
+                                    {loadedGroups.map(group => (
                                         <option key={group.id} value={group.name}>{group.name}</option>
                                     ))}
                                 </select>
@@ -311,7 +299,7 @@ export const Calendar: React.FC = () => {
                                     <div className='w-2/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
                                         <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventGroup(e.target.value)}>
-                                            {groups.map((group: Group, index: number) => (
+                                            {loadedGroups.map((group: Group, index: number) => (
                                                 <option key={index} value={group.name}>{group.name}</option>
                                             ))}
                                         </select>
@@ -319,7 +307,7 @@ export const Calendar: React.FC = () => {
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
                                         <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventRoom(e.target.value)}>
-                                            {rooms.map((room: Room, index: number) => (
+                                            {loadedRooms.map((room: Room, index: number) => (
                                                 <option key={index} value={room.name}>{room.name}</option>
                                             ))}
                                         </select>

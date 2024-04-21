@@ -56,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const getUserGroupName = (groupId: number): string | null => {
         const foundGroup: Group | undefined = groupData.groups.find((group: Group) => group.id === groupId);
+        console.log(foundGroup);
         return foundGroup ? foundGroup.name : null;
     };
 

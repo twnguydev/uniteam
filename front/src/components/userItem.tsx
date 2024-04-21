@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-
+import { useAuth } from '../auth/AuthContext';
 import type { User } from '../types/user';
 
 import { Badge } from '../utils/badge';
 
 export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin, groupId }: User) => {
+    const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = (e: React.MouseEvent) => {
@@ -23,7 +24,7 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
                     </h3>
                 </div>
                 <div>
-                    <Badge Id={groupId} Name={'group'} />
+                    <Badge Id={groupId} Name={'group'} UserData={user} />
                 </div>
             </div>
             <div style={{ height: isOpen ? 'auto' : '0', overflow: 'hidden', transition: 'height 0.3s ease-in-out' }}>
@@ -66,7 +67,7 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
                                         {adminText}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Badge Id={groupId} Name={'group'} />
+                                        <Badge Id={groupId} Name={'group'} UserData={user} />
                                     </td>
                                 </tr>
                             </tbody>
