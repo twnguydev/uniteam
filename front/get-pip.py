@@ -20,15 +20,19 @@
 # If you're wondering how this is created, it is generated using
 # `scripts/generate.py` in https://github.com/pypa/get-pip.
 
+from optparse import Values
 import sys
+from typing import Literal
 
-this_python = sys.version_info[:2]
-min_version = (3, 7)
+this_python: tuple[int, int] = sys.version_info[:2]
+min_version: tuple[Literal[3], Literal[7]] = (3, 7)
 if this_python < min_version:
-    message_parts = [
+    message_parts: list[str] = [
         "This script does not work on Python {}.{}".format(*this_python),
         "The minimum supported Python version is {}.{}.".format(*min_version),
-        "Please use https://bootstrap.pypa.io/pip/{}.{}/get-pip.py instead.".format(*this_python),
+        "Please use https://bootstrap.pypa.io/pip/{}.{}/get-pip.py instead.".format(
+            *this_python
+        ),
     ]
     print("ERROR: " + " ".join(message_parts))
     sys.exit(1)
@@ -43,27 +47,27 @@ import importlib
 from base64 import b85decode
 
 
-def include_setuptools(args):
+def include_setuptools(args) -> bool:
     """
     Install setuptools only if absent and not excluded.
     """
-    cli = not args.no_setuptools
-    env = not os.environ.get("PIP_NO_SETUPTOOLS")
-    absent = not importlib.util.find_spec("setuptools")
+    cli: bool = not args.no_setuptools
+    env: bool = not os.environ.get("PIP_NO_SETUPTOOLS")
+    absent: bool = not importlib.util.find_spec("setuptools")
     return cli and env and absent
 
 
-def include_wheel(args):
+def include_wheel(args) -> bool:
     """
     Install wheel only if absent and not excluded.
     """
-    cli = not args.no_wheel
-    env = not os.environ.get("PIP_NO_WHEEL")
-    absent = not importlib.util.find_spec("wheel")
+    cli: bool = not args.no_wheel
+    env: bool = not os.environ.get("PIP_NO_WHEEL")
+    absent: bool = not importlib.util.find_spec("wheel")
     return cli and env and absent
 
 
-def determine_pip_install_arguments():
+def determine_pip_install_arguments() -> list[str]:
     pre_parser = argparse.ArgumentParser()
     pre_parser.add_argument("--no-setuptools", action="store_true")
     pre_parser.add_argument("--no-wheel", action="store_true")
@@ -80,7 +84,7 @@ def determine_pip_install_arguments():
     return ["install", "--upgrade", "--force-reinstall"] + args
 
 
-def monkeypatch_for_cert(tmpdir):
+def monkeypatch_for_cert(tmpdir) -> None:
     """Patches `pip install` to provide default certificate with the lowest priority.
 
     This ensures that the bundled certificates are used unless the user specifies a
@@ -92,13 +96,13 @@ def monkeypatch_for_cert(tmpdir):
     from pip._internal.commands.install import InstallCommand
 
     # We want to be using the internal certificates.
-    cert_path = os.path.join(tmpdir, "cacert.pem")
+    cert_path: str = os.path.join(tmpdir, "cacert.pem")
     with open(cert_path, "wb") as cert:
         cert.write(pkgutil.get_data("pip._vendor.certifi", "cacert.pem"))
 
     install_parse_args = InstallCommand.parse_args
 
-    def cert_parse_args(self, args):
+    def cert_parse_args(self, args) -> tuple[Values, list[str]]:
         if not self.parser.get_default_values().cert:
             # There are no user provided cert -- force use of bundled cert
             self.parser.defaults["cert"] = cert_path  # calculated above
@@ -107,24 +111,25 @@ def monkeypatch_for_cert(tmpdir):
     InstallCommand.parse_args = cert_parse_args
 
 
-def bootstrap(tmpdir):
+def bootstrap(tmpdir) -> sys.NoReturn:
     monkeypatch_for_cert(tmpdir)
 
     # Execute the included pip and use it to install the latest pip and
     # setuptools from PyPI
     from pip._internal.cli.main import main as pip_entry_point
-    args = determine_pip_install_arguments()
+
+    args: list[str] = determine_pip_install_arguments()
     sys.exit(pip_entry_point(args))
 
 
-def main():
+def main() -> None:
     tmpdir = None
     try:
         # Create a temporary working directory
-        tmpdir = tempfile.mkdtemp()
+        tmpdir: str = tempfile.mkdtemp()
 
         # Unpack the zipfile into the temporary directory
-        pip_zip = os.path.join(tmpdir, "pip.zip")
+        pip_zip: str = os.path.join(tmpdir, "pip.zip")
         with open(pip_zip, "wb") as fp:
             fp.write(b85decode(DATA.replace(b"\n", b"")))
 
