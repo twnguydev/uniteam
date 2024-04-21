@@ -12,8 +12,12 @@ import type { Event } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 
-const MONTH_NAMES = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+import { getGroupBadgeClassNames } from '../utils/group';
+
+import fetchApi from '../api/fetch';
+
+const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
 const groups: Group[] = [
     { id: 1, name: "MSc" },
@@ -47,23 +51,23 @@ export const Calendar: React.FC = () => {
     const [startTime, setStartTime] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
 
-    useEffect(() => {
-        const getNoOfDays = () => {
+    useEffect((): void => {
+        const getNoOfDays = (): void => {
             const firstDayOfMonth = new Date(year, month, 1);
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const indexOfFirstDay = (firstDayOfMonth.getDay() + 6) % 7;
-            setBlankDays(Array.from({ length: indexOfFirstDay }, (_, i) => i));
-            setNoOfDays(Array.from({ length: daysInMonth }, (_, i) => i + 1));
+            const daysInMonth: number = new Date(year, month + 1, 0).getDate();
+            const indexOfFirstDay: number = (firstDayOfMonth.getDay() + 6) % 7;
+            setBlankDays(Array.from({ length: indexOfFirstDay }, (_: unknown, i: number): number => i));
+            setNoOfDays(Array.from({ length: daysInMonth }, (_: unknown, i: number): number => i + 1));
         };
         getNoOfDays();
     }, [month, year]);
 
-    const handleEventClick = (event: Event) => {
+    const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
         setOpenEventDetailsModal(true);
     };
 
-    const addEvent = () => {
+    const addEvent = async (): Promise<void> => {
         if (user?.admin) {
             if (eventTitle && eventDate && startTime && endTime && startTime < endTime) {
                 const newEvent: Event = {
@@ -77,23 +81,55 @@ export const Calendar: React.FC = () => {
                     roomId: findRoomId(eventRoom) || 1,
                     creatorId: user?.id || 0,
                 };
-                setEvents([...events, newEvent]);
-                resetForm();
-                setOpenEventModal(false);
+
+                const registerEvent = await fetchApi('POST', 'events', JSON.stringify(newEvent), {
+                    headers: {
+                        'Authorization': `Bearer ${user?.token}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (registerEvent.success) {
+                    alert("Événement ajouté avec succès");
+                    setEvents([(registerEvent.data as Event), ...events]);
+                    resetForm();
+                    setOpenEventModal(false);
+                } else {
+                    alert("Erreur lors de l'ajout de l'événement");
+                }
             } else {
                 alert("Certains champs sont invalides");
             }
         } else {
             if (eventTitle && eventDate && startTime && endTime && startTime < endTime) {
-                resetForm();
-                setOpenEventModal(false);
-            } else {
-                alert("Certains champs sont invalides");
+                const newEvent: Event = {
+                    id: findLastEventId() + 1,
+                    date_start: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
+                    date_end: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
+                    statusId: 1,
+                    name: eventTitle,
+                    description: eventDesc,
+                    groupId: findGroupId(eventGroup) || 1,
+                    roomId: findRoomId(eventRoom) || 1,
+                    creatorId: user?.id || 0,
+                };
+
+                const registerEvent = await fetchApi('POST', 'events', newEvent);
+
+                if (registerEvent.success) {
+                    alert("Événement ajouté avec succès");
+                    setEvents([(registerEvent.data as Event), ...events]);
+                    resetForm();
+                    setOpenEventModal(false);
+                } else {
+                    alert("Erreur lors de l'ajout de l'événement");
+                }
             }
         }
     };
 
-    const resetForm = () => {
+    const resetForm = (): void => {
         setEventTitle('');
         setEventDesc('');
         setEventDate(null);
@@ -117,13 +153,13 @@ export const Calendar: React.FC = () => {
                             <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
                         </div>
                         <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
-                            <button onClick={() => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
+                            <button onClick={(): void => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                                 </svg>
                             </button>
                             <div className="border-r inline-flex h-6"></div>
-                            <button onClick={() => setMonth(month + 1)} disabled={month === 11} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
+                            <button onClick={(): void => setMonth(month + 1)} disabled={month === 11} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
                                 </svg>
@@ -132,24 +168,24 @@ export const Calendar: React.FC = () => {
                     </div>
                     <div className="-mx-1 -mb-1">
                         <div className="flex flex-wrap" style={{ marginBottom: '-40px' }}>
-                            {DAYS.map((day, index) => (
+                            {DAYS.map((day: string, index: number) => (
                                 <div key={index} style={{ width: '14.26%' }} className="px-2 py-2">
                                     <div className="text-gray-600 text-sm uppercase tracking-wide font-bold text-center">{day}</div>
                                 </div>
                             ))}
                         </div>
                         <div className="flex flex-wrap border-t border-l">
-                            {blankDays.map((_, index) => (
+                            {blankDays.map((_: number, index: number) => (
                                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="text-center border-r border-b px-4 pt-2"></div>
                             ))}
-                            {noOfDays.map((date, index) => (
+                            {noOfDays.map((date: number, index: number) => (
                                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="px-4 pt-2 border-r border-b relative">
-                                    <div onClick={() => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }} className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
+                                    <div onClick={(): void => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }} className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
                                         {date}
                                     </div>
                                     <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                                        {events.filter(e => new Date(e.date_start).toDateString() === new Date(year, month, date).toDateString()).map((event, idx) => (
-                                            <div key={idx} onClick={() => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${ { 1: 'border-blue-200 text-blue-800 bg-blue-100', 2: 'border-red-200 text-red-800 bg-red-100', 3: 'border-yellow-200 text-yellow-800 bg-yellow-100', 4: 'border-green-200 text-green-800 bg-green-100' }[event.groupId]}`}>
+                                        {events.filter(e => new Date(e.date_start).toDateString() === new Date(year, month, date).toDateString()).map((event, idx: number) => (
+                                            <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${getGroupBadgeClassNames(findGroupName(event.groupId))}`}>
                                                 <p className="text-sm truncate leading-tight">{event.name}</p>
                                             </div>
                                         ))}
@@ -196,7 +232,7 @@ export const Calendar: React.FC = () => {
                                     <div className='w-2/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
                                         <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventGroup(e.target.value)}>
-                                            {groups.map((group, index) => (
+                                            {groups.map((group: Group, index: number) => (
                                                 <option key={index} value={group.name}>{group.name}</option>
                                             ))}
                                         </select>
@@ -204,7 +240,7 @@ export const Calendar: React.FC = () => {
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
                                         <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventRoom(e.target.value)}>
-                                            {rooms.map((room, index) => (
+                                            {rooms.map((room: Room, index: number) => (
                                                 <option key={index} value={room.name}>{room.name}</option>
                                             ))}
                                         </select>

@@ -1,5 +1,4 @@
-import React, { ReactNode, createContext, Context, useContext, useEffect, useState } from 'react';
-import userData from '../data/users.json';
+import React, { createContext, Context, useContext, useEffect, useState } from 'react';
 import groupData from '../data/groups.json';
 
 import type { AuthContextType } from '../types/Auth';
@@ -8,46 +7,40 @@ import type { Group } from '../types/group';
 
 const AuthContext: Context<AuthContextType | null> = createContext<AuthContextType | null>(null);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }: { children: ReactNode }): JSX.Element => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
     const [user, setUser] = useState<User | null>(null);
 
-    useEffect((): void => {
+    useEffect(() => {
         const storedUser: string | null = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
     }, []);
 
-    const login: (email: string, password: string) => void = (email: string, password: string): void => {
-        const foundUser: { id: number; token: string; email: string; firstname: string; lastname: string; groupId: number; admin: boolean; } | undefined = userData.users.find(
-            (user: any): boolean => (user.email === email && user.password === password) || user.token 
-        ) ?? undefined;
-
-        if (foundUser) {
+    const login = (userData: any, accessToken: string): void => {
+        if (userData && userData.id && userData.firstName && userData.lastName && userData.email && userData.is_admin && userData.groupId) {
             const newUser: User = {
-                id: foundUser.id,
-                firstname: foundUser.firstname,
-                lastname: foundUser.lastname,
-                email: foundUser.email,
-                token: foundUser.token,
-                admin: foundUser.admin,
-                groupId: foundUser.groupId,
-                groupName: getUserGroupName(foundUser.groupId),
+                id: userData.id,
+                firstname: userData.firstName,
+                lastname: userData.lastName,
+                email: userData.email,
+                token: accessToken,
+                admin: userData.is_admin,
+                groupId: userData.groupId,
+                groupName: getUserGroupName(userData.groupId),
             };
             setUser(newUser);
             localStorage.setItem('user', JSON.stringify(newUser));
-        } else {
-            console.log('Adresse e-mail ou mot de passe incorrect.');
         }
     };
 
-    const logout: () => void = (): void => {
+    const logout = (): void => {
         setUser(null);
         localStorage.removeItem('user');
     };
 
-    const getUserGroupName: (groupId: number) => string | null = (groupId: number): string | null => {
-        const foundGroup: { id: number; name: string } | undefined = groupData.groups.find((group: Group): boolean => group.id === groupId);
+    const getUserGroupName = (groupId: number): string | null => {
+        const foundGroup: Group | undefined = groupData.groups.find((group: Group) => group.id === groupId);
         return foundGroup ? foundGroup.name : null;
     };
 
@@ -58,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-export const useAuth: () => AuthContextType = (): AuthContextType => {
+export const useAuth = (): AuthContextType => {
     const context: AuthContextType | null = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');

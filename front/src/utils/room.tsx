@@ -1,6 +1,13 @@
 import React from 'react';
 import roomData from '../data/rooms.json';
 
+// import fetchApi from '../api/fetch';
+
+// export const roomData: () = async (): Promise<unknown> => {
+//     const roomData = await fetchApi('GET', 'rooms');
+//     return roomData.data;
+// }
+
 export const Room: React.FC<{ roomId: number }> = ({ roomId }) => {
     const roomName = roomData.rooms.find((room) => room.id === roomId)?.name;
 

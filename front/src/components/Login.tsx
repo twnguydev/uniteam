@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavigateFunction } from 'react-router-dom';
 
 import type { User } from '../types/user';
 
@@ -8,7 +8,7 @@ import fetchApi from '../api/fetch';
 
 export const Login: React.FC = () => {
     const { login } = useAuth();
-    const navigate = useNavigate();
+    const navigate: NavigateFunction = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -28,14 +28,10 @@ export const Login: React.FC = () => {
                 },
             });
     
-            console.log('response', response);
-    
             if (response.success) {
                 const accessToken: string | undefined = (response.data as { access_token?: string })?.access_token;
     
                 if (accessToken) {
-                    console.log('accessToken', accessToken);
-    
                     try {
                         const userResponse = await fetchApi<User>('GET', 'me', undefined, {
                             headers: {
@@ -46,7 +42,11 @@ export const Login: React.FC = () => {
     
                         if (userResponse.success) {
                             const user: User | undefined = userResponse.data;
-                            console.log('user', user);
+
+                            if (user) {
+                                login(JSON.stringify(user), accessToken);
+                                navigate('/');
+                            }
                         } else {
                             setError('Erreur lors de la récupération des informations utilisateur.');
                         }
