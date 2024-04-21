@@ -93,13 +93,23 @@ async def login_for_access_token(
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
 
-
 @app.get("/me/", response_model=schemas.User)
 async def read_users_me(
     current_user: schemas.User = Depends(get_current_user),
 ) -> schemas.User:
     return current_user
 
+@app.get("/groups/", response_model=List[schemas.Group])
+async def read_groups(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Groups]:
+    return crud.get_groups(db, skip=skip, limit=limit)
+
+@app.get("/status/", response_model=List[schemas.Status])
+async def read_status(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Status]:
+    return crud.get_status(db, skip=skip, limit=limit)
+
+@app.get("/rooms/", response_model=List[schemas.Room])
+async def read_rooms(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Rooms]:
+    return crud.get_rooms(db, skip=skip, limit=limit)
 
 @app.post("/users/", response_model=schemas.User)
 async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> models.User:
@@ -107,11 +117,9 @@ async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> mode
         raise HTTPException(status_code=400, detail="email already registered")
     return crud.create_user(db=db, user=user)
 
-
 @app.get("/users/", response_model=List[schemas.User])
 async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.User]:
     return crud.get_users(db, skip=skip, limit=limit)
-
 
 @app.get("/users/{user_id}", response_model=schemas.User)
 async def read_user(user_id: int, db: Session = Depends(get_db)) -> models.User:

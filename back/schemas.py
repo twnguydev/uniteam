@@ -16,6 +16,27 @@ class User(BaseModel):
     class Config:
         orm_mode = True
 
+class Group(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+
+class Room(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+
+class Status(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+
 class Event(BaseModel):
     id: int
     name: str
