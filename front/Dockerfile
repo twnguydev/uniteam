@@ -1,9 +1,12 @@
 FROM node:20
 
-WORKDIR /code
+WORKDIR /app
 
-COPY ./package*.json /code/
+COPY ./package*.json /app/
 
 RUN npm install
 
-COPY . /code
+COPY . /app
+
+EXPOSE 5030
+CMD ["npm", "start"]
