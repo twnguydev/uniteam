@@ -3,6 +3,8 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
 
+import { groupBadges } from '../data/badges';
+
 import { findRoomId, findRoomName } from '../utils/room';
 import { findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
@@ -11,8 +13,6 @@ import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 import type { User } from '../types/user';
-
-import { getGroupBadgeClassNames } from '../utils/group';
 
 import { getStatusId } from '../utils/status';
 
@@ -83,9 +83,26 @@ export const Calendar: React.FC = () => {
 
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
-        console.log(event);
         setOpenEventDetailsModal(true);
     };
+
+    const deleteEvent = async (): Promise<void> => {
+        const response = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {
+            headers: {
+                Authorization: `Bearer ${user?.token}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.success) {
+            alert('Événement supprimé avec succès !');
+            setEvents(events.filter(event => event.id !== selectedEvent?.id));
+            setOpenEventDetailsModal(false);
+        } else {
+            alert('Échec de la suppression de l\'événement.');
+        }
+    }
 
     const addEvent = async (): Promise<void> => {
         try {
@@ -137,13 +154,11 @@ export const Calendar: React.FC = () => {
 
                 if (registerEvent.success) {
                     alert("Événement ajouté avec succès");
-                    console.log(user);
                     setEvents([...events, (registerEvent.data as Event)]);
                     resetForm();
                     setOpenEventModal(false);
                 } else if (registerEvent.error) {
                     alert(registerEvent.error);
-                    console.log(lastEventId + 1);
                 }
             } catch (error) {
                 console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
@@ -159,25 +174,31 @@ export const Calendar: React.FC = () => {
         const eventNodes: React.ReactNode[] = [];
 
         noOfDays.forEach((date: number, index: number) => {
+            const filteredEvents = events.filter((event: any) => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString());
+            const renderedEvents = filteredEvents.map((event: any, idx: number) => {
+                const groupBadgeClassNames = event.groupId !== undefined && groupBadges[event.groupId - 1] ? groupBadges[event.groupId - 1].classNames : '';
+                return (
+                    <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${groupBadgeClassNames}`}>
+                        <p className="text-sm truncate leading-tight">{event.name}</p>
+                    </div>
+                );
+            });
+
             eventNodes.push(
                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="px-4 pt-2 border-r border-b relative">
                     <div onClick={(): void => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }} className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
                         {date}
                     </div>
                     <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                        {events.filter((event: any) => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString()).map((event: any, idx: number) => (
-                            <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${getGroupBadgeClassNames(event.groupName)}`}>
-                                <p className="text-sm truncate leading-tight">{event.name}</p>
-                            </div>
-                        ))}
+                        {renderedEvents}
                     </div>
                 </div>
             );
         });
 
         return { noOfDays, events: eventNodes };
-    };    
-    
+    };
+
     const resetForm = (): void => {
         setEventTitle('');
         setEventDesc('');
@@ -202,8 +223,8 @@ export const Calendar: React.FC = () => {
                             <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
                             <form className="max-w-sm mx-auto">
                                 <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                                <select 
-                                    id="underline_select" 
+                                <select
+                                    id="underline_select"
                                     className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
                                     value={selectedGroup}
                                     onChange={handleGroupChange}
@@ -369,6 +390,9 @@ export const Calendar: React.FC = () => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <DisplayInputs selectedEvent={selectedEvent} userData={user} />
                                 </div>
+                                <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
+                                    Supprimer l'événement
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -406,7 +430,7 @@ const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }
     }, [selectedEvent, userData]);
 
     return (
-        <div>
+        <>
             <div className='w-2/3'>
                 <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
                 <input
@@ -425,6 +449,6 @@ const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }
                     readOnly
                 />
             </div>
-        </div>
+        </>
     );
 };

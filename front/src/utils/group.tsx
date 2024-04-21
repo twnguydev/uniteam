@@ -50,7 +50,8 @@ export async function findGroupName(groupId: number, userData: any): Promise<str
     return group ? group.name : undefined;
 }
 
-export const getGroupBadgeClassNames: (groupText: any) => string = (groupText: any): string => {
-    const badge: Badge | undefined = groupBadges.find(badge => badge.text === groupText);
+export const getGroupBadgeClassNames = async (groupId: number, userData: any): Promise<string> => {
+    const convertedGroupName: string = (await findGroupName(groupId, userData)) ?? '';
+    const badge: Badge | undefined = groupBadges.find(badge => badge.text === convertedGroupName);
     return badge ? badge.classNames : '';
 };

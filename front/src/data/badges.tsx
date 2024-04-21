@@ -25,12 +25,12 @@ export const badges: Badge[] = [
 
 export const groupBadges: Badge[] = [
     {
-        text: "MSc",
+        text: "MSC",
         color: "blue",
         classNames: "bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
     },
     {
-        text: "Web@cademie",
+        text: "Web@academie",
         color: "red",
         classNames: "bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300"
     },
