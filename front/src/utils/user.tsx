@@ -1,17 +1,42 @@
-import React from 'react';
-import userData from '../data/users.json';
+import React, { useState, useEffect } from 'react';
+import type { User, UserProps } from '../types/user';
+import fetchApi from '../api/fetch';
 
-export function findAllUsers(): typeof userData.users {
-    return userData.users;
+export async function findAllUsers(userData: User): Promise<User[]> {
+    const usersData = await fetchApi<User[]>('GET', 'users/', undefined, {
+        headers: {
+            Authorization: `Bearer ${userData.token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (usersData.success && usersData.data) {
+        return usersData.data;
+    } else {
+        return [];
+    }
 }
 
-export function findUserLastname(userId: number): string | undefined {
-    const user = userData.users.find(user => user.id === userId);
+export async function findUserLastname(userId: number, userData: User): Promise<string | undefined> {
+    const users = await findAllUsers(userData);
+    const user = users.find((user: User) => user.id === userId);
     return user ? user.lastname : undefined;
 }
 
-export const User: React.FC<{ userId: number }> = ({ userId }) => {
-    const userLastname: string | undefined = findUserLastname(userId);
+const User: React.FC<UserProps> = ({ userId, userData }) => {
+    const [userLastname, setUserLastname] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        const fetchUserLastname = async (): Promise<void> => {
+            const lastname = await findUserLastname(userId, userData);
+            setUserLastname(lastname);
+        };
+
+        fetchUserLastname();
+    }, [userId, userData]);
 
     return <span>{userLastname}</span>;
-}
+};
+
+export default User;

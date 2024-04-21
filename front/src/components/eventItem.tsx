@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+
 import type { Event } from '../types/Event';
+
 import { Badge } from '../utils/badge';
 import { Room } from '../utils/room';
 import { Group } from '../utils/group';
-import { User } from '../utils/user';
 import { formatDate, formatDateHour } from '../utils/date';
 
-export const EventItem: React.FC<Event> = ({ statusId, hostId, dateStart, dateEnd, name, description, roomId, groupId }) => {
+export const EventItem: React.FC<Event> = ({ statusId, hostName, dateStart, dateEnd, name, description, roomId, groupId }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleAccordion = (e: React.MouseEvent) => {
@@ -58,7 +59,7 @@ export const EventItem: React.FC<Event> = ({ statusId, hostId, dateStart, dateEn
                             <tbody>
                                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <User userId={hostId} />
+                                        {hostName ? `${hostName}` : 'Inconnu'}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <Room roomId={roomId} />

@@ -1,16 +1,36 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 
 import type { Event } from '../types/Event';
 import { EventItem } from './eventItem';
-import eventData from '../data/events.json';
+
+import fetchApi from '../api/fetch';
 
 export const Schedule: React.FC = () => {
     const { user } = useAuth();
-    const events: Event[] = eventData.events.map(event => ({
-        ...event,
-        creatorId: user?.id || 0,
-    }));
+    const [events, setEvents] = React.useState<Event[]>([]);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await fetchApi<Event[]>('GET', 'events', undefined, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.success && response.data) {
+                    setEvents(response.data);
+                }
+            } catch (error) {
+                console.error('An error occurred while fetching events:', error);
+            }
+        };
+
+        fetchEvents();
+    });
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">

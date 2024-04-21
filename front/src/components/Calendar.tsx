@@ -5,12 +5,12 @@ import { useAuth } from '../auth/AuthContext';
 
 import { findRoomId, findRoomName } from '../utils/room';
 import { findGroupId, findGroupName } from '../utils/group';
-import { findUserLastname } from '../utils/user';
-import { findLastEventId } from '../utils/event';
+import { findLastEventId, findAllEvents } from '../utils/event';
 
 import type { Event } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
+import type { User } from '../types/user';
 
 import { getGroupBadgeClassNames } from '../utils/group';
 
@@ -64,8 +64,21 @@ export const Calendar: React.FC = () => {
         getNoOfDays();
     }, [month, year]);
 
+    useEffect(() => {
+        const fetchEvents = async (): Promise<void> => {
+            if (!user) {
+                return;
+            }
+            const fetchedEvents = await findAllEvents<User>(user);
+            setEvents(fetchedEvents || []);
+        };
+
+        fetchEvents();
+    }, []);
+
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
+        console.log(event);
         setOpenEventDetailsModal(true);
     };
 
@@ -77,7 +90,7 @@ export const Calendar: React.FC = () => {
             }
 
             const isAdmin = user?.admin ?? false;
-            const statusId = isAdmin ? getStatusId('En cours') || 4 : getStatusId('Validé') || 1;
+            const statusId = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
 
             const newEvent: Event = {
                 id: findLastEventId() + 1,
@@ -88,27 +101,25 @@ export const Calendar: React.FC = () => {
                 description: eventDesc,
                 groupId: findGroupId(eventGroup) || 1,
                 roomId: findRoomId(eventRoom) || 1,
-                hostId: user?.id || 0,
+                hostName: user ? `${user.lastname}` : null,
             };
 
-            const registerEvent = await fetchApi<Event>('POST', 'events', JSON.stringify(newEvent), {
+            const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                 },
-            });            
+            });
 
             if (registerEvent.success) {
                 alert("Événement ajouté avec succès");
-                setEvents([(registerEvent.data as Event), ...events]);
+                console.log(user);
+                setEvents([...events, (registerEvent.data as Event)]);
                 resetForm();
                 setOpenEventModal(false);
             } else {
                 alert("Erreur lors de l'ajout de l'événement");
-                console.log(user);
-                console.log(registerEvent);
-                console.log(newEvent);
             }
         } catch (error) {
             console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
@@ -265,7 +276,7 @@ export const Calendar: React.FC = () => {
                                         <input
                                             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
                                             type='text'
-                                            value={selectedEvent.hostId ? findUserLastname(selectedEvent.hostId) : 'Utilisateur inconnu'}
+                                            value={selectedEvent.hostName ? selectedEvent.hostName : 'Utilisateur inconnu'}
                                             readOnly
                                         />
                                     </div>

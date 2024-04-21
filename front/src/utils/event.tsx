@@ -1,8 +1,10 @@
 import eventData from '../data/events.json';
 
-export function findAllEvents(): typeof eventData.events {
-    return eventData.events;
-}
+import fetchApi from '../api/fetch';
+
+// export function findAllEvents(): typeof eventData.events {
+//     return eventData.events;
+// }
 
 export function findEventCreator() {
 
@@ -20,4 +22,18 @@ export function findEventName(eventId: number): string | undefined {
 
 export function findLastEventId(): number {
     return Math.max(...eventData.events.map(event => event.id));
+}
+
+export async function findAllEvents<User>(userData: User): Promise<any> {
+    const eventsData = await fetchApi('GET', 'events/', undefined, {
+        headers: {
+            Authorization: `Bearer ${(userData as any).token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (eventsData.success && eventsData.data) {
+        return eventsData.data;
+    }
 }

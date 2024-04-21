@@ -8,3 +8,8 @@ export interface User {
     groupId: number;
     groupName: string | null;
 }
+
+export interface UserProps {
+    userId: number;
+    userData: User;
+}

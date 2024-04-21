@@ -1,6 +1,6 @@
 export interface Event {
     id: number;
-    hostId: number;
+    hostName: string | null;
     name: string;
     dateStart: Date | string;
     dateEnd: Date | string;
