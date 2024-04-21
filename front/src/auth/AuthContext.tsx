@@ -18,6 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const login = (userData: any, accessToken: string): void => {
+        userData = JSON.parse(userData);
         if (userData && userData.id && userData.firstName && userData.lastName && userData.email && userData.is_admin && userData.groupId) {
             const newUser: User = {
                 id: userData.id,
@@ -31,6 +32,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             setUser(newUser);
             localStorage.setItem('user', JSON.stringify(newUser));
+        } else {
+            alert('Erreur lors de la connexion.');
         }
     };
 

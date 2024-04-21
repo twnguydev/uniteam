@@ -33,10 +33,11 @@ export const Login: React.FC = () => {
     
                 if (accessToken) {
                     try {
-                        const userResponse = await fetchApi<User>('GET', 'me', undefined, {
+                        const userResponse = await fetchApi<User>('GET', 'me/', undefined, {
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
                                 Accept: 'application/json',
+                                'Content-Type': 'application/json',
                             },
                         });
     

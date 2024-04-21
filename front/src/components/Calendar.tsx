@@ -14,6 +14,8 @@ import type { Group } from '../types/group';
 
 import { getGroupBadgeClassNames } from '../utils/group';
 
+import { getStatusId } from '../utils/status';
+
 import fetchApi from '../api/fetch';
 
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -68,64 +70,49 @@ export const Calendar: React.FC = () => {
     };
 
     const addEvent = async (): Promise<void> => {
-        if (user?.admin) {
-            if (eventTitle && eventDate && startTime && endTime && startTime < endTime) {
-                const newEvent: Event = {
-                    id: findLastEventId() + 1,
-                    date_start: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
-                    date_end: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
-                    statusId: 1,
-                    name: eventTitle,
-                    description: eventDesc,
-                    groupId: findGroupId(eventGroup) || 1,
-                    roomId: findRoomId(eventRoom) || 1,
-                    creatorId: user?.id || 0,
-                };
-
-                const registerEvent = await fetchApi('POST', 'events', JSON.stringify(newEvent), {
-                    headers: {
-                        'Authorization': `Bearer ${user?.token}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (registerEvent.success) {
-                    alert("Événement ajouté avec succès");
-                    setEvents([(registerEvent.data as Event), ...events]);
-                    resetForm();
-                    setOpenEventModal(false);
-                } else {
-                    alert("Erreur lors de l'ajout de l'événement");
-                }
-            } else {
+        try {
+            if (!eventTitle || !eventDate || !startTime || !endTime || startTime >= endTime) {
                 alert("Certains champs sont invalides");
+                return;
             }
-        } else {
-            if (eventTitle && eventDate && startTime && endTime && startTime < endTime) {
-                const newEvent: Event = {
-                    id: findLastEventId() + 1,
-                    date_start: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
-                    date_end: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
-                    statusId: 1,
-                    name: eventTitle,
-                    description: eventDesc,
-                    groupId: findGroupId(eventGroup) || 1,
-                    roomId: findRoomId(eventRoom) || 1,
-                    creatorId: user?.id || 0,
-                };
 
-                const registerEvent = await fetchApi('POST', 'events', newEvent);
+            const isAdmin = user?.admin ?? false;
+            const statusId = isAdmin ? getStatusId('En cours') || 4 : getStatusId('Validé') || 1;
 
-                if (registerEvent.success) {
-                    alert("Événement ajouté avec succès");
-                    setEvents([(registerEvent.data as Event), ...events]);
-                    resetForm();
-                    setOpenEventModal(false);
-                } else {
-                    alert("Erreur lors de l'ajout de l'événement");
-                }
+            const newEvent: Event = {
+                id: findLastEventId() + 1,
+                dateStart: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
+                dateEnd: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
+                statusId: statusId,
+                name: eventTitle,
+                description: eventDesc,
+                groupId: findGroupId(eventGroup) || 1,
+                roomId: findRoomId(eventRoom) || 1,
+                hostId: user?.id || 0,
+            };
+
+            const registerEvent = await fetchApi<Event>('POST', 'events', JSON.stringify(newEvent), {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });            
+
+            if (registerEvent.success) {
+                alert("Événement ajouté avec succès");
+                setEvents([(registerEvent.data as Event), ...events]);
+                resetForm();
+                setOpenEventModal(false);
+            } else {
+                alert("Erreur lors de l'ajout de l'événement");
+                console.log(user);
+                console.log(registerEvent);
+                console.log(newEvent);
             }
+        } catch (error) {
+            console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
+            alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
         }
     };
 
@@ -184,7 +171,7 @@ export const Calendar: React.FC = () => {
                                         {date}
                                     </div>
                                     <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                                        {events.filter(e => new Date(e.date_start).toDateString() === new Date(year, month, date).toDateString()).map((event, idx: number) => (
+                                        {events.filter(e => new Date(e.dateStart).toDateString() === new Date(year, month, date).toDateString()).map((event, idx: number) => (
                                             <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${getGroupBadgeClassNames(findGroupName(event.groupId))}`}>
                                                 <p className="text-sm truncate leading-tight">{event.name}</p>
                                             </div>
@@ -271,21 +258,21 @@ export const Calendar: React.FC = () => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className='w-2/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
-                                        <input name="eventDesc" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.name} readOnly/>
+                                        <input name="eventDesc" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.name} readOnly />
                                     </div>
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Lead</label>
                                         <input
                                             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
                                             type='text'
-                                            value={selectedEvent.creatorId ? findUserLastname(selectedEvent.creatorId) : 'Utilisateur inconnu'}
+                                            value={selectedEvent.hostId ? findUserLastname(selectedEvent.hostId) : 'Utilisateur inconnu'}
                                             readOnly
                                         />
                                     </div>
                                 </div>
                                 <div className="mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
-                                    <textarea name="eventDesc" rows={4} className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.description} readOnly/>
+                                    <textarea name="eventDesc" rows={4} className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.description} readOnly />
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className="w-2/3">
@@ -293,27 +280,27 @@ export const Calendar: React.FC = () => {
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="text"
-                                            value={selectedEvent ? `${formatDate(new Date(selectedEvent.date_start))}` : ''}
+                                            value={selectedEvent ? `${formatDate(new Date(selectedEvent.dateStart))}` : ''}
                                             readOnly
                                         />
                                     </div>
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
-                                            <input
-                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                                type="text"
-                                                value={selectedEvent.date_start ? format(selectedEvent.date_start, "HH:mm") : ''}
-                                                readOnly
-                                            />
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="text"
+                                            value={selectedEvent.dateStart ? format(selectedEvent.dateStart, "HH:mm") : ''}
+                                            readOnly
+                                        />
                                     </div>
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
-                                            <input
-                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                                type="text"
-                                                value={selectedEvent.date_end ? format(selectedEvent.date_end, "HH:mm") : ''}
-                                                readOnly
-                                            />
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="text"
+                                            value={selectedEvent.dateEnd ? format(selectedEvent.dateEnd, "HH:mm") : ''}
+                                            readOnly
+                                        />
                                     </div>
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">

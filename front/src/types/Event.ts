@@ -1,9 +1,9 @@
 export interface Event {
     id: number;
-    creatorId: number;
+    hostId: number;
     name: string;
-    date_start: Date | string;
-    date_end: Date | string;
+    dateStart: Date | string;
+    dateEnd: Date | string;
     roomId: number;
     groupId: number;
     description: string;

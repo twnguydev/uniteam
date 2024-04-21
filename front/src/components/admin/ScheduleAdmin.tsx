@@ -27,7 +27,7 @@ export const ScheduleAdmin: React.FC = () => {
     }));
 
     useEffect(() => {
-        setUsers(findAllUsers());
+        setUsers(findAllUsers() as unknown as User[]);
         setEvents(findAllEvents());
     }, []);
 
@@ -181,16 +181,16 @@ export const ScheduleAdmin: React.FC = () => {
                                                         {event.name}
                                                     </td>
                                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {formatDate(event.date_start.toString())}
+                                                        {formatDate(event.dateStart.toString())}
                                                     </td>
                                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {formatDate(event.date_end.toString())}
+                                                        {formatDate(event.dateEnd.toString())}
                                                     </td>
                                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {findRoomName(event.roomId) || "Indéfinie"}
                                                     </td>
                                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                                        {findUserLastname(event.creatorId)}
+                                                        {findUserLastname(event.hostId)}
                                                     </td>
                                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                                         {findGroupName(event.groupId) || 'Non spécifié'}

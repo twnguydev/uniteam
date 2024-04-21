@@ -11,6 +11,7 @@ import { Navbar } from '../components/Navbar';
 
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import ProtectedUserRoute from "./ProtectedUserRoute";
+import HiddenUserRoute from "./HiddenUserRoute";
 
 export const PageRouter = () => {
     return (
@@ -20,8 +21,11 @@ export const PageRouter = () => {
                     <Navbar />
                     <Routes>
                         <Route path="/" Component={Home as React.ComponentType} />
-                        <Route path="/auth" Component={Login as React.ComponentType} />
                         <Route path="*" Component={Error as React.ComponentType} />
+
+                        <Route element={<HiddenUserRoute />}>
+                            <Route path="/auth" Component={Login as React.ComponentType} />
+                        </Route>
 
                         <Route element={<ProtectedUserRoute />}>
                             <Route path="/calendar" Component={Calendar as React.ComponentType} />
