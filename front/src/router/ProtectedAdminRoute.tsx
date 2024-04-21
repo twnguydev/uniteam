@@ -6,12 +6,12 @@ const ProtectedAdminRoute: React.FC<any> = (props): ReactElement => {
     const navigate: NavigateFunction = useNavigate();
 
     useEffect(() => {
-        if (!user || !user.admin) {
+        if (!user || !user.is_admin) {
             navigate('/');
         }
     }, [user])
 
-    if (user && user.admin) {
+    if (user && user.is_admin) {
         return <Outlet {...props} />;
     } else {
         return <Navigate to="/" />;

@@ -1,14 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+import { useAuth } from '../auth/AuthContext';
 
 import type { Event } from '../types/Event';
+import fetchApi from '../api/fetch';
 
-import { Badge } from '../utils/badge';
-import { Room } from '../utils/room';
-import { Group } from '../utils/group';
 import { formatDate, formatDateHour } from '../utils/date';
 
-export const EventItem: React.FC<Event> = ({ statusId, hostName, dateStart, dateEnd, name, description, roomId, groupId }) => {
+import { Badge } from '../utils/badge';
+import { Group } from '../utils/group';
+import { Room } from '../utils/room';
+
+import statusData from '../data/status.json';
+
+export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
+    const { user } = useAuth();
+    const [selectedStatusId, setSelectedStatusId] = useState(statusId);
     const [isOpen, setIsOpen] = useState(false);
+
+    useEffect(() => {
+        const updateEventStatus = async () => {
+            try {
+                const response = await fetchApi('PUT', `events/${id}`, {
+                    statusId: selectedStatusId,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+    
+                if (response.success) {
+                    console.log('Statut de l\'événement mis à jour avec succès !');
+                } else {
+                    console.error('Échec de la mise à jour du statut de l\'événement.');
+                }
+            } catch (error) {
+                console.error('Une erreur est survenue lors de la mise à jour du statut de l\'événement :', error);
+            }
+        };
+    
+        updateEventStatus();
+    }, [selectedStatusId]);
 
     const toggleAccordion = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -20,9 +54,8 @@ export const EventItem: React.FC<Event> = ({ statusId, hostName, dateStart, date
 
     return (
         <div className="relative">
-            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center justify-between">
                 <div className="flex items-center cursor-pointer" onClick={toggleAccordion}>
-                    <Badge statusId={statusId} />
                     <p className="w-55 text-lg font-normal text-gray-500 dark:text-gray-400 text-left">
                         {formattedStartDate} - {formattedEndDate}
                     </p>
@@ -31,6 +64,19 @@ export const EventItem: React.FC<Event> = ({ statusId, hostName, dateStart, date
                             {name}
                         </a>
                     </h3>
+                </div>
+                <div>
+                    <select
+                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                        value={selectedStatusId}
+                        onChange={(e) => setSelectedStatusId(parseInt(e.target.value))}
+                    >
+                        {statusData.status.map(({ id, name }) => (
+                            <option key={id} value={id}>
+                                {name}
+                            </option>
+                        ))}
+                    </select>
                 </div>
             </div>
             <div style={{ height: isOpen ? 'auto' : '0', overflow: 'hidden', transition: 'height 0.3s ease-in-out' }}>
@@ -71,7 +117,7 @@ export const EventItem: React.FC<Event> = ({ statusId, hostName, dateStart, date
                                         <Group groupId={groupId} />
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Badge statusId={statusId} />
+                                        <Badge Id={statusId} Name={'status'} />
                                     </td>
                                 </tr>
                             </tbody>

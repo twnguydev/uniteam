@@ -19,13 +19,13 @@ export const Navbar: React.FC = () => {
                 <Link to={`/member/${user.id}/schedule`} className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Mon agenda</Link>
               </>
             )}
-            {user?.admin && (
+            {user?.is_admin && (
               <Link to="/admin/schedule" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Administration</Link>
             )}
             {user && (
               <>
                 <Link to="/" onClick={logout} className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Déconnexion</Link>
-                <div className="text-white hover:text-gray-300 px-3 py-2 ml-10 rounded-md text-sm font-medium">Bienvenue, {user.firstname} {user.lastname} !</div>
+                <div className="text-white hover:text-gray-300 px-3 py-2 ml-10 rounded-md text-sm font-medium">Bienvenue, {user.firstName} {user.lastName} !</div>
               </>
             )}
             {!user && (

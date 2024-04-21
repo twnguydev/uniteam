@@ -89,7 +89,7 @@ export const Calendar: React.FC = () => {
                 return;
             }
 
-            const isAdmin = user?.admin ?? false;
+            const isAdmin = user?.is_admin ?? false;
             const statusId = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
 
             const newEvent: Event = {
@@ -101,7 +101,7 @@ export const Calendar: React.FC = () => {
                 description: eventDesc,
                 groupId: findGroupId(eventGroup) || 1,
                 roomId: findRoomId(eventRoom) || 1,
-                hostName: user ? `${user.lastname}` : null,
+                hostName: user ? `${user.lastName}` : null,
             };
 
             const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
@@ -246,7 +246,7 @@ export const Calendar: React.FC = () => {
                                 </div>
                                 <div className="mt-8 text-right">
                                     <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2" onClick={() => setOpenEventModal(false)}>Annuler</button>
-                                    {user?.admin ? (
+                                    {user?.is_admin ? (
                                         <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm" onClick={addEvent}>Enregistrer</button>
                                     ) : (
                                         <button type="button" className='bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm' onClick={addEvent}>Faire une demande</button>

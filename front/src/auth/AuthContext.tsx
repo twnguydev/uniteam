@@ -9,11 +9,19 @@ const AuthContext: Context<AuthContextType | null> = createContext<AuthContextTy
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
     const [user, setUser] = useState<User | null>(null);
+    const [token, setToken] = useState<string | null>(null);
 
     useEffect(() => {
         const storedUser: string | null = localStorage.getItem('user');
         if (storedUser) {
             setUser(JSON.parse(storedUser));
+        }
+
+        const storedToken: string | null = localStorage.getItem('token');
+        if (storedToken) {
+            setToken(storedToken);
+        } else {
+            setUser(null);
         }
     }, []);
 
@@ -22,15 +30,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (userData && userData.id && userData.firstName && userData.lastName && userData.email && userData.is_admin && userData.groupId) {
             const newUser: User = {
                 id: userData.id,
-                firstname: userData.firstName,
-                lastname: userData.lastName,
+                firstName: userData.firstName,
+                lastName: userData.lastName,
                 email: userData.email,
                 token: accessToken,
-                admin: userData.is_admin,
+                is_admin: userData.is_admin,
                 groupId: userData.groupId,
                 groupName: getUserGroupName(userData.groupId),
             };
             setUser(newUser);
+            localStorage.setItem('token', accessToken);
             localStorage.setItem('user', JSON.stringify(newUser));
         } else {
             alert('Erreur lors de la connexion.');
