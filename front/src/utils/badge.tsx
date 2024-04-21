@@ -8,17 +8,17 @@ import type { Status } from '../types/status';
 
 export const Badge: React.FC<{ Id: number, Name: string, UserData: any }> = ({ Id, Name, UserData }) => {
     const [groups, setGroups] = useState<Group[]>([]);
-    const [statuses, setStatuses] = useState<Status[]>([]);
+    const [status, setStatus] = useState<Status[]>([]);
 
     useEffect(() => {
-        const fetchGroups = async () => {
+        const fetchGroups = async (): Promise<void> => {
             const fetchedGroups = await findAllGroups(UserData);
             setGroups(fetchedGroups);
         };
 
-        const fetchStatuses = async () => {
+        const fetchStatuses = async (): Promise<void> => {
             const fetchedStatus = await findAllStatus(UserData);
-            setStatuses(fetchedStatus);
+            setStatus(fetchedStatus);
         };
 
         fetchGroups();
@@ -26,7 +26,7 @@ export const Badge: React.FC<{ Id: number, Name: string, UserData: any }> = ({ I
     }, []);
 
     if (Name === 'status') {
-        const statusName = statuses.find((status) => status.id === Id)?.name;
+        const statusName = status.find((status) => status.id === Id)?.name;
         const badge = badges.find(badge => badge.text === statusName);
         if (!badge) {
             return null;

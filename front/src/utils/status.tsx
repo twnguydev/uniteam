@@ -4,7 +4,7 @@ import { useAuth } from '../auth/AuthContext';
 import fetchApi from '../api/fetch';
 
 export async function findAllStatus<User>(userData: User): Promise<any> {
-    const statusData = await fetchApi('GET', 'rooms/', undefined, {
+    const statusData = await fetchApi('GET', 'status/', undefined, {
         headers: {
             Authorization: `Bearer ${(userData as any).token}`,
             Accept: 'application/json',
