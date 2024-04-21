@@ -55,3 +55,12 @@ def get_events(db: Session, skip: int = 0, limit: int = 100) -> List[models.Even
 
 def get_event(db: Session, event_id: int) -> models.Events:
     return db.query(models.Events).filter(models.Events.id == event_id).first()
+
+def get_groups(db: Session, skip: int = 0, limit: int = 100) -> List[models.Groups]:
+    return db.query(models.Groups).offset(skip).limit(limit).all()
+
+def get_status(db: Session, skip: int = 0, limit: int = 100) -> List[models.Status]:
+    return db.query(models.Status).offset(skip).limit(limit).all()
+
+def get_rooms(db: Session, skip: int = 0, limit: int = 100) -> List[models.Rooms]:
+    return db.query(models.Rooms).offset(skip).limit(limit).all()
