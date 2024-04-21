@@ -26,7 +26,7 @@ class Events(Base):
     groupId = Column(Integer, ForeignKey("groups.id"))
     description = Column(String)
     statusId = Column(Integer, ForeignKey("status.id"), default=4)
-    hostId = Column(Integer, ForeignKey("users.id"))
+    hostName = Column(String)
 
 
 class Groups(Base):

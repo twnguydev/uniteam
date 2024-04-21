@@ -25,7 +25,7 @@ class Event(BaseModel):
     groupId: int
     description: Optional[str] = None
     statusId: int
-    hostId: int
+    hostName: str
 
     class Config:
         orm_mode = True
