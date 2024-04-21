@@ -1,27 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 
 import type { Event } from '../../types/Event';
-import type { User } from '../../types/user';
-
-import { findAllEvents } from '../../utils/event';
 import { EventItem } from '../eventItem';
+import eventData from '../../data/events.json';
+
+import { ListUsers } from './ListUsersAdmin';
+import { ListEvents } from './ListEventsAdmin';
 
 export const ScheduleAdmin: React.FC = () => {
     const { user } = useAuth();
-    const [events, setEvents] = React.useState<Event[]>([]);
+    
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+    const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+    const events: Event[] = eventData.events.map(event => ({
+        ...event,
+        creatorId: user?.id || 0,
+    }));
 
-    useEffect(() => {
-        const fetchEvents = async (): Promise<void> => {
-            if (!user) {
-                return;
-            }
-            const fetchedEvents = await findAllEvents<User>(user);
-            setEvents(fetchedEvents || []);
-        };
+    const toggleUserModal = () => {
+        setIsUserModalOpen(true);
+        setIsEventModalOpen(false);
+    };
 
-        fetchEvents();
-    }, []);
+    const toggleEventModal = () => {
+        setIsEventModalOpen(true);
+        setIsUserModalOpen(false);
+    };
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
@@ -32,6 +37,9 @@ export const ScheduleAdmin: React.FC = () => {
                             <div className="flex flex-col items-center pb-10 mt-10">
                                 <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">{user.firstname} {user.lastname}</h5>
                                 <span className="text-sm text-gray-500 dark:text-gray-400">Groupe {user.groupName}</span>
+                                {user.admin && (
+                                    <span className="text-sm mt-8 text-gray-500 dark:text-gray-400">Administrateur</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -56,6 +64,14 @@ export const ScheduleAdmin: React.FC = () => {
                             <EventItem key={event.id} {...event} />
                         ))}
                     </div>
+                    <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 mt-4" onClick={toggleEventModal}>
+                        Afficher les événements
+                    </button>
+                    <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 mt-4 ml-4" onClick={toggleUserModal}>
+                        Afficher les utilisateurs
+                    </button>
+                    {isUserModalOpen && <ListUsers />}
+                    {isEventModalOpen && <ListEvents />}
                 </div>
             </div>
         </section>
