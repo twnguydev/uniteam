@@ -64,18 +64,25 @@ export const Calendar: React.FC = () => {
             if (!user) {
                 return;
             }
-            const fetchedEvents = await findAllEvents<User>(user);
-            setEvents(fetchedEvents || []);
 
-            const fetchedGroups = await findAllGroups<User>(user);
+            const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
+            const allEvents: any = await findAllEvents<User>(user);
+            let filteredEvents: any = allEvents;
+    
+            if (selectedGroup) {
+                filteredEvents = allEvents.filter((event: any) => event.groupId === selectedGroupId);
+            }
+            setEvents(filteredEvents || []);
+    
+            const fetchedGroups: any = await findAllGroups<User>(user);
             setLoadedGroups(fetchedGroups || []);
-
-            const fetchedRooms = await findAllRooms<User>(user);
+    
+            const fetchedRooms: any = await findAllRooms<User>(user);
             setLoadedRooms(fetchedRooms || []);
         };
-
+    
         fetchData();
-    }, [user]);
+    }, [user, selectedGroup]);
 
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
@@ -174,7 +181,7 @@ export const Calendar: React.FC = () => {
             const renderedEvents = filteredEvents.map((event: any, idx: number) => {
                 const groupBadgeClassNames = event.groupId !== undefined && groupBadges[event.groupId - 1] ? groupBadges[event.groupId - 1].classNames : '';
                 return (
-                    <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${groupBadgeClassNames}`}>
+                    <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 cursor-pointer rounded-lg mt-1 overflow-hidden border ${groupBadgeClassNames}`}>
                         <p className="text-sm truncate leading-tight">{event.name}</p>
                     </div>
                 );
@@ -214,36 +221,40 @@ export const Calendar: React.FC = () => {
             <div className="container-fluid mx-auto px-4 py-2 md:py-24">
                 <div className="bg-white rounded-lg shadow overflow-hidden">
                     <div className="flex items-center justify-between py-2 px-6">
-                        <div>
-                            <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
-                            <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
+                        <div className="flex justify-between items-center gap-12">
+                            <div>
+                                <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
+                                <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4">
                             <form className="max-w-sm mx-auto">
                                 <label htmlFor="underline_select" className="sr-only">Groupe</label>
                                 <select
                                     id="underline_select"
-                                    className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-2 py-1.5 pr-4 rounded-lg leading-tight text-gray-200"
                                     value={selectedGroup}
                                     onChange={handleGroupChange}
                                 >
-                                    <option value="">Sans filtres</option>
+                                    <option value="">Sans filtre</option>
                                     {loadedGroups.map(group => (
                                         <option key={group.id} value={group.name}>{group.name}</option>
                                     ))}
                                 </select>
                             </form>
-                        </div>
-                        <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
-                            <button onClick={(): void => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
-                                </svg>
-                            </button>
-                            <div className="border-r inline-flex h-6"></div>
-                            <button onClick={(): void => setMonth(month + 1)} disabled={month === 11} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                                </svg>
-                            </button>
+                            <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
+                                <button onClick={(): void => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+                                    </svg>
+                                </button>
+                                <div className="border-r inline-flex h-6"></div>
+                                <button onClick={(): void => setMonth(month + 1)} disabled={month === 11} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
+                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="-mx-1 -mb-1">
