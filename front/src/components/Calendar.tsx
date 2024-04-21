@@ -7,7 +7,7 @@ import { findRoomId, findRoomName } from '../utils/room';
 import { findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
 
-import type { Event } from '../types/Event';
+import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 import type { User } from '../types/user';
@@ -176,15 +176,8 @@ export const Calendar: React.FC = () => {
         });
 
         return { noOfDays, events: eventNodes };
-    };
-
-    const displayLabels: () => Promise<{ selectedEventGroupName: string, selectedEventRoomName: string }> = async () => {
-        const selectedEventGroupName = selectedEvent?.groupId ? await findGroupName(selectedEvent.groupId, user) || 'Groupe inconnu' : '';
-        const selectedEventRoomName = selectedEvent ? await findRoomName(selectedEvent.roomId, user) || 'Salle inconnue' : '';
-
-        return { selectedEventGroupName, selectedEventRoomName };
-    };
-
+    };    
+    
     const resetForm = (): void => {
         setEventTitle('');
         setEventDesc('');
@@ -209,8 +202,8 @@ export const Calendar: React.FC = () => {
                             <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
                             <form className="max-w-sm mx-auto">
                                 <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                                <select
-                                    id="underline_select"
+                                <select 
+                                    id="underline_select" 
                                     className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
                                     value={selectedGroup}
                                     onChange={handleGroupChange}
@@ -374,29 +367,63 @@ export const Calendar: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">
-                                    <div className='w-2/3'>
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
-                                        <input
-                                            className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
-                                            type='text'
-                                            value={(await displayLabels()).selectedEventGroupName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className='w-1/3'>
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
-                                        <input
-                                            className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
-                                            type='text'
-                                            value={(await displayLabels()).selectedEventRoomName}
-                                            readOnly
-                                        />
-                                    </div>
+                                    <DisplayInputs selectedEvent={selectedEvent} userData={user} />
                                 </div>
                             </div>
                         </div>
                     </div>
                 )}
+            </div>
+        </div>
+    );
+};
+
+const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }) => {
+    const [groupName, setGroupName] = useState<string>('');
+    const [roomName, setRoomName] = useState<string>('');
+
+    useEffect(() => {
+        const fetchGroupName = async () => {
+            try {
+                const groupName = await findGroupName(selectedEvent.groupId, userData) || 'Groupe inconnu';
+                setGroupName(groupName);
+            } catch (error) {
+                console.error('Erreur lors de la récupération du nom du groupe :', error);
+            }
+        };
+
+        const fetchRoomName = async () => {
+            try {
+                const roomName = await findRoomName(selectedEvent.roomId, userData) || 'Salle inconnue';
+                setRoomName(roomName);
+            } catch (error) {
+                console.error('Erreur lors de la récupération du nom de la salle :', error);
+            }
+        };
+
+        fetchGroupName();
+        fetchRoomName();
+    }, [selectedEvent, userData]);
+
+    return (
+        <div>
+            <div className='w-2/3'>
+                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
+                <input
+                    className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
+                    type='text'
+                    value={groupName}
+                    readOnly
+                />
+            </div>
+            <div className='w-1/3'>
+                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
+                <input
+                    className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
+                    type='text'
+                    value={roomName}
+                    readOnly
+                />
             </div>
         </div>
     );

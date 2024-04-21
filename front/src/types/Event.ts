@@ -1,3 +1,5 @@
+import type { User } from './user';
+
 export interface Event {
     id: number;
     hostName: string | null;
@@ -8,4 +10,9 @@ export interface Event {
     groupId: number;
     description: string;
     statusId: number;
+}
+
+export interface DisplayInputsProps {
+    selectedEvent: Event;
+    userData: User | null;
 }
