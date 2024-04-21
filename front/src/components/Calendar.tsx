@@ -36,6 +36,7 @@ const rooms: Room[] = [
 
 export const Calendar: React.FC = () => {
     const { user } = useAuth();
+    const [selectedGroup, setSelectedGroup] = useState<string>('');
     const [month, setMonth] = useState<number>(new Date().getMonth());
     const [year] = useState<number>(new Date().getFullYear());
     const [noOfDays, setNoOfDays] = useState<number[]>([]);
@@ -52,6 +53,10 @@ export const Calendar: React.FC = () => {
     const [eventRoom, setEventRoom] = useState<string>('1');
     const [startTime, setStartTime] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
+
+    const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedGroup(event.target.value);
+    };
 
     useEffect((): void => {
         const getNoOfDays = (): void => {
@@ -93,6 +98,7 @@ export const Calendar: React.FC = () => {
             const statusId: number = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
 
             const lastEventId: number = await findLastEventId(user);
+
             const newEvent: Event = {
                 id: lastEventId + 1,
                 dateStart: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
@@ -133,6 +139,7 @@ export const Calendar: React.FC = () => {
             alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
         }
     };
+    
 
     const resetForm = (): void => {
         setEventTitle('');
@@ -156,6 +163,20 @@ export const Calendar: React.FC = () => {
                         <div>
                             <span className="text-lg font-bold text-gray-800">{MONTH_NAMES[month]}</span>
                             <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
+                            <form className="max-w-sm mx-auto">
+                                <label htmlFor="underline_select" className="sr-only">Groupe</label>
+                                <select 
+                                    id="underline_select" 
+                                    className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+                                    value={selectedGroup}
+                                    onChange={handleGroupChange}
+                                >
+                                    <option value="">Sans filtres</option>
+                                    {groups.map(group => (
+                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                    ))}
+                                </select>
+                            </form>
                         </div>
                         <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
                             <button onClick={(): void => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
