@@ -1,5 +1,13 @@
 import eventData from '../data/events.json';
 
+export function findAllEvents(): typeof eventData.events {
+    return eventData.events;
+}
+
+export function findEventCreator() {
+
+}
+
 export function findEventId(eventName: string): number | undefined {
     const event = eventData.events.find(event => event.name === eventName);
     return event ? event.id : undefined;

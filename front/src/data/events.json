@@ -2,13 +2,14 @@
     "events": [
         {
             "id": 1,
-            "name": "Event 1",
+            "name": "Hackaton",
             "date_start": "2017-01-01 12:00:00",
             "date_end": "2017-01-01 14:00:00",
             "roomId": 1,
             "groupId": 1,
             "description": "Description 1",
-            "statusId": 1
+            "statusId": 1,
+            "creatorId": 1
         },
         {
             "id": 2,
@@ -18,7 +19,8 @@
             "roomId": 2,
             "groupId": 2,
             "description": "Description 2",
-            "statusId": 2
+            "statusId": 2,
+            "creatorId": 1
         },
         {
             "id": 3,
@@ -28,7 +30,8 @@
             "roomId": 3,
             "groupId": 3,
             "description": "Description 3",
-            "statusId": 3
+            "statusId": 3,
+            "creatorId": 1
         },
         {
             "id": 4,
@@ -38,7 +41,8 @@
             "roomId": 4,
             "groupId": 4,
             "description": "Description 4",
-            "statusId": 4
+            "statusId": 4,
+            "creatorId": 1
         }
     ]
 }
