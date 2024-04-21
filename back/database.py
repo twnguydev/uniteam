@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -7,7 +7,7 @@ import os
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL: str | None = os.getenv("SQLALCHEMY_DATABASE_URL")
+SQLALCHEMY_DATABASE_URL: Optional[str] = os.getenv("SQLALCHEMY_DATABASE_URL")
 
 engine: Engine = create_engine(
     SQLALCHEMY_DATABASE_URL

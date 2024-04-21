@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Generator, List
+from typing import Any, Generator, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-origins = [
+origins: list[str] = [
     "http://localhost:5030",
     "http://localhost:3000",
 ]
@@ -42,13 +42,13 @@ def get_db() -> Generator[Session, Any, None]:
     finally:
         db.close()
 
-def authenticate_user(email: str, password: str, db) -> models.User | None:    
+def authenticate_user(email: str, password: str, db) -> Optional[models.User]:    
     if user := crud.get_user_by_email(db, email):
         return user if verify_password(password, user.password) else None
     else:
         return None
     
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode: dict = data.copy()
     if expires_delta:
         expire: datetime = datetime.now(timezone.utc) + expires_delta
@@ -71,7 +71,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         token_data = schemas.TokenData(email=email)
     except JWTError as e:
         raise credentials_exception from e
-    user: models.User | None = crud.get_user_by_email(db, email=token_data.email)
+    user: Optional[models.User] = crud.get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
@@ -80,7 +80,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 async def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ) -> schemas.Token:
-    user: models.User | None = authenticate_user(form_data.username, form_data.password, db)
+    user: Optional[models.User] = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -99,16 +99,16 @@ async def read_users_me(
 ) -> schemas.User:
     return current_user
 
-@app.get("/groups/", response_model=List[schemas.Group])
-async def read_groups(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Groups]:
+@app.get("/groups/", response_model=list[schemas.Group])
+async def read_groups(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[models.Groups]:
     return crud.get_groups(db, skip=skip, limit=limit)
 
-@app.get("/status/", response_model=List[schemas.Status])
-async def read_status(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Status]:
+@app.get("/status/", response_model=list[schemas.Status])
+async def read_status(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[models.Status]:
     return crud.get_status(db, skip=skip, limit=limit)
 
-@app.get("/rooms/", response_model=List[schemas.Room])
-async def read_rooms(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Rooms]:
+@app.get("/rooms/", response_model=list[schemas.Room])
+async def read_rooms(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[models.Rooms]:
     return crud.get_rooms(db, skip=skip, limit=limit)
 
 @app.post("/users/", response_model=schemas.User)
@@ -117,13 +117,13 @@ async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> mode
         raise HTTPException(status_code=400, detail="email already registered")
     return crud.create_user(db=db, user=user)
 
-@app.get("/users/", response_model=List[schemas.User])
-async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.User]:
+@app.get("/users/", response_model=list[schemas.User])
+async def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[models.User]:
     return crud.get_users(db, skip=skip, limit=limit)
 
 @app.get("/users/{user_id}", response_model=schemas.User)
 async def read_user(user_id: int, db: Session = Depends(get_db)) -> models.User:
-    db_user: models.User | None = crud.get_user(db, user_id=user_id)
+    db_user: Optional[models.User] = crud.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
@@ -141,8 +141,8 @@ async def delete_event(event_id: int, db: Session = Depends(get_db)) -> dict[str
 async def update_event(event_id: int, event: schemas.Event, db: Session = Depends(get_db)) -> models.Events:
     return crud.update_event(db=db, event_id=event_id, event=event)
 
-@app.get("/events/", response_model=List[schemas.Event])
-async def read_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> List[models.Events]:
+@app.get("/events/", response_model=list[schemas.Event])
+async def read_events(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)) -> list[models.Events]:
     return crud.get_events(db, skip=skip, limit=limit)
 
 @app.get("/events/{event_id}", response_model=schemas.Event)
