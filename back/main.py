@@ -11,6 +11,7 @@ from database import SessionLocal, engine
 from utils import verify_password
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Header
 
 app = FastAPI()
 
@@ -120,8 +121,21 @@ async def read_user(user_id: int, db: Session = Depends(get_db), _: schemas.User
     return db_user
 
 @app.post("/events/", response_model=schemas.Event)
-async def create_event(event: schemas.Event, db: Session = Depends(get_db), current_user: schemas.User = Depends(get_current_user)) -> models.Events:
-    return crud.create_event(db=db, event=event, current_user=current_user)
+async def create_event(
+    event: schemas.Event,
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(get_current_user),
+    origin: str = Header(None)
+) -> models.Events:
+    if origin not in origins:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Origin not allowed"
+        )
+    
+    response = crud.create_event(db=db, event=event, current_user=current_user)
+    response.headers["Access-Control-Allow-Origin"] = origin
+    return response
 
 @app.delete("/events/{event_id}")
 async def delete_event(event_id: int, db: Session = Depends(get_db), _: schemas.User = Depends(get_current_user)) -> dict[str, str]:
