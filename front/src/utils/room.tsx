@@ -1,25 +1,49 @@
-import React from 'react';
-import roomData from '../data/rooms.json';
+import React, { useEffect, useState } from 'react';
 
-// import fetchApi from '../api/fetch';
+import { useAuth } from '../auth/AuthContext';
+import fetchApi from '../api/fetch';
 
-// export const roomData: () = async (): Promise<unknown> => {
-//     const roomData = await fetchApi('GET', 'rooms');
-//     return roomData.data;
-// }
+export async function findAllRooms<User>(userData: User): Promise<any> {
+    const roomsData = await fetchApi('GET', 'rooms/', undefined, {
+        headers: {
+            Authorization: `Bearer ${(userData as any).token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (roomsData.success && roomsData.data) {
+        return roomsData.data;
+    }
+}
 
 export const Room: React.FC<{ roomId: number }> = ({ roomId }) => {
-    const roomName = roomData.rooms.find((room) => room.id === roomId)?.name;
+    const [roomName, setRoomName] = useState<string>('');
+    const { user } = useAuth();
+
+    useEffect(() => {
+        const fetchRoomName = async () => {
+            const rooms = await findAllRooms(user);
+            const room = rooms.find((room: any) => room.id === roomId);
+            if (room) {
+                setRoomName(room.name);
+            }
+        };
+
+        fetchRoomName();
+    }, [roomId, user]);
 
     return <span>{roomName}</span>;
 }
 
-export function findRoomId(roomName: string): number | undefined {
-    const room = roomData.rooms.find(room => room.name === roomName);
+export async function findRoomId(roomName: string, userData: any): Promise<number | undefined> {
+    const rooms = await findAllRooms(userData);
+    const room = rooms.find((room: any) => room.name === roomName);
     return room ? room.id : undefined;
 }
 
-export function findRoomName(roomId: number): string | undefined {
-    const room = roomData.rooms.find(room => room.id === roomId);
+export async function findRoomName(roomId: number, userData: any): Promise<string | undefined> {
+    const rooms = await findAllRooms(userData);
+    const room = rooms.find((room: any) => room.id === roomId);
     return room ? room.name : undefined;
 }

@@ -95,7 +95,22 @@ export const Calendar: React.FC = () => {
             }
 
             const isAdmin: boolean = user?.is_admin ?? false;
-            const statusId: number = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
+            let statusId: number = 0;
+
+            const fetchStatusId = async (): Promise<void> => {
+                if (isAdmin) {
+                    const validatedStatusId = await getStatusId('Validé', user);
+                    statusId = validatedStatusId || 1;
+                } else {
+                    const inProgressStatusId = await getStatusId('En cours', user);
+                    statusId = inProgressStatusId || 4;
+                }
+            };
+
+            const groupId = await findGroupId(eventGroup, user) || 1;
+            const roomId = await findRoomId(eventRoom, user) || 1;
+
+            await fetchStatusId();
 
             const lastEventId: number = await findLastEventId(user);
 
@@ -106,8 +121,8 @@ export const Calendar: React.FC = () => {
                 statusId: statusId,
                 name: eventTitle,
                 description: eventDesc,
-                groupId: findGroupId(eventGroup) || 1,
-                roomId: findRoomId(eventRoom) || 1,
+                groupId: groupId,
+                roomId: roomId,
                 hostName: user ? `${user.lastName}` : null,
             };
 
@@ -139,7 +154,36 @@ export const Calendar: React.FC = () => {
             alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
         }
     };
-    
+
+    const displayEvents: () => { noOfDays: number[], events: React.ReactNode } = () => {
+        const eventNodes: React.ReactNode[] = [];
+
+        noOfDays.forEach((date: number, index: number) => {
+            eventNodes.push(
+                <div key={index} style={{ width: '14.28%', height: '120px' }} className="px-4 pt-2 border-r border-b relative">
+                    <div onClick={(): void => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }} className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
+                        {date}
+                    </div>
+                    <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
+                        {events.filter((event: any) => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString()).map((event: any, idx: number) => (
+                            <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${getGroupBadgeClassNames(event.groupName)}`}>
+                                <p className="text-sm truncate leading-tight">{event.name}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        });
+
+        return { noOfDays, events: eventNodes };
+    };
+
+    const displayLabels: () => Promise<{ selectedEventGroupName: string, selectedEventRoomName: string }> = async () => {
+        const selectedEventGroupName = selectedEvent?.groupId ? await findGroupName(selectedEvent.groupId, user) || 'Groupe inconnu' : '';
+        const selectedEventRoomName = selectedEvent ? await findRoomName(selectedEvent.roomId, user) || 'Salle inconnue' : '';
+
+        return { selectedEventGroupName, selectedEventRoomName };
+    };
 
     const resetForm = (): void => {
         setEventTitle('');
@@ -165,8 +209,8 @@ export const Calendar: React.FC = () => {
                             <span className="ml-1 text-lg text-gray-600 font-normal">{year}</span>
                             <form className="max-w-sm mx-auto">
                                 <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                                <select 
-                                    id="underline_select" 
+                                <select
+                                    id="underline_select"
                                     className="block py-2.5 px-0 w-full text-sm text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
                                     value={selectedGroup}
                                     onChange={handleGroupChange}
@@ -204,20 +248,7 @@ export const Calendar: React.FC = () => {
                             {blankDays.map((_: number, index: number) => (
                                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="text-center border-r border-b px-4 pt-2"></div>
                             ))}
-                            {noOfDays.map((date: number, index: number) => (
-                                <div key={index} style={{ width: '14.28%', height: '120px' }} className="px-4 pt-2 border-r border-b relative">
-                                    <div onClick={(): void => { setOpenEventModal(true); setEventDate(new Date(year, month, date)); }} className={`inline-flex w-6 h-6 items-center justify-center cursor-pointer text-center leading-none rounded-full transition ease-in-out duration-100 ${new Date(year, month, date).toDateString() === new Date().toDateString() ? 'bg-blue-500 text-white' : 'text-gray-700 hover:bg-blue-200'}`}>
-                                        {date}
-                                    </div>
-                                    <div style={{ height: '80px' }} className="overflow-y-auto mt-1">
-                                        {events.filter(e => new Date(e.dateStart).toDateString() === new Date(year, month, date).toDateString()).map((event, idx: number) => (
-                                            <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 rounded-lg mt-1 overflow-hidden border ${getGroupBadgeClassNames(findGroupName(event.groupId))}`}>
-                                                <p className="text-sm truncate leading-tight">{event.name}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
+                            {displayEvents().events}
                         </div>
                     </div>
                 </div>
@@ -348,7 +379,7 @@ export const Calendar: React.FC = () => {
                                         <input
                                             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
                                             type='text'
-                                            value={selectedEvent.groupId ? findGroupName(selectedEvent.groupId) || 'Groupe inconnu' : ''}
+                                            value={(await displayLabels()).selectedEventGroupName}
                                             readOnly
                                         />
                                     </div>
@@ -357,7 +388,7 @@ export const Calendar: React.FC = () => {
                                         <input
                                             className='bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500'
                                             type='text'
-                                            value={selectedEvent ? findRoomName(selectedEvent.roomId) || 'Salle inconnue' : ''}
+                                            value={(await displayLabels()).selectedEventRoomName}
                                             readOnly
                                         />
                                     </div>
