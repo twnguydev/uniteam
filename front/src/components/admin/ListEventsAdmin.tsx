@@ -14,7 +14,7 @@ export const ListEventsAdmin: React.FC = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const response = await fetchApi<Event[]>('GET', 'events', undefined, {
+                const response = await fetchApi<Event[]>('GET', 'events/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
                         Accept: 'application/json',

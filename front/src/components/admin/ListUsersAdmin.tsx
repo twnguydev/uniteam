@@ -14,7 +14,7 @@ export const ListUsersAdmin: React.FC = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await fetchApi<User[]>('GET', 'users', undefined, {
+                const response = await fetchApi<User[]>('GET', 'users/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
                         Accept: 'application/json',

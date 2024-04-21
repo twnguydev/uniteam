@@ -10,27 +10,30 @@ export const Schedule: React.FC = () => {
     const { user } = useAuth();
     const [events, setEvents] = React.useState<Event[]>([]);
 
-    useEffect(() => {
-        const fetchEvents = async () => {
+    useEffect((): void => {
+        const fetchEvents = async (): Promise<void> => {
             try {
-                const response = await fetchApi<Event[]>('GET', 'events', undefined, {
-                    headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                if (response.success && response.data) {
-                    setEvents(response.data);
+                if (user && user.lastName) {
+                    const response = await fetchApi<Event[]>('GET', 'events/', undefined, {
+                        headers: {
+                            Authorization: `Bearer ${user.token}`,
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    });
+        
+                    if (response.success && response.data) {
+                        const eventsWithHost: Event[] = response.data.filter(event => event.hostName === user.lastName);
+                        setEvents(eventsWithHost);
+                    }
                 }
             } catch (error) {
                 console.error('An error occurred while fetching events:', error);
             }
         };
-
+        
         fetchEvents();
-    });
+    }, [user]);
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">

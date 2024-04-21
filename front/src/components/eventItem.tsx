@@ -21,6 +21,14 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
     const updateStatusData = async () => {
         try {
             const response = await fetchApi('PUT', `events/${id}`, {
+                id: id,
+                name: name,
+                dateStart: dateStart,
+                dateEnd: dateEnd,
+                roomId: roomId,
+                groupId: groupId,
+                hostName: hostName,
+                description: description,
                 statusId: selectedStatusId,
             }, {
                 headers: {
@@ -66,6 +74,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                     </h3>
                 </div>
                 <div>
+                {user && user.is_admin && (
                     <select
                         className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
                         value={selectedStatusId}
@@ -77,6 +86,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                             </option>
                         ))}
                     </select>
+                )}
                 </div>
             </div>
             <div style={{ height: isOpen ? 'auto' : '0', overflow: 'hidden', transition: 'height 0.3s ease-in-out' }}>
