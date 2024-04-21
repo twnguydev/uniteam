@@ -28,7 +28,7 @@ def create_user(db: Session, user: schemas.User) -> models.User:
 
 def create_event(db: Session, event: schemas.Event, current_user: schemas.User) -> models.Events:
     event_dict: dict[str, Any] = event.model_dump()
-    event_dict["hostId"] = current_user.id
+    event_dict["hostName"] = current_user.lastName
     db_event = models.Events(**event_dict)
     db.add(db_event)
     db.commit()
