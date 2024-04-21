@@ -89,11 +89,12 @@ export const Calendar: React.FC = () => {
                 return;
             }
 
-            const isAdmin = user?.is_admin ?? false;
-            const statusId = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
+            const isAdmin: boolean = user?.is_admin ?? false;
+            const statusId: number = isAdmin ? getStatusId('Validé') || 1 : getStatusId('En cours') || 4;
 
+            const lastEventId: number = await findLastEventId(user);
             const newEvent: Event = {
-                id: findLastEventId() + 1,
+                id: lastEventId + 1,
                 dateStart: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
                 dateEnd: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
                 statusId: statusId,
@@ -104,22 +105,28 @@ export const Calendar: React.FC = () => {
                 hostName: user ? `${user.lastName}` : null,
             };
 
-            const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
-                headers: {
-                    Authorization: `Bearer ${user?.token}`,
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-            });
+            try {
+                const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
 
-            if (registerEvent.success) {
-                alert("Événement ajouté avec succès");
-                console.log(user);
-                setEvents([...events, (registerEvent.data as Event)]);
-                resetForm();
-                setOpenEventModal(false);
-            } else {
-                alert("Erreur lors de l'ajout de l'événement");
+                if (registerEvent.success) {
+                    alert("Événement ajouté avec succès");
+                    console.log(user);
+                    setEvents([...events, (registerEvent.data as Event)]);
+                    resetForm();
+                    setOpenEventModal(false);
+                } else if (registerEvent.error) {
+                    alert(registerEvent.error);
+                    console.log(lastEventId + 1);
+                }
+            } catch (error) {
+                console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
+                alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
             }
         } catch (error) {
             console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);

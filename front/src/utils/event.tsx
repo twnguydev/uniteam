@@ -6,10 +6,6 @@ import fetchApi from '../api/fetch';
 //     return eventData.events;
 // }
 
-export function findEventCreator() {
-
-}
-
 export function findEventId(eventName: string): number | undefined {
     const event = eventData.events.find(event => event.name === eventName);
     return event ? event.id : undefined;
@@ -20,8 +16,15 @@ export function findEventName(eventId: number): string | undefined {
     return event ? event.name : undefined;
 }
 
-export function findLastEventId(): number {
-    return Math.max(...eventData.events.map(event => event.id));
+export async function findLastEventId(userData: any): Promise<number> {
+    const events = await findAllEvents(userData);
+
+    if (events) {
+        const eventIds = events.map((event: any) => event.id);
+        return Math.max(...eventIds);
+    } else {
+        return -1;
+    }
 }
 
 export async function findAllEvents<User>(userData: User): Promise<any> {

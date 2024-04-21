@@ -21,7 +21,7 @@ export async function findAllUsers(userData: User): Promise<User[]> {
 export async function findUserLastname(userId: number, userData: User): Promise<string | undefined> {
     const users = await findAllUsers(userData);
     const user = users.find((user: User) => user.id === userId);
-    return user ? user.lastname : undefined;
+    return user ? user.lastName : undefined;
 }
 
 const User: React.FC<UserProps> = ({ userId, userData }) => {

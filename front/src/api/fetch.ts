@@ -26,10 +26,15 @@ const fetchApi = async <T>(
     config?: AxiosRequestConfig
 ): Promise<ApiResponse<T>> => {
     try {
+        const headers = {
+            'Access-Control-Allow-Origin': '*',
+            ...config?.headers,
+        };
         const response: AxiosResponse<T> = await axios.request<T>({
             method,
             url: `${BASE_URL}/${path}`,
             data,
+            headers,
             ...config,
         });
         return handleResponse<T>(response);

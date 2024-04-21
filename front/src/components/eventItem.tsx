@@ -18,30 +18,30 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
     const [selectedStatusId, setSelectedStatusId] = useState(statusId);
     const [isOpen, setIsOpen] = useState(false);
 
-    useEffect(() => {
-        const updateEventStatus = async () => {
-            try {
-                const response = await fetchApi('PUT', `events/${id}`, {
-                    statusId: selectedStatusId,
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                });
-    
-                if (response.success) {
-                    console.log('Statut de l\'événement mis à jour avec succès !');
-                } else {
-                    console.error('Échec de la mise à jour du statut de l\'événement.');
-                }
-            } catch (error) {
-                console.error('Une erreur est survenue lors de la mise à jour du statut de l\'événement :', error);
+    const updateStatusData = async () => {
+        try {
+            const response = await fetchApi('PUT', `events/${id}`, {
+                statusId: selectedStatusId,
+            }, {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.success) {
+                console.log('Statut de l\'événement mis à jour avec succès !');
+            } else {
+                console.error('Échec de la mise à jour du statut de l\'événement.');
             }
-        };
-    
-        updateEventStatus();
+        } catch (error) {
+            console.error('Une erreur est survenue lors de la mise à jour du statut de l\'événement :', error);
+        }
+    };
+
+    useEffect(() => {
+        updateStatusData();
     }, [selectedStatusId]);
 
     const toggleAccordion = (e: React.MouseEvent) => {

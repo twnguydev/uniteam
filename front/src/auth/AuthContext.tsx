@@ -1,4 +1,5 @@
 import React, { createContext, Context, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import groupData from '../data/groups.json';
 
 import type { AuthContextType } from '../types/Auth';
@@ -10,6 +11,7 @@ const AuthContext: Context<AuthContextType | null> = createContext<AuthContextTy
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }): JSX.Element => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const storedUser: string | null = localStorage.getItem('user');
@@ -49,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = (): void => {
         setUser(null);
         localStorage.removeItem('user');
+        navigate('/');
     };
 
     const getUserGroupName = (groupId: number): string | null => {

@@ -24,7 +24,6 @@ export const Login: React.FC = () => {
             const response = await fetchApi('POST', 'token', formData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Origin': 'http://localhost:3000',
                 },
             });
     

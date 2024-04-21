@@ -42,7 +42,7 @@
             "groupId": 4,
             "description": "Description 4",
             "statusId": 4,
-            "hostId": 1
+            "hostName": "FARINACCI-BERODIAS"
         }
     ]
 }
