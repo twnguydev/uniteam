@@ -5,8 +5,8 @@ import { useAuth } from '../auth/AuthContext';
 
 import { groupBadges } from '../data/badges';
 
-import { findRoomId, findRoomName } from '../utils/room';
-import { findGroupId, findGroupName } from '../utils/group';
+import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
+import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
 
 import type { Event, DisplayInputsProps } from '../types/Event';
@@ -21,18 +21,8 @@ import fetchApi from '../api/fetch';
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-const groups: Group[] = [
-    { id: 1, name: "MSc" },
-    { id: 2, name: "Web@cademie" },
-    { id: 3, name: "PGE" },
-    { id: 4, name: "Peda" },
-];
-
-const rooms: Room[] = [
-    { id: 1, name: "1-1" },
-    { id: 2, name: "1-2" },
-    { id: 3, name: "1-3" },
-];
+const groups: Group[] = [];
+const rooms: Room[] = [];
 
 export const Calendar: React.FC = () => {
     const { user } = useAuth();
@@ -78,6 +68,24 @@ export const Calendar: React.FC = () => {
             setEvents(fetchedEvents || []);
         };
 
+        const fetchGroups = async (): Promise<void> => {
+            if (!user) {
+                return;
+            }
+            const fetchedGroups = await findAllGroups<User>(user);
+            groups.push(...fetchedGroups);
+        }
+
+        const fetchRooms = async (): Promise<void> => {
+            if (!user) {
+                return;
+            }
+            const fetchedRooms = await findAllRooms<User>(user);
+            rooms.push(...fetchedRooms);
+        }
+
+        fetchGroups();
+        fetchRooms();
         fetchEvents();
     }, []);
 
