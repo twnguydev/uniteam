@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
 
 origins: List[str] = [
-    "http://localhost:3000",
+    "http://localhost:5030",
 ]
 
 app.add_middleware(
