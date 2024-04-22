@@ -47,8 +47,8 @@ export const NotificationNavbar = () => {
         });
 
         if (response.success && response.data) {
-          const updatedEvents: Event[] = response.data as Event[];
-          updatedEvents.forEach((event: Event) => {
+          const eventsWithHost: Event[] = (response.data as Event[]).filter(event => event.hostName === user?.lastName);
+          eventsWithHost.forEach((event: Event) => {
             const existingEvent = eventsRef.current.find(e => e.id === event.id);
             if (existingEvent && existingEvent.statusId !== event.statusId) {
               setNotifications(prevNotifications => [
@@ -57,7 +57,7 @@ export const NotificationNavbar = () => {
               ]);
             }
           });
-          eventsRef.current = updatedEvents;
+          eventsRef.current = eventsWithHost;
         }
       } catch (error) {
         console.error('Erreur lors de la récupération des notifications :', error);
