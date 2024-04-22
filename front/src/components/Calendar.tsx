@@ -32,6 +32,7 @@ export const Calendar: React.FC = () => {
     const [openEventModal, setOpenEventModal] = useState<boolean>(false);
     const [openEventDetailsModal, setOpenEventDetailsModal] = useState<boolean>(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [deleteButton, setDeleteButton] = useState<boolean>(false);
 
     const [eventTitle, setEventTitle] = useState<string>('');
     const [eventDesc, setEventDesc] = useState<string>('');
@@ -87,7 +88,15 @@ export const Calendar: React.FC = () => {
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
         setOpenEventDetailsModal(true);
+
+        if (user?.is_admin || event.hostName === user?.lastName) {
+            setDeleteButton(true);
+        } else {
+            setDeleteButton(false);
+        }
     };
+
+    console.log('deleteButton', deleteButton);
 
     const deleteEvent = async (): Promise<void> => {
         const response = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {
@@ -397,9 +406,11 @@ export const Calendar: React.FC = () => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <DisplayInputs selectedEvent={selectedEvent} userData={user} />
                                 </div>
-                                <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
-                                    Supprimer l'événement
-                                </button>
+                                {deleteButton  && (
+                                    <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
+                                        Supprimer l'événement
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

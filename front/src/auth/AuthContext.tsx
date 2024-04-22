@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const login = (userData: any, accessToken: string): void => {
         userData = JSON.parse(userData);
-        if (userData && userData.id && userData.firstName && userData.lastName && userData.email && userData.is_admin && userData.groupId) {
+        if (userData && userData.id && userData.firstName && userData.lastName && userData.email && userData.groupId) {
             const newUser: User = {
                 id: userData.id,
                 firstName: userData.firstName,
@@ -56,7 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const getUserGroupName = (groupId: number): string | null => {
         const foundGroup: Group | undefined = groupData.groups.find((group: Group) => group.id === groupId);
-        console.log(foundGroup);
         return foundGroup ? foundGroup.name : null;
     };
 
