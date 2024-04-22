@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { NotificationNavbar } from './Notification';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -17,6 +18,7 @@ export const Navbar: React.FC = () => {
               <>
                 <Link to="/calendar" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Calendrier</Link>
                 <Link to={`/member/${user.id}/schedule`} className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Mon agenda</Link>
+                <NotificationNavbar />
               </>
             )}
             {user?.is_admin && (

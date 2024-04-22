@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from 'react';
-
-import { useAuth } from '../auth/AuthContext';
-
-import type { Event } from '../types/Event';
+import React, { useState, useEffect } from 'react';
 import fetchApi from '../api/fetch';
-
+import { useAuth } from '../auth/AuthContext';
 import { formatDate, formatDateHour } from '../utils/date';
-
 import { Badge } from '../utils/badge';
 import { Group } from '../utils/group';
 import { Room } from '../utils/room';
-
 import statusData from '../data/status.json';
+
+import type { Event } from '../types/Event';
 
 export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
     const { user } = useAuth();
     const [selectedStatusId, setSelectedStatusId] = useState(statusId);
     const [isOpen, setIsOpen] = useState(false);
+    const [statusUpdated, setStatusUpdated] = useState(false);
 
-    const updateStatusData = async () => {
+    const updateStatusData = async (): Promise<void> => {
         try {
             const response = await fetchApi('PUT', `events/${id}`, {
                 id: id,
@@ -49,8 +46,11 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
     };
 
     useEffect(() => {
-        updateStatusData();
-    }, [selectedStatusId]);
+        if (statusUpdated) {
+            updateStatusData();
+            setStatusUpdated(false);
+        }
+    }, [statusUpdated]);
 
     const toggleAccordion = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -74,19 +74,22 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                     </h3>
                 </div>
                 <div>
-                {user && user.is_admin && (
-                    <select
-                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                        value={selectedStatusId}
-                        onChange={(e) => setSelectedStatusId(parseInt(e.target.value))}
-                    >
-                        {statusData.status.map(({ id, name }) => (
-                            <option key={id} value={id}>
-                                {name}
-                            </option>
-                        ))}
-                    </select>
-                )}
+                    {user && user.is_admin && (
+                        <select
+                            className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                            value={selectedStatusId}
+                            onChange={(e) => {
+                                setSelectedStatusId(parseInt(e.target.value));
+                                setStatusUpdated(true);
+                            }}
+                        >
+                            {statusData.status.map(({ id, name }) => (
+                                <option key={id} value={id}>
+                                    {name}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
             </div>
             <div style={{ height: isOpen ? 'auto' : '0', overflow: 'hidden', transition: 'height 0.3s ease-in-out' }}>

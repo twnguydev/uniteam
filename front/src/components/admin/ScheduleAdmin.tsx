@@ -21,7 +21,6 @@ export const ScheduleAdmin: React.FC = () => {
 
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(event.target.value);
-        console.log(event.target.value);
     };
 
     useEffect(() => {
