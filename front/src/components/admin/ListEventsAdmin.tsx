@@ -7,13 +7,21 @@ import type { Event } from '../../types/Event';
 import { EventItem } from '../eventItem';
 import fetchApi from '../../api/fetch';
 
-export const ListEventsAdmin: React.FC = () => {
+import { findGroupId } from '../../utils/group';
+
+interface ListEventsAdminProps {
+    selectedGroup?: string;
+}
+
+export const ListEventsAdmin: React.FC<ListEventsAdminProps> = ({ selectedGroup }) => {
     const { user } = useAuth();
     const [events, setEvents] = useState<Event[]>([]);
 
     useEffect(() => {
         const fetchEvents = async () => {
             try {
+                const groupId = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
+
                 const response = await fetchApi<Event[]>('GET', 'events/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -23,7 +31,10 @@ export const ListEventsAdmin: React.FC = () => {
                 });
 
                 if (response.success && response.data) {
-                    setEvents(response.data);
+                    const filteredEvents = groupId
+                        ? response.data.filter(event => event.groupId === groupId)
+                        : response.data;
+                    setEvents(filteredEvents);
                 }
             } catch (error) {
                 console.error('An error occurred while fetching events:', error);
@@ -31,7 +42,7 @@ export const ListEventsAdmin: React.FC = () => {
         };
 
         fetchEvents();
-    });
+    }, [selectedGroup, user]);  
 
     return (
         <section>
