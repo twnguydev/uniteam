@@ -64,10 +64,13 @@ export const Calendar: React.FC = () => {
             const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
             const allEvents: any = await findAllEvents<User>(user);
             let filteredEvents: any = allEvents;
-    
+
             if (selectedGroup) {
-                filteredEvents = allEvents.filter((event: any) => event.groupId === selectedGroupId);
+                filteredEvents = allEvents.filter((event: any): boolean => event.groupId === selectedGroupId);
             }
+
+            filteredEvents = filteredEvents.filter((event: any): boolean => event.statusId !== 3 && event.statusId !== 2);
+
             setEvents(filteredEvents || []);
     
             const fetchedGroups: any = await findAllGroups<User>(user);
