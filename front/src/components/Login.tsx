@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate, NavigateFunction } from 'react-router-dom';
-
 import type { User } from '../types/user';
-
 import fetchApi from '../api/fetch';
 
 export const Login: React.FC = () => {

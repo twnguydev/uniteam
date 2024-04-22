@@ -1,27 +1,19 @@
 import React, { useState, useEffect } from 'react';
-
 import { useAuth } from '../../auth/AuthContext';
 import { UserItem } from '../userItem';
 import fetchApi from '../../api/fetch';
 import { findGroupId } from '../../utils/group';
-
 import type { User } from '../../types/user';
-
-interface ListUsersAdminProps {
-    selectedGroup?: string;
-}
+import type { ListUsersAdminProps } from '../../types/admin';
 
 export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })  => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchUsers = async (): Promise<void> => {
             try {
-                const groupId = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
-                console.log(groupId);
-                
-
+                const groupId: number | undefined = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
                 const response = await fetchApi<User[]>('GET', 'users/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -31,10 +23,10 @@ export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })
                 });
 
                 if (response.success && response.data) {
-                    const filteredUsers = groupId
+                    const filteredUsers: User[] = groupId
                         ? response.data.filter(user => user.groupId === groupId)
                         : response.data;
-                        console.log("Filtered Users:", filteredUsers);
+                        // console.log("Filtered Users:", filteredUsers);
                     setUsers(filteredUsers);
                 }
             } catch (error) {

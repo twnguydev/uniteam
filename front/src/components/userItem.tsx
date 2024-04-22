@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import type { User } from '../types/user';
-
 import { Badge } from '../utils/badge';
 
 export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin, groupId }: User) => {

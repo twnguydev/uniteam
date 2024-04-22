@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-
 import { ListUsersAdmin } from './ListUsersAdmin';
 import { ListEventsAdmin } from './ListEventsAdmin';
-
 import { findAllEvents } from '../../utils/event';
 import { findAllGroups, findGroupId } from '../../utils/group';
-
 import type { Group } from '../../types/group';
 import type { User } from '../../types/user';
 
@@ -36,8 +33,8 @@ export const ScheduleAdmin: React.FC = () => {
             setLoadedGroups(fetchedGroups || []);
 
             const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
-            const allEvents = await findAllEvents<User>(user);
-            let filteredEvents = allEvents.filter((event: any) => event.groupId === selectedGroupId);
+            const allEvents: any = await findAllEvents<User>(user);
+            let filteredEvents: any = allEvents.filter((event: any): boolean => event.groupId === selectedGroupId);
             setEvents(filteredEvents || []);
             setUsers(filteredEvents || []);
         };

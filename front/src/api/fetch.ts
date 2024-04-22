@@ -39,7 +39,6 @@ const fetchApi = async <T>(
         });
         return handleResponse<T>(response);
     } catch (error) {
-        console.log(error);
         return handleError(error as AxiosError<unknown, any>);
     }
 };

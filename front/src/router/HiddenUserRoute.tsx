@@ -1,6 +1,5 @@
 import React, { useEffect, ReactElement } from "react";
 import { Navigate, Outlet, useNavigate, NavigateFunction } from "react-router-dom";
-
 import { useAuth } from '../auth/AuthContext';
 
 const HiddenUserRoute: React.FC<any> = (props): ReactElement => {

@@ -1,10 +1,5 @@
 import eventData from '../data/events.json';
-
 import fetchApi from '../api/fetch';
-
-// export function findAllEvents(): typeof eventData.events {
-//     return eventData.events;
-// }
 
 export function findEventId(eventName: string): number | undefined {
     const event = eventData.events.find(event => event.name === eventName);

@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi from '../api/fetch';
-
 import type { Event } from '../types/Event';
 
 export const NotificationNavbar = () => {

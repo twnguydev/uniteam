@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
-
 import { useAuth } from '../../auth/AuthContext';
-
-import type { Event } from '../../types/Event';
-
-import { EventItem } from '../eventItem';
 import fetchApi from '../../api/fetch';
-
+import type { Event } from '../../types/Event';
+import type { ListEventsAdminProps } from '../../types/admin';
+import { EventItem } from '../eventItem';
 import { findGroupId } from '../../utils/group';
-
-interface ListEventsAdminProps {
-    selectedGroup?: string;
-}
 
 export const ListEventsAdmin: React.FC<ListEventsAdminProps> = ({ selectedGroup }) => {
     const { user } = useAuth();

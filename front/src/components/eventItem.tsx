@@ -6,7 +6,6 @@ import { Badge } from '../utils/badge';
 import { Group } from '../utils/group';
 import { Room } from '../utils/room';
 import statusData from '../data/status.json';
-
 import type { Event } from '../types/Event';
 
 export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
@@ -36,7 +35,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
             });
 
             if (response.success) {
-                console.log('Statut de l\'événement mis à jour avec succès !');
+                console.error('Statut de l\'événement mis à jour avec succès !');
             } else {
                 console.error('Échec de la mise à jour du statut de l\'événement.');
             }

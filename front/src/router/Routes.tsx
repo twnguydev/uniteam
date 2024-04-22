@@ -8,7 +8,6 @@ import { Calendar } from '../components/Calendar';
 import { Schedule } from '../components/Schedule';
 import { ScheduleAdmin } from '../components/admin/ScheduleAdmin';
 import { Navbar } from '../components/Navbar';
-
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import ProtectedUserRoute from "./ProtectedUserRoute";
 import HiddenUserRoute from "./HiddenUserRoute";

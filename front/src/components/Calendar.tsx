@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
-
 import { groupBadges } from '../data/badges';
-
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
-
 import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 import type { User } from '../types/user';
-
 import { getStatusId } from '../utils/status';
-
 import fetchApi from '../api/fetch';
 
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -95,8 +90,6 @@ export const Calendar: React.FC = () => {
             setDeleteButton(false);
         }
     };
-
-    console.log('deleteButton', deleteButton);
 
     const deleteEvent = async (): Promise<void> => {
         const response = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {

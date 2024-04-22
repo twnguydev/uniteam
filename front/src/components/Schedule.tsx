@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
-
 import type { Event } from '../types/Event';
 import { EventItem } from './eventItem';
-
 import fetchApi from '../api/fetch';
 
 export const Schedule: React.FC = () => {

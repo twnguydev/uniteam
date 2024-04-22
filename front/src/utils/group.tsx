@@ -1,11 +1,8 @@
 import React, { useEffect } from "react";
-
 import { useAuth } from "../auth/AuthContext";
-
+import fetchApi from "../api/fetch";
 import { groupBadges } from "../data/badges";
 import type { Badge } from "../types/Badge";
-
-import fetchApi from "../api/fetch";
 
 export async function findAllGroups<User>(userData: User): Promise<any> {
     const groupsData = await fetchApi('GET', 'groups/', undefined, {
