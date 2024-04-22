@@ -16,11 +16,14 @@ export const ScheduleAdmin: React.FC = () => {
     const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [events, setEvents] = useState<Event[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+
     const [selectedGroup, setSelectedGroup] = useState<string>('');
     const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
 
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(event.target.value);
+        console.log(event.target.value);
     };
 
     useEffect(() => {
@@ -29,29 +32,26 @@ export const ScheduleAdmin: React.FC = () => {
                 return;
             }
 
-            const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
-            const allEvents: any = await findAllEvents<User>(user);
-            let filteredEvents: any = allEvents;
-
-            if (selectedGroup) {
-                filteredEvents = allEvents.filter((event: any) => event.groupId === selectedGroupId);
-            }
-            setEvents(filteredEvents || []);
-
-            const fetchedGroups: any = await findAllGroups<User>(user);
+            const fetchedGroups = await findAllGroups<User>(user);
             setLoadedGroups(fetchedGroups || []);
+
+            const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
+            const allEvents = await findAllEvents<User>(user);
+            let filteredEvents = allEvents.filter((event: any) => event.groupId === selectedGroupId);
+            setEvents(filteredEvents || []);
+            setUsers(filteredEvents || []);
         };
 
         fetchData();
     }, [user, selectedGroup]);
 
     const toggleUserModal = (): void => {
-        setIsUserModalOpen(true);
+        setIsUserModalOpen(!isUserModalOpen);
         setIsEventModalOpen(false);
     };
 
     const toggleEventModal = (): void => {
-        setIsEventModalOpen(true);
+        setIsEventModalOpen(!isEventModalOpen);
         setIsUserModalOpen(false);
     };
 
@@ -107,7 +107,23 @@ export const ScheduleAdmin: React.FC = () => {
                             </select>
                         </form>
                     )}
-                    {isUserModalOpen && <ListUsersAdmin />}
+                    {isUserModalOpen && (
+                        <form className="max-w-sm mx-auto mt-6">
+                            <label htmlFor="underline_select" className="sr-only">Groupe</label>
+                            <select
+                                id="underline_select"
+                                className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-2 py-1.5 pr-4 rounded-lg leading-tight text-gray-200"
+                                value={selectedGroup}
+                                onChange={handleGroupChange}
+                            >
+                            <option value="">Sans filtre</option>
+                                {loadedGroups.map(group => (
+                                    <option key={group.id} value={group.name}>{group.name}</option>
+                                ))}
+                            </select>
+                        </form>
+                    )}
+                    {isUserModalOpen && <ListUsersAdmin selectedGroup={selectedGroup} />}
                     {isEventModalOpen && <ListEventsAdmin selectedGroup={selectedGroup} />}
                 </div>
             </div>

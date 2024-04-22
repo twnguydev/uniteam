@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '../../auth/AuthContext';
-
 import { UserItem } from '../userItem';
 import fetchApi from '../../api/fetch';
+import { findGroupId } from '../../utils/group';
 
 import type { User } from '../../types/user';
 
-export const ListUsersAdmin: React.FC = () => {
+interface ListUsersAdminProps {
+    selectedGroup?: string;
+}
+
+export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })  => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
+                const groupId = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
+                console.log(groupId);
+                
+
                 const response = await fetchApi<User[]>('GET', 'users/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
@@ -23,15 +31,19 @@ export const ListUsersAdmin: React.FC = () => {
                 });
 
                 if (response.success && response.data) {
-                    setUsers(response.data);
+                    const filteredUsers = groupId
+                        ? response.data.filter(user => user.groupId === groupId)
+                        : response.data;
+                        console.log("Filtered Users:", filteredUsers);
+                    setUsers(filteredUsers);
                 }
             } catch (error) {
-                console.error('An error occurred while fetching events:', error);
+                console.error('An error occurred while fetching users:', error);
             }
         };
 
         fetchUsers();
-    });
+    }, [selectedGroup, user]);
 
     return (
         <section>
