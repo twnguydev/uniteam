@@ -64,9 +64,6 @@ export const ScheduleAdmin: React.FC = () => {
                                 {user.is_admin && (
                                     <span className="text-sm mt-8 text-gray-500 dark:text-gray-400">Administrateur</span>
                                 )}
-                                <button onClick={logout} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
-                                    Se déconnecter
-                                </button>
                             </div>
                         </div>
                     </div>
