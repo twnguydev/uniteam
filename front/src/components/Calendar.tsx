@@ -27,6 +27,7 @@ export const Calendar: React.FC = () => {
     const [openEventModal, setOpenEventModal] = useState<boolean>(false);
     const [openEventDetailsModal, setOpenEventDetailsModal] = useState<boolean>(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedRoom, setSelectedRoom] = useState<string>('');
     const [deleteButton, setDeleteButton] = useState<boolean>(false);
 
     const [eventTitle, setEventTitle] = useState<string>('');
@@ -44,8 +45,12 @@ export const Calendar: React.FC = () => {
         setSelectedGroup(event.target.value);
     };
 
+    const handleRoomChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedRoom(event.target.value);
+    };
+
     useEffect((): void => {
-        const getNoOfDays = (): void => {
+        const getNoOfDays  = (): void => {
             const firstDayOfMonth = new Date(year, month, 1);
             const daysInMonth: number = new Date(year, month + 1, 0).getDate();
             const indexOfFirstDay: number = (firstDayOfMonth.getDay() + 6) % 7;
@@ -60,17 +65,22 @@ export const Calendar: React.FC = () => {
             if (!user) {
                 return;
             }
-
+    
             const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
+            const selectedRoomId: number | undefined = await findRoomId(selectedRoom, user);
             const allEvents: any = await findAllEvents<User>(user);
             let filteredEvents: any = allEvents;
-
+    
             if (selectedGroup) {
                 filteredEvents = allEvents.filter((event: any): boolean => event.groupId === selectedGroupId);
             }
-
+    
+            if (selectedRoom) {
+                filteredEvents = filteredEvents.filter((event: any): boolean => event.roomId === selectedRoomId);
+            }
+    
             filteredEvents = filteredEvents.filter((event: any): boolean => event.statusId !== 3 && event.statusId !== 2);
-
+    
             setEvents(filteredEvents || []);
     
             const fetchedGroups: any = await findAllGroups<User>(user);
@@ -81,7 +91,7 @@ export const Calendar: React.FC = () => {
         };
     
         fetchData();
-    }, [user, selectedGroup]);
+    }, [user, selectedGroup, selectedRoom]);
 
     const handleEventClick = (event: Event): void => {
         setSelectedEvent(event);
@@ -244,6 +254,20 @@ export const Calendar: React.FC = () => {
                                     <option value="">Sans filtre</option>
                                     {loadedGroups.map(group => (
                                         <option key={group.id} value={group.name}>{group.name}</option>
+                                    ))}
+                                </select>
+                            </form>
+                            <form className="max-w-sm mx-auto">
+                                <label htmlFor="underline_select_room" className="sr-only">Salle</label>
+                                <select
+                                    id="underline_select_room"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-2 py-1.5 pr-4 rounded-lg leading-tight text-gray-200"
+                                    value={selectedRoom}
+                                    onChange={handleRoomChange}
+                                >
+                                    <option value="">Sans filtre</option>
+                                    {loadedRooms.map(room => (
+                                        <option key={room.id} value={room.name}>{room.name}</option>
                                     ))}
                                 </select>
                             </form>
