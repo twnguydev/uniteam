@@ -29,7 +29,7 @@ export const PageRouter = () => {
                         <Route element={<ProtectedUserRoute />}>
                             <Route path="/calendar" Component={Calendar as React.ComponentType} />
                             <Route path="/schedule" Component={Schedule as React.ComponentType} />
-                            <Route path="/member/:id/schedule" Component={Schedule as React.ComponentType} />
+                            <Route path="/member/schedule" Component={Schedule as React.ComponentType} />
                         </Route>
 
                         <Route element={<ProtectedAdminRoute />}>

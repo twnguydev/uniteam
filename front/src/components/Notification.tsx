@@ -83,7 +83,7 @@ export const NotificationNavbar = () => {
         {isDropdownOpen && notifications.length > 0 && (
           <div className="absolute z-50 right-50 w-96 bg-gray-800 border border-gray-700 rounded-md shadow-md">
             {notifications.map((notification: any, index: number) => (
-              <Link to={`/member/${user?.id}/schedule`} key={index} className="block px-4 py-2 text-sm text-white hover:bg-gray-700">
+              <Link to="/member/schedule" key={index} className="block px-4 py-2 text-sm text-white hover:bg-gray-700">
                 {notification.message}
               </Link>
             ))}

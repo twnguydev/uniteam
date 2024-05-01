@@ -62,7 +62,7 @@ export const Navbar: React.FC = () => {
             {user && (
               <>
                 <Link to="/calendar" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Calendrier</Link>
-                <Link to={`/member/${user.id}/schedule`} className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Mon agenda</Link>
+                <Link to="/member/schedule" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Mon agenda</Link>
                 <NotificationNavbar />
               </>
             )}
