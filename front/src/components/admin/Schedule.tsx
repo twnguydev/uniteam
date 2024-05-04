@@ -22,7 +22,7 @@ export const ScheduleAdmin: React.FC = () => {
     const location = useLocation();
 
     const [isUserListOpen, setIsUserListOpen] = useState(false);
-    const [isEventListOpen, setIsEventListOpen] = useState(false);
+    const [isEventListOpen, setIsEventListOpen] = useState(true);
     const [isGroupListOpen, setIsGroupListOpen] = useState(false);
     const [isRoomListOpen, setIsRoomListOpen] = useState(false);
 
@@ -37,6 +37,7 @@ export const ScheduleAdmin: React.FC = () => {
     const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
     const [selectedStatus, setSelectedStatus] = useState<string>('');
     const [loadedStatus, setLoadedStatus] = useState<Status[]>([]);
+    const [selectedLimit, setSelectedLimit] = useState<string>('5');
 
     const [banner, setBanner] = useState<string>('');
     const [bannerType, setBannerType] = useState<string>('');
@@ -48,6 +49,10 @@ export const ScheduleAdmin: React.FC = () => {
 
     const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedStatus(event.target.value);
+    };
+
+    const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedLimit(event.target.value);
     };
 
     useEffect(() => {
@@ -83,7 +88,7 @@ export const ScheduleAdmin: React.FC = () => {
             const isSuccessMessage: string | null = new URLSearchParams(window.location.search).get('success');
             const typeOfSuccess: string | null = new URLSearchParams(window.location.search).get('type');
             const message: string | null = new URLSearchParams(window.location.search).get('message');
-    
+
             if (isSuccessMessage === 'true' && typeOfSuccess === 'room') {
                 setBanner(message || '');
                 setBannerType('success');
@@ -102,19 +107,19 @@ export const ScheduleAdmin: React.FC = () => {
                 setBannerSection('group');
             }
         };
-    
+
         fetchSuccess();
-    
+
         const timer = setTimeout((): void => {
             setBanner('');
             setBannerType('');
             setBannerSection('');
         }, 5000);
-    
+
         return (): void => {
             clearTimeout(timer);
         };
-    }, [location.search]);    
+    }, [location.search]);
 
     const toggleUserList = (): void => {
         setIsUserListOpen(!isUserListOpen);
@@ -125,7 +130,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleEventList = (): void => {
         setIsEventListOpen(!isEventListOpen);
         setIsUserListOpen(false);
@@ -135,7 +140,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleGroupList = (): void => {
         setIsGroupListOpen(!isGroupListOpen);
         setIsRoomListOpen(false);
@@ -145,7 +150,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleRoomList = (): void => {
         setIsRoomListOpen(!isRoomListOpen);
         setIsUserListOpen(false);
@@ -155,7 +160,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleRoomForm = (): void => {
         setIsRoomFormOpen(!isRoomFormOpen);
         setIsRoomListOpen(!isRoomListOpen);
@@ -165,7 +170,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleGroupForm = (): void => {
         setIsGroupFormOpen(!isGroupFormOpen);
         setIsGroupListOpen(!isGroupListOpen);
@@ -175,7 +180,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsRoomFormOpen(false);
         setIsUserFormOpen(false);
     };
-    
+
     const toggleUserForm = (): void => {
         setIsUserFormOpen(!isUserFormOpen);
         setIsUserListOpen(!isUserListOpen);
@@ -271,6 +276,22 @@ export const ScheduleAdmin: React.FC = () => {
                                     ))}
                                 </select>
                             </form>
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedLimit}
+                                    onChange={handleLimitChange}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </form>
                         </div>
                     </div>
                 )}
@@ -307,6 +328,22 @@ export const ScheduleAdmin: React.FC = () => {
                                     ))}
                                 </select>
                             </form>
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedLimit}
+                                    onChange={handleLimitChange}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </form>
                         </div>
                     </div>
                 )}
@@ -315,6 +352,24 @@ export const ScheduleAdmin: React.FC = () => {
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleRoomForm}>
                             Ajouter une salle
                         </button>
+                        <div className="flex">
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedLimit}
+                                    onChange={handleLimitChange}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </form>
+                        </div>
                     </div>
                 )}
                 {isGroupListOpen && (
@@ -322,12 +377,30 @@ export const ScheduleAdmin: React.FC = () => {
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleGroupForm}>
                             Ajouter un groupe de travail
                         </button>
+                        <div className="flex">
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedLimit}
+                                    onChange={handleLimitChange}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </form>
+                        </div>
                     </div>
                 )}
-                {isUserListOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
-                {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
-                {isGroupListOpen && <ListGroups />}
-                {isRoomListOpen && <ListRooms />}
+                {isUserListOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}
+                {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}
+                {isGroupListOpen && <ListGroups selectedLimit={parseInt(selectedLimit)} />}
+                {isRoomListOpen && <ListRooms selectedLimit={parseInt(selectedLimit)} />}
                 {isRoomFormOpen && <FormRoom />}
                 {isGroupFormOpen && <FormGroup />}
                 {isUserFormOpen && <FormUser />}

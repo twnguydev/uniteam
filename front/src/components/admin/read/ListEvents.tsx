@@ -6,10 +6,13 @@ import type { ListEventsAdminProps } from '../../../types/admin';
 import { EventItem } from '../../item/EventItem';
 import { findGroupId } from '../../../utils/group';
 import { getStatusId } from '../../../utils/status';
+import { Pagination } from '../../Pagination';
 
-export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus }) => {
+export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }) => {
     const { user } = useAuth();
     const [events, setEvents] = useState<Event[]>([]);
+    const [page, setPage] = useState<number>(1);
+    const [currentPageEvents, setCurrentPageEvents] = useState<Event[]>([]);
 
     useEffect(() => {
         const fetchEvents = async (): Promise<void> => {
@@ -44,15 +47,26 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
         fetchEvents();
     }, [selectedGroup, selectedStatus, user]);
 
+    useEffect((): void => {
+        const start: number = (page - 1) * selectedLimit;
+        const end: number = start + selectedLimit;
+        setCurrentPageEvents(events.slice(start, end));
+    }, [page, events, selectedLimit]);
+
     return (
-        <section>
-            <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
-                <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
-                    {events.map(event => (
-                        <EventItem key={event.id} {...event} />
-                    ))}
+        <>
+            <section>
+                <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
+                    <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
+                        {currentPageEvents.map(event => (
+                            <EventItem key={event.id} {...event} />
+                        ))}
+                    </div>
                 </div>
+            </section>
+            <div className="max-w-3xl mx-auto mt-4">
+                <Pagination page={page} setPage={setPage} total={events.length} limit={selectedLimit} />
             </div>
-        </section>
+        </>
     );
 }
