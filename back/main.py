@@ -421,6 +421,26 @@ async def read_event(event_id: int, db: Session = Depends(get_db)) -> models.Eve
         raise HTTPException(status_code=404, detail="Event not found")
     return event
 
+
+@app.get("/notifications/", response_model=list[schemas.Notification])
+async def read_notifications(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+) -> list[models.Notifications]:
+    """
+    Retrieve a list of notifications from the database.
+
+    Args:
+        skip (int): Number of notifications to skip (default: 0).
+        limit (int): Maximum number of notifications to retrieve (default: 100).
+        db (Session): Database session object.
+
+    Returns:
+        list[models.Notifications]: List of notifications.
+
+    """
+    return crud.get_notifications(db, skip=skip, limit=limit)
+
+
 @app.get("/notifications/user/{user_id}", response_model=list[schemas.Notification])
 async def read_notifications(
     user_id: int, db: Session = Depends(get_db)

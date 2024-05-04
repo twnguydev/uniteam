@@ -11,9 +11,10 @@ import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 import type { User } from '../types/user';
+import type { Notification } from '../types/notification';
 import { getStatusId } from '../utils/status';
 import fetchApi from '../api/fetch';
-import { createNotification } from '../utils/notification';
+import { createNotification, findAllNotifications, findLastNotificationId } from '../utils/notification';
 
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -114,29 +115,41 @@ export const Calendar: React.FC = () => {
                 'Content-Type': 'application/json',
             },
         });
-
+    
         if (response.success) {
             alert('Événement supprimé avec succès !');
+    
+            if (selectedEvent && user) {
+                const hostId: number | undefined = await findUserId(selectedEvent.hostName ?? '', user);
+                const lastNotificationId: number | undefined = await findLastNotificationId(user);
+                const allNotifications: Notification[] = await findAllNotifications(user);
 
-            const hostId: number | undefined = await findUserId(selectedEvent?.hostName ?? '', user as User);
-            const notification: any = await createNotification(user, {
-                id: 1,
-                userId: hostId ?? 0,
-                message: `L'événement ${selectedEvent?.name} a été supprimé.`,
-            });
+                console.log('allNotifications :', allNotifications);
+                console.log('hostId :', hostId);
+                console.log('lastNotificationId :', lastNotificationId);
+                console.log('selectedEvent :', selectedEvent);
 
-            if (notification.success) {
-                console.log('Notification créée avec succès');
-            } else {
-                console.error('Erreur lors de la création de la notification :', notification.error);
+                const notification: Notification = {
+                    id: (lastNotificationId ?? 0) + 1,
+                    userId: hostId ?? 0,
+                    message: `L'événement ${selectedEvent.name} a été supprimé.`,
+                };
+
+                const create: any = await createNotification(user, notification);
+
+                if (create.success) {
+                    console.log('Notification créée avec succès');
+                } else {
+                    console.error('Erreur lors de la création de la notification :', create.error);
+                }
             }
-
+    
             setEvents(events.filter(event => event.id !== selectedEvent?.id));
             setOpenEventDetailsModal(false);
         } else {
             alert('Échec de la suppression de l\'événement.');
         }
-    }
+    };    
 
     const addEvent = async (): Promise<void> => {
         try {

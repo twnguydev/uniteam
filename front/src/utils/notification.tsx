@@ -1,4 +1,5 @@
-import { Notification } from '../types/Notification';
+import type { Notification } from '../types/notification';
+import type { User } from '../types/user';
 import fetchApi from '../api/fetch';
 
 export async function findAllNotifications(userData: any): Promise<Notification[]> {
@@ -33,13 +34,19 @@ export async function findNotificationsForUser(userData: any): Promise<Notificat
     }
 }
 
-export async function findMaxNotificationId(userData: any): Promise<number | undefined> {
+export async function findLastNotificationId(userData: User): Promise<number | undefined> {
     const notifications: Notification[] = await findAllNotifications(userData);
-    return notifications.length > 0 ? Math.max(...notifications.map((notification: Notification): number => notification.id)) : undefined;
+
+    if (notifications.length === 0) {
+        return undefined;
+    }
+
+    const maxId: number = Math.max(...notifications.map(notification => notification.id));
+    return maxId;
 }
 
-export async function createNotification(userData: any, notification: Notification): Promise<boolean | unknown> {
-    const response = await fetchApi('POST', 'notifications/', notification, {
+export async function createNotification(userData: any, notification: Notification): Promise<any> {
+    const response = await fetchApi('POST', 'notifications/', JSON.stringify(notification), {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',
@@ -47,7 +54,7 @@ export async function createNotification(userData: any, notification: Notificati
         },
     });
 
-    return response.success ? response.data : false;
+    return response;
 }
 
 export async function deleteNotifications(userData: any): Promise<boolean> {

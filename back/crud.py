@@ -308,6 +308,20 @@ def delete_notification(db: Session, notification_id: int) -> None:
     if db_notification is not None:
         db.delete(db_notification)
         db.commit()
+    
+def get_notifications(db: Session, skip: int = 0, limit: int = 100) -> list[models.Notifications]:
+    """
+    Retrieve a list of notifications from the database.
+
+    Args:
+        db (Session): The database session.
+        skip (int, optional): Number of records to skip. Defaults to 0.
+        limit (int, optional): Maximum number of records to retrieve. Defaults to 100.
+
+    Returns:
+        list[models.Notifications]: A list of notification objects.
+    """
+    return db.query(models.Notifications).offset(skip).limit(limit).all()
 
 def get_notifications_by_user(db: Session, user_id: int) -> list[models.Notifications]:
     """
