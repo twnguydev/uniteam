@@ -3,10 +3,14 @@ import { useAuth } from '../auth/AuthContext';
 import type { Event } from '../types/Event';
 import { EventItem } from './item/EventItem';
 import fetchApi from '../api/fetch';
+import { Pagination } from './Pagination';
 
 export const Schedule: React.FC = () => {
     const { user } = useAuth();
     const [events, setEvents] = React.useState<Event[]>([]);
+    const [page, setPage] = React.useState<number>(1);
+    const [currentPageEvents, setCurrentPageEvents] = React.useState<Event[]>([]);
+    const [selectedLimit, setSelectedLimit] = React.useState<string>('5');
 
     useEffect((): void => {
         const fetchEvents = async (): Promise<void> => {
@@ -32,6 +36,23 @@ export const Schedule: React.FC = () => {
 
         fetchEvents();
     }, [user]);
+
+    useEffect((): void => {
+        const start: number = (page - 1) * parseInt(selectedLimit);
+        const end: number = start + parseInt(selectedLimit);
+
+        if (page < 1) {
+            setPage(1);
+        } else if (page > Math.ceil(events.length / parseInt(selectedLimit))) {
+            setPage(Math.ceil(events.length / parseInt(selectedLimit)));
+        }
+
+        setCurrentPageEvents(events.slice(start, end));
+    }, [page, events, selectedLimit]);
+
+    const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>): void => {
+        setSelectedLimit(event.target.value);
+    };
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
@@ -59,14 +80,45 @@ export const Schedule: React.FC = () => {
                         </div>
                     </div>
                 </div>
-
+                {events.length > 0 && (
+                    <div className="flex items-end justify-end w-3xl mt-6">
+                        <div className="flex">
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedLimit}
+                                    onChange={handleLimitChange}
+                                >
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="75">75</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                )}
                 <div className="flow-root max-w-3xl mx-auto mt-8 sm:mt-12 lg:mt-16">
                     <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
-                        {events.map(event => (
+                        {currentPageEvents.map(event => (
                             <EventItem key={event.id} {...event} />
                         ))}
+                        {events.length === 0 && (
+                            <div className="text-center text-gray-500 dark:text-gray-400">
+                                Aucun événement à venir.
+                            </div>
+                        )}
                     </div>
                 </div>
+                {events.length > 0 && (
+                    <div className="max-w-3xl mx-auto mt-4">
+                        <Pagination page={page} setPage={setPage} total={events.length} limit={parseInt(selectedLimit)} />
+                    </div>
+                )}
             </div>
         </section>
     );
