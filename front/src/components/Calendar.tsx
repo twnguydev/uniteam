@@ -251,7 +251,7 @@ export const Calendar: React.FC = () => {
                                     value={selectedGroup}
                                     onChange={handleGroupChange}
                                 >
-                                    <option value="">Sans filtre</option>
+                                    <option value="">Filtre par groupe</option>
                                     {loadedGroups.map(group => (
                                         <option key={group.id} value={group.name}>{group.name}</option>
                                     ))}
@@ -265,7 +265,7 @@ export const Calendar: React.FC = () => {
                                     value={selectedRoom}
                                     onChange={handleRoomChange}
                                 >
-                                    <option value="">Sans filtre</option>
+                                    <option value="">Filtre par salle</option>
                                     {loadedRooms.map(room => (
                                         <option key={room.id} value={room.name}>{room.name}</option>
                                     ))}
