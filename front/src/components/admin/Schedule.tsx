@@ -125,16 +125,16 @@ export const ScheduleAdmin: React.FC = () => {
                 <div className="flex items-center justify-center gap-4 mt-8">
                     <ul className="flex text-sm font-medium cursor-pointer text-center text-gray-500 rounded-lg shadow dark:divide-gray-700 dark:text-gray-400">
                         <li className="focus-within:z-10" onClick={toggleEventModal}>
-                            <div className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-l-lg hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">Gestion des événements</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-l-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isEventModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des événements</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleUserModal}>
-                            <div className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">Gestion des utilisateurs</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isUserModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des utilisateurs</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleGroupModal}>
-                            <div className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">Gestion des groupes</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isGroupModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des groupes</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleRoomModal}>
-                            <div className="inline-block w-full p-4 bg-white border-s-0 border-gray-200 dark:border-gray-700 rounded-r-lg hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">Gestion des salles</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-r-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isRoomModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des salles</div>
                         </li>
                     </ul>
                 </div>
