@@ -26,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         const tokenTimeout = setTimeout((): void => {
             logout();
-        }, 30 * 60 * 1000);
+        }, 30 * 60);
 
         return (): void => {
             clearTimeout(tokenTimeout);

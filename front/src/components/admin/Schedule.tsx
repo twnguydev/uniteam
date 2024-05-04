@@ -13,6 +13,7 @@ import type { User } from '../../types/user';
 import type { Status } from '../../types/status';
 import { set } from 'date-fns';
 import { FormRoom } from './form/FormRoom';
+import { FormGroup } from './form/FormGroup';
 import { Banner } from '../Banner';
 
 export const ScheduleAdmin: React.FC = () => {
@@ -25,6 +26,7 @@ export const ScheduleAdmin: React.FC = () => {
     const [isRoomListOpen, setIsRoomListOpen] = useState(false);
 
     const [isRoomFormOpen, setIsRoomFormOpen] = useState(false);
+    const [isGroupFormOpen, setIsGroupFormOpen] = useState(false);
 
     const [events, setEvents] = useState<Event[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -74,12 +76,12 @@ export const ScheduleAdmin: React.FC = () => {
         fetchData();
     }, [user, selectedGroup, selectedStatus]);
 
-    useEffect((): void => {
+    useEffect((): () => void => {
         const fetchSuccess = (): void => {
             const isSuccessMessage: string | null = new URLSearchParams(window.location.search).get('success');
             const typeOfSuccess: string | null = new URLSearchParams(window.location.search).get('type');
             const message: string | null = new URLSearchParams(window.location.search).get('message');
-
+    
             if (isSuccessMessage === 'true' && typeOfSuccess === 'room') {
                 setBanner(message || '');
                 setBannerType('success');
@@ -97,44 +99,74 @@ export const ScheduleAdmin: React.FC = () => {
                 setBannerType('success');
                 setBannerSection('group');
             }
-        }
-
+        };
+    
         fetchSuccess();
-    }, [location.search]);
+    
+        const timer = setTimeout((): void => {
+            setBanner('');
+            setBannerType('');
+            setBannerSection('');
+        }, 5000);
+    
+        return (): void => {
+            clearTimeout(timer);
+        };
+    }, [location.search]);    
 
     const toggleUserList = (): void => {
         setIsUserListOpen(!isUserListOpen);
         setIsEventListOpen(false);
         setIsGroupListOpen(false);
         setIsRoomListOpen(false);
+        setIsRoomFormOpen(false);
+        setIsGroupFormOpen(false);
     };
-
+    
     const toggleEventList = (): void => {
         setIsEventListOpen(!isEventListOpen);
         setIsUserListOpen(false);
         setIsGroupListOpen(false);
         setIsRoomListOpen(false);
+        setIsRoomFormOpen(false);
+        setIsGroupFormOpen(false);
     };
-
+    
     const toggleGroupList = (): void => {
         setIsGroupListOpen(!isGroupListOpen);
         setIsRoomListOpen(false);
         setIsUserListOpen(false);
         setIsEventListOpen(false);
+        setIsRoomFormOpen(false);
+        setIsGroupFormOpen(false);
     };
-
+    
     const toggleRoomList = (): void => {
         setIsRoomListOpen(!isRoomListOpen);
-        setIsRoomFormOpen(false);
         setIsUserListOpen(false);
         setIsEventListOpen(false);
         setIsGroupListOpen(false);
+        setIsRoomFormOpen(false);
+        setIsGroupFormOpen(false);
     };
     
     const toggleRoomForm = (): void => {
         setIsRoomFormOpen(!isRoomFormOpen);
-        setIsRoomListOpen(false);
+        setIsRoomListOpen(!isRoomFormOpen);
+        setIsGroupListOpen(false);
+        setIsUserListOpen(false);
+        setIsEventListOpen(false);
+        setIsGroupFormOpen(false);
     };
+    
+    const toggleGroupForm = (): void => {
+        setIsGroupFormOpen(!isGroupFormOpen);
+        setIsGroupListOpen(!isGroupListOpen);
+        setIsRoomListOpen(false);
+        setIsUserListOpen(false);
+        setIsEventListOpen(false);
+        setIsRoomFormOpen(false);
+    };    
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
@@ -272,7 +304,7 @@ export const ScheduleAdmin: React.FC = () => {
                 )}
                 {isGroupListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleGroupForm}>
                             Ajouter un groupe de travail
                         </button>
                     </div>
@@ -282,6 +314,7 @@ export const ScheduleAdmin: React.FC = () => {
                 {isGroupListOpen && <ListGroups />}
                 {isRoomListOpen && <ListRooms />}
                 {isRoomFormOpen && <FormRoom />}
+                {isGroupFormOpen && <FormGroup />}
             </div>
         </section>
     );

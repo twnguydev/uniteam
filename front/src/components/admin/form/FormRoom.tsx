@@ -41,12 +41,12 @@ export const FormRoom: React.FC<any> = () => {
             }
         } catch (e) {
             setError('Erreur lors de la création de la salle');
-            console.error("Une erreur s'est produite lors de l'ajout de l'événement :", e);
+            console.error("Une erreur s'est produite lors de l'ajout de l'élément :", e);
         }
     }
 
     if (redirect) {
-        return <Navigate to={`/admin/schedule?success=true&type=room&message=La salle ${roomName} a été créée`} />;
+        return <Navigate to={`/admin/schedule?success=true&type=room&message=La salle ${roomName} a été créée !`} />;
     }
 
     return (

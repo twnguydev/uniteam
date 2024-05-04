@@ -74,3 +74,8 @@ export async function countUsersInGroup(groupId: number, userData: any): Promise
     });
     return users.data.filter((user: any): boolean => user.groupId === groupId).length;
 }
+
+export async function findLastGroupId(userData: any): Promise<number | undefined> {
+    const groups: any = await findAllGroups(userData);
+    return groups.length > 0 ? groups[groups.length - 1].id : undefined;
+}

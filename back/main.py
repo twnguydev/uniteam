@@ -195,6 +195,24 @@ async def read_groups(
     return crud.get_groups(db, skip=skip, limit=limit)
 
 
+@app.post("/groups/", response_model=schemas.Group)
+async def create_group(group: schemas.Group, db: Session = Depends(get_db)) -> models.Groups:
+    """
+    Create a new group in the database.
+
+    Args:
+        group (schemas.Group): The group data to be created.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        models.Groups: The created group.
+
+    """
+    if crud.get_group_by_name(db, group_name=group.name):
+        raise HTTPException(status_code=400, detail="Group already registered")
+    return crud.create_group(db=db, group=group)
+
+
 @app.get("/status/", response_model=list[schemas.Status])
 async def read_status(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)

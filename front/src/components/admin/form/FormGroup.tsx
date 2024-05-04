@@ -21,7 +21,7 @@ export const FormGroup: React.FC<any> = () => {
         try {
             const lastGroupId: number | undefined = await findLastGroupId(user);
 
-            const newGroup: Room = {
+            const newGroup: Group = {
                 id: lastGroupId ? lastGroupId + 1 : 1,
                 name: groupName,
             }
@@ -37,16 +37,16 @@ export const FormGroup: React.FC<any> = () => {
             if (response.success) {
                 setRedirect(true);
             } else {
-                setError('Erreur lors de la création de la salle');
+                setError('Erreur lors de la création du groupe de travail');
             }
         } catch (e) {
-            setError('Erreur lors de la création de la salle');
-            console.error("Une erreur s'est produite lors de l'ajout de l'événement :", e);
+            setError('Erreur lors de la création du groupe de travail');
+            console.error("Une erreur s'est produite lors de l'ajout de l'élément :", e);
         }
     }
 
     if (redirect) {
-        return <Navigate to={`/admin/schedule?success=true&type=group&message=Le groupe ${groupName} a été créé`} />;
+        return <Navigate to={`/admin/schedule?success=true&type=group&message=Le groupe ${groupName} a été créé !`} />;
     }
 
     return (
@@ -63,7 +63,7 @@ export const FormGroup: React.FC<any> = () => {
                                 name="name"
                                 id="name"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Nom de la salle"
+                                placeholder="Nom du groupe de travail"
                             />
                         </div>
                         {error && (

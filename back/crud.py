@@ -180,6 +180,39 @@ def get_groups(db: Session, skip: int = 0, limit: int = 100) -> list[models.Grou
     return db.query(models.Groups).offset(skip).limit(limit).all()
 
 
+def get_group_by_name(db: Session, group_name: str) -> models.Groups:
+    """
+    Retrieve a group from the database by its name.
+
+    Args:
+        db (Session): The database session.
+        group_name (str): The name of the group to retrieve.
+
+    Returns:
+        models.Groups: The group object.
+    """
+    return db.query(models.Groups).filter(models.Groups.name == group_name).first()
+
+
+def create_group(db: Session, group: schemas.Group) -> models.Groups:
+    """
+    Create a new group in the database.
+
+    Args:
+        db (Session): The database session.
+        group (schemas.Group): The group data to be created.
+
+    Returns:
+        models.Groups: The created group object.
+    """
+    group_dict: dict[str, Any] = group.model_dump()
+    db_group = models.Groups(**group_dict)
+    db.add(db_group)
+    db.commit()
+    db.refresh(db_group)
+    return db_group
+
+
 def get_status(db: Session, skip: int = 0, limit: int = 100) -> list[models.Status]:
     """
     Retrieve a list of status records from the database.
