@@ -52,3 +52,25 @@ export const getGroupBadgeClassNames = async (groupId: number, userData: any): P
     const badge: Badge | undefined = groupBadges.find(badge => badge.text === convertedGroupName);
     return badge ? badge.classNames : '';
 };
+
+export async function countEventsInGroup(groupId: number, userData: any): Promise<number> {
+    const events: any = await fetchApi('GET', 'events/', undefined, {
+        headers: {
+            Authorization: `Bearer ${userData.token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+    return events.data.filter((event: any): boolean => event.groupId === groupId).length;
+}
+
+export async function countUsersInGroup(groupId: number, userData: any): Promise<number> {
+    const users: any = await fetchApi('GET', 'users/', undefined, {
+        headers: {
+            Authorization: `Bearer ${userData.token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+    return users.data.filter((user: any): boolean => user.groupId === groupId).length;
+}

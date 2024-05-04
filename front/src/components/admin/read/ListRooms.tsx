@@ -9,7 +9,7 @@ export const ListRooms: React.FC = (): ReactElement => {
     const { user } = useAuth();
 
     useEffect(() => {
-        const fetchRooms = async () => {
+        const fetchRooms = async (): Promise<void> => {
             const response = await fetchApi('GET', 'rooms/', undefined, {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
