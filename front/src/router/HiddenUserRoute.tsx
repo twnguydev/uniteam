@@ -9,7 +9,7 @@ const HiddenUserRoute: React.FC<any> = (props): ReactElement => {
     const userContext = useAuth();
 
     useEffect(() => {
-        if (user) {
+        if (user || userContext.user) {
             navigate(1);
         }
     }, [user])
