@@ -15,10 +15,10 @@ import { set } from 'date-fns';
 export const ScheduleAdmin: React.FC = () => {
     const { user, logout } = useAuth();
 
-    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-    const [isEventModalOpen, setIsEventModalOpen] = useState(false);
-    const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
-    const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+    const [isUserListOpen, setIsUserListOpen] = useState(false);
+    const [isEventListOpen, setIsEventListOpen] = useState(false);
+    const [isGroupListOpen, setIsGroupListOpen] = useState(false);
+    const [isRoomListOpen, setIsRoomListOpen] = useState(false);
 
     const [events, setEvents] = useState<Event[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -65,32 +65,39 @@ export const ScheduleAdmin: React.FC = () => {
     }, [user, selectedGroup, selectedStatus]);
 
     const toggleUserModal = (): void => {
-        setIsUserModalOpen(!isUserModalOpen);
-        setIsEventModalOpen(false);
-        setIsGroupModalOpen(false);
-        setIsRoomModalOpen(false);
+        setIsUserListOpen(!isUserListOpen);
+        setIsEventListOpen(false);
+        setIsGroupListOpen(false);
+        setIsRoomListOpen(false);
     };
 
     const toggleEventModal = (): void => {
-        setIsEventModalOpen(!isEventModalOpen);
-        setIsUserModalOpen(false);
-        setIsGroupModalOpen(false);
-        setIsRoomModalOpen(false);
+        setIsEventListOpen(!isEventListOpen);
+        setIsUserListOpen(false);
+        setIsGroupListOpen(false);
+        setIsRoomListOpen(false);
     };
 
     const toggleGroupModal = (): void => {
-        setIsGroupModalOpen(!isGroupModalOpen);
-        setIsRoomModalOpen(false);
-        setIsUserModalOpen(false);
-        setIsEventModalOpen(false);
+        setIsGroupListOpen(!isGroupListOpen);
+        setIsRoomListOpen(false);
+        setIsUserListOpen(false);
+        setIsEventListOpen(false);
     };
 
     const toggleRoomModal = (): void => {
-        setIsRoomModalOpen(!isRoomModalOpen);
-        setIsGroupModalOpen(false);
-        setIsUserModalOpen(false);
-        setIsEventModalOpen(false);
+        setIsRoomListOpen(!isRoomListOpen);
+        setIsGroupListOpen(false);
+        setIsUserListOpen(false);
+        setIsEventListOpen(false);
     };
+
+    const toggleModals = (): void => {
+        setIsUserListOpen(false);
+        setIsEventListOpen(false);
+        setIsGroupListOpen(false);
+        setIsRoomListOpen(false);
+    }
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
@@ -125,20 +132,20 @@ export const ScheduleAdmin: React.FC = () => {
                 <div className="flex items-center justify-center gap-4 mt-8">
                     <ul className="flex text-sm font-medium cursor-pointer text-center text-gray-500 rounded-lg shadow dark:divide-gray-700 dark:text-gray-400">
                         <li className="focus-within:z-10" onClick={toggleEventModal}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-l-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isEventModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des événements</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-l-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isEventListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des événements</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleUserModal}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isUserModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des utilisateurs</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isUserListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des utilisateurs</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleGroupModal}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isGroupModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des groupes</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isGroupListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des groupes</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleRoomModal}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-r-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isRoomModalOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des salles</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-r-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isRoomListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des salles</div>
                         </li>
                     </ul>
                 </div>
-                {isEventModalOpen && (
+                {isEventListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
                             Ajouter un événement
@@ -175,7 +182,7 @@ export const ScheduleAdmin: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {isUserModalOpen && (
+                {isUserListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
                             Ajouter un utilisateur
@@ -211,24 +218,24 @@ export const ScheduleAdmin: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {isRoomModalOpen && (
+                {isRoomListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
                             Ajouter une salle
                         </button>
                     </div>
                 )}
-                {isGroupModalOpen && (
+                {isGroupListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
                         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
                             Ajouter un groupe de travail
                         </button>
                     </div>
                 )}
-                {isUserModalOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
-                {isEventModalOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
-                {isGroupModalOpen && <ListGroups />}
-                {isRoomModalOpen && <ListRooms />}
+                {isUserListOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
+                {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
+                {isGroupListOpen && <ListGroups />}
+                {isRoomListOpen && <ListRooms />}
             </div>
         </section>
     );
