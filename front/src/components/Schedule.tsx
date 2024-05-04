@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import type { Event } from '../types/Event';
-import { EventItem } from './eventItem';
+import { EventItem } from './item/EventItem';
 import fetchApi from '../api/fetch';
 
 export const Schedule: React.FC = () => {
@@ -19,7 +19,7 @@ export const Schedule: React.FC = () => {
                             'Content-Type': 'application/json',
                         },
                     });
-        
+
                     if (response.success && response.data) {
                         const eventsWithHost: Event[] = response.data.filter(event => event.hostName === user.lastName);
                         setEvents(eventsWithHost);
@@ -29,7 +29,7 @@ export const Schedule: React.FC = () => {
                 console.error('An error occurred while fetching events:', error);
             }
         };
-        
+
         fetchEvents();
     }, [user]);
 

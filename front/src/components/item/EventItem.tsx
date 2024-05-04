@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import fetchApi from '../api/fetch';
-import { useAuth } from '../auth/AuthContext';
-import { formatDate, formatDateHour } from '../utils/date';
-import { Badge } from '../utils/badge';
-import { Group } from '../utils/group';
-import { Room } from '../utils/room';
-import statusData from '../data/status.json';
-import type { Event } from '../types/Event';
+import fetchApi from '../../api/fetch';
+import { useAuth } from '../../auth/AuthContext';
+import { formatDate, formatDateHour } from '../../utils/date';
+import { Badge } from '../../utils/badge';
+import { Group } from '../../utils/group';
+import { Room } from '../../utils/room';
+import statusData from '../../data/status.json';
+import type { Event } from '../../types/Event';
 
 export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
     const { user } = useAuth();

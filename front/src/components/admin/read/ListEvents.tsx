@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../auth/AuthContext';
-import fetchApi from '../../api/fetch';
-import type { Event } from '../../types/Event';
-import type { ListEventsAdminProps } from '../../types/admin';
-import { EventItem } from '../eventItem';
-import { findGroupId } from '../../utils/group';
-import { getStatusId } from '../../utils/status';
+import { useAuth } from '../../../auth/AuthContext';
+import fetchApi from '../../../api/fetch';
+import type { Event } from '../../../types/Event';
+import type { ListEventsAdminProps } from '../../../types/admin';
+import { EventItem } from '../../item/EventItem';
+import { findGroupId } from '../../../utils/group';
+import { getStatusId } from '../../../utils/status';
 
 export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus }) => {
     const { user } = useAuth();
@@ -42,7 +42,7 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
         };
 
         fetchEvents();
-    }, [selectedGroup, selectedStatus, user]);  
+    }, [selectedGroup, selectedStatus, user]);
 
     return (
         <section>

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../auth/AuthContext';
-import { UserItem } from '../userItem';
-import fetchApi from '../../api/fetch';
-import { findGroupId } from '../../utils/group';
-import type { User } from '../../types/user';
-import type { ListUsersAdminProps } from '../../types/admin';
+import { useAuth } from '../../../auth/AuthContext';
+import { UserItem } from '../../item/UserItem';
+import fetchApi from '../../../api/fetch';
+import { findGroupId } from '../../../utils/group';
+import type { User } from '../../../types/user';
+import type { ListUsersAdminProps } from '../../../types/admin';
 
-export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus })  => {
+export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus }) => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { ListUsers } from './ListUsers';
-import { ListEvents } from './ListEvents';
+import { ListUsers } from './read/ListUsers';
+import { ListEvents } from './read/ListEvents';
 import { findAllEvents } from '../../utils/event';
 import { findAllGroups, findGroupId } from '../../utils/group';
 import { findAllStatus, getStatusId } from '../../utils/status';
@@ -209,7 +209,7 @@ export const ScheduleAdmin: React.FC = () => {
                         </div>
                     </div>
                 )}
-                {isUserModalOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus}  />}
+                {isUserModalOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
                 {isEventModalOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
             </div>
         </section>
