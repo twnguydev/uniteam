@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
 import { groupBadges } from '../data/badges';
+import { findUserId } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
@@ -12,6 +13,7 @@ import type { Group } from '../types/group';
 import type { User } from '../types/user';
 import { getStatusId } from '../utils/status';
 import fetchApi from '../api/fetch';
+import { createNotification } from '../utils/notification';
 
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -115,6 +117,20 @@ export const Calendar: React.FC = () => {
 
         if (response.success) {
             alert('Événement supprimé avec succès !');
+
+            const hostId: number | undefined = await findUserId(selectedEvent?.hostName ?? '', user as User);
+            const notification: any = await createNotification(user, {
+                id: 1,
+                userId: hostId ?? 0,
+                message: `L'événement ${selectedEvent?.name} a été supprimé.`,
+            });
+
+            if (notification.success) {
+                console.log('Notification créée avec succès');
+            } else {
+                console.error('Erreur lors de la création de la notification :', notification.error);
+            }
+
             setEvents(events.filter(event => event.id !== selectedEvent?.id));
             setOpenEventDetailsModal(false);
         } else {

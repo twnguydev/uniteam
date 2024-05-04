@@ -32,9 +32,15 @@ export async function findLastUserId(userData: User): Promise<number | undefined
 }
 
 export async function findUserLastname(userId: number, userData: User): Promise<string | undefined> {
-    const users = await findAllUsers(userData);
-    const user = users.find((user: User) => user.id === userId);
+    const users: User[] = await findAllUsers(userData);
+    const user: User | undefined = users.find((user: User): boolean => user.id === userId);
     return user ? user.lastName : undefined;
+}
+
+export async function findUserId(userLastname: string, userData: User): Promise<number> {
+    const users: User[] = await findAllUsers(userData);
+    const user: User | undefined = users.find((user: User): boolean => user.lastName === userLastname);
+    return user ? user.id : 0;
 }
 
 const User: React.FC<UserProps> = ({ userId, userData }) => {
