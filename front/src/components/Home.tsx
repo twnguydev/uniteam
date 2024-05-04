@@ -7,8 +7,8 @@ export const Home: React.FC = () => {
                 <div className="text-foreground text-white m-8 mt-0 mb-4 font-semibold text-center text-4xl md:text-5xl lg:text-6xl tracking-tighter mx-auto flex items-center gap-2 w-full max-w-2xl">
                     Propulsez votre entreprise dans une autre dimension avec UniTeam.
                 </div>
-                <a href="#" className="flex items-center mb-16 text-2xl font-semibold text-gray-600">
-                    Uniteam by Epitech
+                <a href="#" className="flex items-center mb-16 text-2xl font-semibold text-gray-600 hover:text-gray-400">
+                    UniTeam by Epitech
                 </a>
                 <div className="flex flex-col sm:flex-row justify-around gap-4 m-8">
                     <div className="block max-w-xl p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100">

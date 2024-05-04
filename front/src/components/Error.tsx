@@ -5,12 +5,12 @@ export const Error: React.FC = () => {
                 <div className="text-foreground text-white m-8 mt-0 mb-4 font-semibold text-center text-4xl md:text-5xl lg:text-6xl tracking-tighter mx-auto flex items-center gap-2 w-full max-w-2xl">
                     Oh oh...<br />Il semblerait que vous ayez trouvé un glitch dans la matrix.
                 </div>
-                <a href="#" className="flex items-center mb-16 text-2xl font-semibold text-gray-600">
-                    Uniteam by Epitech
+                <a href="#" className="flex items-center mb-16 text-2xl font-semibold text-gray-600 hover:text-gray-400">
+                    UniTeam by Epitech
                 </a>
 
                 <div className="mt-4">
-                    <a href="#" title=""
+                    <a href="/" title=""
                         className="inline-flex items-center text-lg font-medium text-primary-600 hover:underline text-blue-500">
                         Retournez à l'accueil
                         <svg aria-hidden="true" className="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
