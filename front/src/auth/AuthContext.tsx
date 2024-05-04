@@ -1,8 +1,6 @@
 import React, { createContext, Context, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { findGroupName } from '../utils/group';
-
 import type { AuthContextType } from '../types/Auth';
 import type { User } from '../types/user';
 
