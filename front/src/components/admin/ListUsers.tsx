@@ -6,7 +6,7 @@ import { findGroupId } from '../../utils/group';
 import type { User } from '../../types/user';
 import type { ListUsersAdminProps } from '../../types/admin';
 
-export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus })  => {
+export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus })  => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
 

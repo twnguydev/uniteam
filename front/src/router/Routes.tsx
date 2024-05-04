@@ -6,7 +6,7 @@ import { Login } from '../components/Login';
 import { Home } from '../components/Home';
 import { Calendar } from '../components/Calendar';
 import { Schedule } from '../components/Schedule';
-import { ScheduleAdmin } from '../components/admin/ScheduleAdmin';
+import { ScheduleAdmin } from '../components/admin/Schedule';
 import { Navbar } from '../components/Navbar';
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import ProtectedUserRoute from "./ProtectedUserRoute";

@@ -7,7 +7,7 @@ import { EventItem } from '../eventItem';
 import { findGroupId } from '../../utils/group';
 import { getStatusId } from '../../utils/status';
 
-export const ListEventsAdmin: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus }) => {
+export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus }) => {
     const { user } = useAuth();
     const [events, setEvents] = useState<Event[]>([]);
 
