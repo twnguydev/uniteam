@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
+import { findAllEvents } from './event';
 import fetchApi from '../api/fetch';
 
 export async function findAllRooms<User>(userData: User): Promise<any> {
@@ -45,4 +46,9 @@ export async function findRoomName(roomId: number, userData: any): Promise<strin
     const rooms = await findAllRooms(userData);
     const room = rooms.find((room: any) => room.id === roomId);
     return room ? room.name : undefined;
+}
+
+export async function countEventsInRoom(roomId: number, userData: any): Promise<number> {
+    const events: any = await findAllEvents(userData);
+    return events.filter((event: any): boolean => event.roomId === roomId).length;
 }

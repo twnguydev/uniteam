@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { ListUsers } from './read/ListUsers';
 import { ListEvents } from './read/ListEvents';
+import { ListRooms } from './read/ListRooms';
 import { findAllEvents } from '../../utils/event';
 import { findAllGroups, findGroupId } from '../../utils/group';
 import { findAllStatus, getStatusId } from '../../utils/status';
@@ -209,8 +210,17 @@ export const ScheduleAdmin: React.FC = () => {
                         </div>
                     </div>
                 )}
+                {isRoomModalOpen && (
+                    <div className="flex items-end justify-between w-3xl mt-6">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
+                            Ajouter une salle
+                        </button>
+                    </div>
+                )}
                 {isUserModalOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
                 {isEventModalOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
+                {/* {isGroupModalOpen && <ListGroups />} */}
+                {isRoomModalOpen && <ListRooms />}
             </div>
         </section>
     );
