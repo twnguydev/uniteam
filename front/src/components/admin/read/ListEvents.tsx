@@ -50,6 +50,13 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
     useEffect((): void => {
         const start: number = (page - 1) * selectedLimit;
         const end: number = start + selectedLimit;
+
+        if (page < 1) {
+            setPage(1);
+        } else if (page > Math.ceil(events.length / selectedLimit)) {
+            setPage(Math.ceil(events.length / selectedLimit));
+        }
+
         setCurrentPageEvents(events.slice(start, end));
     }, [page, events, selectedLimit]);
 

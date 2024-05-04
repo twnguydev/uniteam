@@ -33,6 +33,13 @@ export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): Rea
     useEffect(() => {
         const start: number = (page - 1) * selectedLimit;
         const end: number = start + selectedLimit;
+
+        if (page < 1) {
+            setPage(1);
+        } else if (page > Math.ceil(rooms.length / selectedLimit)) {
+            setPage(Math.ceil(rooms.length / selectedLimit));
+        }
+
         setCurrentPageRooms(rooms.slice(start, end));
     }, [page, rooms, selectedLimit]);
 

@@ -33,6 +33,13 @@ export const ListGroups: React.FC<ListGroupsAdminProps> = ({ selectedLimit }): R
     useEffect(() => {
         const start: number = (page - 1) * selectedLimit;
         const end: number = start + selectedLimit;
+
+        if (page < 1) {
+            setPage(1);
+        } else if (page > Math.ceil(groups.length / selectedLimit)) {
+            setPage(Math.ceil(groups.length / selectedLimit));
+        }
+
         setCurrentPageGroups(groups.slice(start, end));
     }, [page, groups, selectedLimit]);
 
