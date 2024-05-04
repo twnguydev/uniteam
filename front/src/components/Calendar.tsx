@@ -122,12 +122,6 @@ export const Calendar: React.FC = () => {
             if (selectedEvent && user) {
                 const hostId: number | undefined = await findUserId(selectedEvent.hostName ?? '', user);
                 const lastNotificationId: number | undefined = await findLastNotificationId(user);
-                const allNotifications: Notification[] = await findAllNotifications(user);
-
-                console.log('allNotifications :', allNotifications);
-                console.log('hostId :', hostId);
-                console.log('lastNotificationId :', lastNotificationId);
-                console.log('selectedEvent :', selectedEvent);
 
                 const notification: Notification = {
                     id: (lastNotificationId ?? 0) + 1,

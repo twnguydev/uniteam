@@ -290,24 +290,6 @@ def create_notification(db: Session, notification: schemas.Notification) -> mode
     db.commit()
     db.refresh(db_notification)
     return db_notification
-
-def delete_notification(db: Session, notification_id: int) -> None:
-    """
-    Delete a notification from the database.
-
-    Args:
-        db (Session): The database session.
-        notification_id (int): The ID of the notification to be deleted.
-
-    Returns:
-        None
-    """
-    db_notification: Optional[models.Notifications] = (
-        db.query(models.Notifications).filter(models.Notifications.id == notification_id).first()
-    )
-    if db_notification is not None:
-        db.delete(db_notification)
-        db.commit()
     
 def get_notifications(db: Session, skip: int = 0, limit: int = 100) -> list[models.Notifications]:
     """
@@ -335,3 +317,17 @@ def get_notifications_by_user(db: Session, user_id: int) -> list[models.Notifica
         list[models.Notifications]: A list of notification objects.
     """
     return db.query(models.Notifications).filter(models.Notifications.userId == user_id).order_by(models.Notifications.id.desc()).all()
+
+def delete_notifications_by_user(db: Session, user_id: int) -> None:
+    """
+    Delete all notifications for a specific user.
+
+    Args:
+        db (Session): The database session.
+        user_id (int): The ID of the user to delete notifications for.
+
+    Returns:
+        None
+    """
+    db.query(models.Notifications).filter(models.Notifications.userId == user_id).delete()
+    db.commit()

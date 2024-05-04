@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import type { Notification } from '../types/notification';
@@ -8,13 +8,6 @@ export const NotificationNavbar = () => {
     const { user } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const isMounted = useRef(true);
-
-    useEffect(() => {
-        return () => {
-            isMounted.current = false;
-        };
-    }, []);
 
     const clearNotifications = async (): Promise<void> => {
         const response = await deleteNotifications(user);
@@ -26,7 +19,7 @@ export const NotificationNavbar = () => {
     };
 
     useEffect(() => {
-        if (!user || !isMounted.current) return;
+        if (!user) return;
 
         const fetchNotifications = async (): Promise<void> => {
             const response: Notification[] = await findNotificationsForUser(user);
@@ -38,11 +31,7 @@ export const NotificationNavbar = () => {
         };
 
         fetchNotifications();
-
-        return () => {
-            isMounted.current = false;
-        };
-    }, [])
+    })
 
     return (
         <>
