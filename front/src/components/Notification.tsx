@@ -74,7 +74,7 @@ export const NotificationNavbar = () => {
   return (
     <>
       <div className="relative group inline-block" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-        <div className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium transition duration-200 relative" aria-haspopup="true">
+        <div className="text-white cursor-pointer hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium transition duration-200 relative" aria-haspopup="true">
           Notifications
           {notifications.length > 0 && (
             <span className="absolute top-0 right-0 inline-block bg-red-500 text-white text-xs font-semibold px-1 rounded-full">{notifications.length}</span>
