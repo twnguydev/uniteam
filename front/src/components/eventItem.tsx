@@ -126,7 +126,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                         {description}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <Group groupId={groupId} />
+                                        <Badge Id={groupId} Name={'group'} UserData={user} />
                                     </td>
                                     <td className="px-6 py-4">
                                         <Badge Id={statusId} Name={'status'} UserData={user} />

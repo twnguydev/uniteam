@@ -26,7 +26,6 @@ export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })
                     const filteredUsers: User[] = groupId
                         ? response.data.filter(user => user.groupId === groupId)
                         : response.data;
-                        // console.log("Filtered Users:", filteredUsers);
                     setUsers(filteredUsers);
                 }
             } catch (error) {
@@ -39,7 +38,7 @@ export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })
 
     return (
         <section>
-            <div className="flow-root max-w-3xl mx-auto mt-8 sm:mt-12 lg:mt-16">
+            <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
                 <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
                     {users.map(user => (
                         <UserItem key={user.id} {...user} />
