@@ -272,3 +272,52 @@ def create_room(db: Session, room: schemas.Room) -> models.Rooms:
     db.commit()
     db.refresh(db_room)
     return db_room
+
+def create_notification(db: Session, notification: schemas.Notification) -> models.Notifications:
+    """
+    Create a new notification in the database.
+
+    Args:
+        db (Session): The database session.
+        notification (schemas.Notification): The notification data to be created.
+
+    Returns:
+        models.Notifications: The created notification object.
+    """
+    notification_dict: dict[str, Any] = notification.model_dump()
+    db_notification = models.Notifications(**notification_dict)
+    db.add(db_notification)
+    db.commit()
+    db.refresh(db_notification)
+    return db_notification
+
+def delete_notification(db: Session, notification_id: int) -> None:
+    """
+    Delete a notification from the database.
+
+    Args:
+        db (Session): The database session.
+        notification_id (int): The ID of the notification to be deleted.
+
+    Returns:
+        None
+    """
+    db_notification: Optional[models.Notifications] = (
+        db.query(models.Notifications).filter(models.Notifications.id == notification_id).first()
+    )
+    if db_notification is not None:
+        db.delete(db_notification)
+        db.commit()
+
+def get_notifications_by_user(db: Session, user_id: int) -> list[models.Notifications]:
+    """
+    Retrieve a list of notifications for a specific user.
+
+    Args:
+        db (Session): The database session.
+        user_id (int): The ID of the user to retrieve notifications for.
+
+    Returns:
+        list[models.Notifications]: A list of notification objects.
+    """
+    return db.query(models.Notifications).filter(models.Notifications.userId == user_id).order_by(models.Notifications.id.desc()).all()

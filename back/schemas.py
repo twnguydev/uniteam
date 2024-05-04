@@ -156,3 +156,23 @@ class TokenData(BaseModel):
 
     class Config:
         orm_mode = True
+
+class Notification(BaseModel):
+    """
+    Represents a notification.
+
+    Attributes:
+        id (int): The unique identifier of the notification.
+        message (str): The message of the notification.
+        userId (int): The ID of the user who will receive the notification.
+
+    Config:
+        orm_mode (bool): Whether to enable ORM mode or not.
+    """
+
+    id: int
+    message: str
+    userId: int
+
+    class Config:
+        orm_mode = True

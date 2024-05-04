@@ -420,3 +420,53 @@ async def read_event(event_id: int, db: Session = Depends(get_db)) -> models.Eve
     if event is None:
         raise HTTPException(status_code=404, detail="Event not found")
     return event
+
+@app.get("/notifications/user/{user_id}", response_model=list[schemas.Notification])
+async def read_notifications(
+    user_id: int, db: Session = Depends(get_db)
+) -> list[models.Notifications]:
+    """
+    Retrieve a list of notifications for a specific user.
+
+    Args:
+        user_id (int): The ID of the user to retrieve notifications for.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        list[models.Notifications]: A list of notifications for the specified user.
+
+    """
+    return crud.get_notifications_by_user(db, user_id=user_id)
+
+@app.post("/notifications/", response_model=schemas.Notification)
+async def create_notification(
+    notification: schemas.Notification, db: Session = Depends(get_db)
+) -> models.Notifications:
+    """
+    Create a new notification in the database.
+
+    Args:
+        notification (schemas.Notification): The notification data to be created.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        models.Notifications: The created notification.
+
+    """
+    return crud.create_notification(db=db, notification=notification)
+
+@app.delete("/notifications/user/{user_id}", response_model=dict[str, str])
+async def delete_notifications(user_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    """
+    Delete all notifications for a specific user.
+
+    Args:
+        user_id (int): The ID of the user to delete notifications for.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        dict[str, str]: A dictionary with a message indicating the success of the deletion.
+
+    """
+    crud.delete_notifications_by_user(db, user_id=user_id)
+    return {"message": "Notifications deleted"}

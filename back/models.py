@@ -100,3 +100,19 @@ class Rooms(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+
+class Notifications(Base):
+    """
+    Represents a notification in the application.
+
+    Attributes:
+        id (int): The unique identifier of the notification.
+        userId (int): The ID of the user who the notification is for.
+        message (str): The message of the notification.
+    """
+
+    __tablename__: str = "notifications"
+
+    id = Column(Integer, primary_key=True)
+    userId = Column(Integer, ForeignKey("users.id"))
+    message = Column(String)
