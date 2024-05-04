@@ -18,6 +18,19 @@ export async function findAllUsers(userData: User): Promise<User[]> {
     }
 }
 
+export async function findLastUserId(userData: User): Promise<number | undefined> {
+    const users: User[] = await findAllUsers(userData);
+    let maxId: number | undefined = undefined;
+
+    users.forEach((user) => {
+        if (maxId === undefined || user.id > maxId) {
+            maxId = user.id;
+        }
+    });
+
+    return maxId;
+}
+
 export async function findUserLastname(userId: number, userData: User): Promise<string | undefined> {
     const users = await findAllUsers(userData);
     const user = users.find((user: User) => user.id === userId);

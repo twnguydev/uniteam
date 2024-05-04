@@ -35,7 +35,7 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }) => {
 
     return (
         <div className="relative">
-            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center justify-between" onClick={toggleAccordion}>
+            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row cursor-pointer sm:items-center justify-between" onClick={toggleAccordion}>
                 <div className="flex items-center cursor-pointer">
                     <h3 className="text-lg ml-10 font-semibold text-gray-900 dark:text-white">
                         {group.name}

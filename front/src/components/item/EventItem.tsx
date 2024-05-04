@@ -61,15 +61,13 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
 
     return (
         <div className="relative">
-            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center justify-between">
-                <div className="flex items-center cursor-pointer" onClick={toggleAccordion}>
+            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center cursor-pointer justify-between" onClick={toggleAccordion}>
+                <div className="flex items-center cursor-pointer">
                     <p className="w-55 text-lg font-normal text-gray-500 dark:text-gray-400 text-left">
                         {formattedStartDate} - {formattedEndDate}
                     </p>
                     <h3 className="text-lg ml-10 font-semibold text-gray-900 dark:text-white">
-                        <a href="#" className="hover:underline">
-                            {name}
-                        </a>
+                        {name}
                     </h3>
                 </div>
                 <div>

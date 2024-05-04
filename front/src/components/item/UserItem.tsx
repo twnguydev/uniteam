@@ -16,7 +16,7 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
 
     return (
         <div className="relative">
-            <div className="flex flex-col gap-2 py-4 sm:gap-6 sm:flex-row sm:items-center justify-between" onClick={toggleAccordion}>
+            <div className="flex flex-col gap-2 py-4 cursor-pointer sm:gap-6 sm:flex-row sm:items-center justify-between" onClick={toggleAccordion}>
                 <div className="flex items-center cursor-pointer">
                     <h3 className="text-lg ml-10 font-semibold text-gray-900 dark:text-white">
                         {firstName} {lastName}

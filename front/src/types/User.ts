@@ -3,10 +3,11 @@ export interface User {
     firstName: string;
     lastName: string;
     email: string;
-    token: string;
+    password?: string | null;
+    token?: string | null;
     is_admin: boolean;
     groupId: number;
-    groupName: string | null;
+    groupName?: string | null;
 }
 
 export interface UserProps {

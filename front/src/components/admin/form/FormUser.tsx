@@ -1,69 +1,164 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
+import fetchApi from "../../../api/fetch";
+import type { User } from "../../../types/user";
+import { findLastUserId } from "../../../utils/user";
+import { findAllGroups, findGroupId } from "../../../utils/group";
 
-export const FormRoom: React.FC<any> = (props) => {
+export const FormUser: React.FC<any> = () => {
     const { user } = useAuth();
+    const [error, setError] = React.useState<string>('');
+    const [lastName, setLastName] = React.useState<string>('');
+    const [firstName, setFirstName] = React.useState<string>('');
+    const [email, setEmail] = React.useState<string>('');
+    const [password, setPassword] = React.useState<string>('');
+    const [groupName, setGroupName] = React.useState<string>('');
+    const [admin, setAdmin] = React.useState<boolean>(false);
+    const [redirect, setRedirect] = React.useState<boolean>(false);
+    const [groups, setGroups] = React.useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchGroups = async (): Promise<void> => {
+            const response = await findAllGroups(user);
+            setGroups(response);
+        }
+
+        fetchGroups();
+    }, [user]);
+
+    const handleUserForm = async (e: any) => {
+        e.preventDefault();
+        if (!lastName || !firstName || !email || !password || !groupName) {
+            setError('Veuillez remplir tous les champs');
+            return;
+        }
+        setError('');
+        try {
+            const lastUserId: number | undefined = await findLastUserId(user as User);
+            const groupId: number | undefined = await findGroupId(groupName, user);
+
+            const newUser: User = {
+                id: lastUserId ? lastUserId + 1 : 1,
+                lastName: lastName,
+                firstName: firstName,
+                email: email,
+                password: password,
+                is_admin: admin,
+                groupId: groupId ? groupId : 1,
+            }
+
+            const response = await fetchApi<User>('POST', 'users/', JSON.stringify(newUser), {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.success) {
+                setRedirect(true);
+            } else {
+                setError('Erreur lors de la création de l\'utilisateur');
+            }
+        } catch (e) {
+            setError('Erreur lors de la création de l\'utilisateur');
+            console.error("Une erreur s'est produite lors de l'ajout de l'élément :", e);
+        }
+    }
+
+    if (redirect) {
+        return <Navigate to={`/admin/schedule?success=true&type=user&message=L'utilisateur ${firstName} ${lastName} a été créé !`} />;
+    }
 
     return (
         <section>
             <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
-                <div className="flex max-w-3xl justify-center">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate dark:text-gray-100">Add Room</h2>
-                </div>
                 <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
-                    <form className="w-full max-w-lg mx-auto" onSubmit={props.onSubmit}>
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_name">
-                                    Room Name
-                                </label>
-                                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="room_name" type="text" name="room_name" placeholder="Room Name" required />
-                            </div>
-                            <div className="w-full md:w-1/2 px-3">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_capacity">
-                                    Room Capacity
-                                </label>
-                                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white" id="room_capacity" type="number" name="room_capacity" placeholder="Room Capacity" required />
-                            </div>
+                    <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleUserForm}>
+                        <div>
+                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Prénom</label>
+                            <input
+                                value={firstName}
+                                onChange={(e): any => setFirstName(e.target.value)}
+                                type="text"
+                                name="firstName"
+                                id="firstName"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Prénom de l'utilisateur"
+                            />
                         </div>
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_location">
-                                    Room Location
-                                </label>
-                                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="room_location" type="text" name="room_location" placeholder="Room Location" required />
-                            </div>
-                            <div className="w-full md:w-1/2 px-3">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_type">
-                                    Room Type
-                                </label>
-                                <input className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white" id="room_type" type="text" name="room_type" placeholder="Room Type" required />
-                            </div>
+                        <div>
+                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Nom</label>
+                            <input
+                                value={lastName}
+                                onChange={(e): any => setLastName(e.target.value)}
+                                type="text"
+                                name="lastName"
+                                id="lastName"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Nom de l'utilisateur"
+                            />
                         </div>
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_description">
-                                    Room Description
-                                </label>
-                                <textarea className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white" id="room_description" name="room_description" placeholder="Room Description" required />
-                            </div>
-                            <div className="w-full md:w-1/2 px-3">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="room_status">
-                                    Room Status
-                                </label>
-                                <select className="block appearance-none w-full bg-gray-200 text-gray-700 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white" id="room_status" name="room_status" required>
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label htmlFor="email" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <input
+                                value={email}
+                                onChange={(e): any => setEmail(e.target.value)}
+                                type="email"
+                                name="email"
+                                id="email"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Email de l'utilisateur"
+                            />
                         </div>
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full px-3">
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                                    Add Room
-                                </button>
-                            </div>
+                        <div>
+                            <label htmlFor="group" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Groupe de travail</label>
+                            <select
+                                name="group"
+                                id="group"
+                                value={groupName}
+                                onChange={(e): any => setGroupName(e.target.value)}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            >
+                                <option value="">Filtrer par groupe de travail</option>
+                                {groups.map(group => (
+                                    <option key={group.id} value={group.name}>{group.name}</option>
+                                ))}
+                            </select>
                         </div>
+                        <div>
+                            <label htmlFor="password" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Mot de passe</label>
+                            <input
+                                value={password}
+                                onChange={(e): any => setPassword(e.target.value)}
+                                type="password"
+                                name="password"
+                                id="password"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Mot de passe de l'utilisateur"
+                            />
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Pensez à communiquer le mot de passe à l'utilisateur</p>
+                        </div>
+                        <div>
+                            <label htmlFor="is_admin" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Administrateur</label>
+                            <input
+                                type="checkbox"
+                                name="is_admin"
+                                id="is_admin"
+                                checked={admin}
+                                onChange={(e): any => setAdmin(e.target.checked)}
+                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            />
+                        </div>
+                        {error && (
+                            <div className="text-red-500 text-sm font-medium">
+                                {error}
+                            </div>
+                        )}
+                        <button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                            Ajouter
+                        </button>
                     </form>
                 </div>
             </div>

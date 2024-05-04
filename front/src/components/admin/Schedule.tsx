@@ -14,6 +14,7 @@ import type { Status } from '../../types/status';
 import { set } from 'date-fns';
 import { FormRoom } from './form/FormRoom';
 import { FormGroup } from './form/FormGroup';
+import { FormUser } from './form/FormUser';
 import { Banner } from '../Banner';
 
 export const ScheduleAdmin: React.FC = () => {
@@ -27,6 +28,7 @@ export const ScheduleAdmin: React.FC = () => {
 
     const [isRoomFormOpen, setIsRoomFormOpen] = useState(false);
     const [isGroupFormOpen, setIsGroupFormOpen] = useState(false);
+    const [isUserFormOpen, setIsUserFormOpen] = useState(false);
 
     const [events, setEvents] = useState<Event[]>([]);
     const [users, setUsers] = useState<User[]>([]);
@@ -121,6 +123,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsRoomListOpen(false);
         setIsRoomFormOpen(false);
         setIsGroupFormOpen(false);
+        setIsUserFormOpen(false);
     };
     
     const toggleEventList = (): void => {
@@ -130,6 +133,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsRoomListOpen(false);
         setIsRoomFormOpen(false);
         setIsGroupFormOpen(false);
+        setIsUserFormOpen(false);
     };
     
     const toggleGroupList = (): void => {
@@ -139,6 +143,7 @@ export const ScheduleAdmin: React.FC = () => {
         setIsEventListOpen(false);
         setIsRoomFormOpen(false);
         setIsGroupFormOpen(false);
+        setIsUserFormOpen(false);
     };
     
     const toggleRoomList = (): void => {
@@ -148,15 +153,17 @@ export const ScheduleAdmin: React.FC = () => {
         setIsGroupListOpen(false);
         setIsRoomFormOpen(false);
         setIsGroupFormOpen(false);
+        setIsUserFormOpen(false);
     };
     
     const toggleRoomForm = (): void => {
         setIsRoomFormOpen(!isRoomFormOpen);
-        setIsRoomListOpen(!isRoomFormOpen);
+        setIsRoomListOpen(!isRoomListOpen);
         setIsGroupListOpen(false);
         setIsUserListOpen(false);
         setIsEventListOpen(false);
         setIsGroupFormOpen(false);
+        setIsUserFormOpen(false);
     };
     
     const toggleGroupForm = (): void => {
@@ -166,7 +173,18 @@ export const ScheduleAdmin: React.FC = () => {
         setIsUserListOpen(false);
         setIsEventListOpen(false);
         setIsRoomFormOpen(false);
-    };    
+        setIsUserFormOpen(false);
+    };
+    
+    const toggleUserForm = (): void => {
+        setIsUserFormOpen(!isUserFormOpen);
+        setIsUserListOpen(!isUserListOpen);
+        setIsEventListOpen(false);
+        setIsGroupListOpen(false);
+        setIsRoomListOpen(false);
+        setIsRoomFormOpen(false);
+        setIsGroupFormOpen(false);
+    };
 
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
@@ -223,10 +241,7 @@ export const ScheduleAdmin: React.FC = () => {
                     </ul>
                 </div>
                 {isEventListOpen && (
-                    <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
-                            Ajouter un événement
-                        </button>
+                    <div className="flex items-end justify-end w-3xl mt-6">
                         <div className="flex">
                             <form className="mt-6">
                                 <label htmlFor="underline_select" className="sr-only">Statut</label>
@@ -261,7 +276,7 @@ export const ScheduleAdmin: React.FC = () => {
                 )}
                 {isUserListOpen && (
                     <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleUserForm}>
                             Ajouter un utilisateur
                         </button>
                         <div className="flex">
@@ -315,6 +330,7 @@ export const ScheduleAdmin: React.FC = () => {
                 {isRoomListOpen && <ListRooms />}
                 {isRoomFormOpen && <FormRoom />}
                 {isGroupFormOpen && <FormGroup />}
+                {isUserFormOpen && <FormUser />}
             </div>
         </section>
     );
