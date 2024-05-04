@@ -174,22 +174,42 @@ export const ScheduleAdmin: React.FC = () => {
                     </div>
                 )}
                 {isUserModalOpen && (
-                    <form className="max-w-sm mx-auto mt-6">
-                        <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                        <select
-                            id="underline_select"
-                            className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-2 py-1.5 pr-4 rounded-lg leading-tight text-gray-200"
-                            value={selectedGroup}
-                            onChange={handleGroupChange}
-                        >
-                            <option value="">Sans filtre</option>
-                            {loadedGroups.map(group => (
-                                <option key={group.id} value={group.name}>{group.name}</option>
-                            ))}
-                        </select>
-                    </form>
+                    <div className="flex items-end justify-between w-3xl mt-6">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4">
+                            Ajouter un utilisateur
+                        </button>
+                        <div className="flex">
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Statut</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedStatus}
+                                    onChange={handleStatusChange}
+                                >
+                                    <option value="">Filtrer par status</option>
+                                    <option value="true">Administrateur</option>
+                                    <option value="false">Membre</option>
+                                </select>
+                            </form>
+                            <form className="mt-6">
+                                <label htmlFor="underline_select" className="sr-only">Groupe</label>
+                                <select
+                                    id="underline_select"
+                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                    value={selectedGroup}
+                                    onChange={handleGroupChange}
+                                >
+                                    <option value="">Filtrer par groupe de travail</option>
+                                    {loadedGroups.map(group => (
+                                        <option key={group.id} value={group.name}>{group.name}</option>
+                                    ))}
+                                </select>
+                            </form>
+                        </div>
+                    </div>
                 )}
-                {isUserModalOpen && <ListUsersAdmin selectedGroup={selectedGroup} />}
+                {isUserModalOpen && <ListUsersAdmin selectedGroup={selectedGroup} selectedStatus={selectedStatus}  />}
                 {isEventModalOpen && <ListEventsAdmin selectedGroup={selectedGroup} selectedStatus={selectedStatus} />}
             </div>
         </section>

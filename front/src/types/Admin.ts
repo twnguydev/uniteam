@@ -1,5 +1,6 @@
 export interface ListUsersAdminProps {
     selectedGroup?: string;
+    selectedStatus?: string;
 }
 
 export interface ListEventsAdminProps {

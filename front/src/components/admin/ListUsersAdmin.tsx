@@ -6,7 +6,7 @@ import { findGroupId } from '../../utils/group';
 import type { User } from '../../types/user';
 import type { ListUsersAdminProps } from '../../types/admin';
 
-export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })  => {
+export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus })  => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
 
@@ -23,9 +23,13 @@ export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })
                 });
 
                 if (response.success && response.data) {
-                    const filteredUsers: User[] = groupId
-                        ? response.data.filter(user => user.groupId === groupId)
-                        : response.data;
+                    let filteredUsers = response.data;
+                    if (groupId) {
+                        filteredUsers = filteredUsers.filter((user: User): boolean => user.groupId === groupId);
+                    }
+                    if (selectedStatus) {
+                        filteredUsers = filteredUsers.filter((user: User): boolean => user.is_admin.toString() === selectedStatus);
+                    }
                     setUsers(filteredUsers);
                 }
             } catch (error) {
@@ -34,7 +38,7 @@ export const ListUsersAdmin: React.FC<ListUsersAdminProps> = ({ selectedGroup })
         };
 
         fetchUsers();
-    }, [selectedGroup, user]);
+    }, [selectedGroup, selectedStatus, user]);
 
     return (
         <section>
