@@ -52,3 +52,8 @@ export async function countEventsInRoom(roomId: number, userData: any): Promise<
     const events: any = await findAllEvents(userData);
     return events.filter((event: any): boolean => event.roomId === roomId).length;
 }
+
+export async function findLastRoomId(userData: any): Promise<number | undefined> {
+    const rooms = await findAllRooms(userData);
+    return rooms.length > 0 ? rooms[rooms.length - 1].id : undefined;
+}

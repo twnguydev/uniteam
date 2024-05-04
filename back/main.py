@@ -232,6 +232,22 @@ async def read_rooms(
     """
     return crud.get_rooms(db, skip=skip, limit=limit)
 
+@app.post("/rooms/", response_model=schemas.Room)
+async def create_room(room: schemas.Room, db: Session = Depends(get_db)) -> models.Rooms:
+    """
+    Create a new room in the database.
+
+    Args:
+        room (schemas.Room): The room data to be created.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        models.Rooms: The created room.
+
+    """
+    if crud.get_room_by_name(db, room_name=room.name):
+        raise HTTPException(status_code=400, detail="Room already registered")
+    return crud.create_room(db=db, room=room)
 
 @app.post("/users/", response_model=schemas.User)
 async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> models.User:

@@ -31,7 +31,7 @@ export const ListRooms: React.FC = (): ReactElement => {
             <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
                 <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
                     {rooms.map(room => (
-                        <RoomItem room={room} />
+                        <RoomItem key={room.id} room={room} />
                     ))}
                 </div>
             </div>

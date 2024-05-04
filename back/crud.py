@@ -208,3 +208,34 @@ def get_rooms(db: Session, skip: int = 0, limit: int = 100) -> list[models.Rooms
         list[models.Rooms]: A list of room objects.
     """
     return db.query(models.Rooms).offset(skip).limit(limit).all()
+
+def get_room_by_name(db: Session, room_name: str) -> models.Rooms:
+    """
+    Retrieve a room from the database by its name.
+
+    Args:
+        db (Session): The database session.
+        room_name (str): The name of the room to retrieve.
+
+    Returns:
+        models.Rooms: The room object.
+    """
+    return db.query(models.Rooms).filter(models.Rooms.name == room_name).first()
+
+def create_room(db: Session, room: schemas.Room) -> models.Rooms:
+    """
+    Create a new room in the database.
+
+    Args:
+        db (Session): The database session.
+        room (schemas.Room): The room data to be created.
+
+    Returns:
+        models.Rooms: The created room object.
+    """
+    room_dict: dict[str, Any] = room.model_dump()
+    db_room = models.Rooms(**room_dict)
+    db.add(db_room)
+    db.commit()
+    db.refresh(db_room)
+    return db_room
