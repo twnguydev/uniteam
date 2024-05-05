@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { findAllEvents } from './event';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from "../api/fetch";
+import type { Room } from '../types/Room';
 
 export async function findAllRooms<User>(userData: User): Promise<any> {
-    const roomsData = await fetchApi('GET', 'rooms/', undefined, {
+    const roomsData: ApiResponse<Room[]> = await fetchApi('GET', 'rooms/', undefined, {
         headers: {
             Authorization: `Bearer ${(userData as any).token}`,
             Accept: 'application/json',
@@ -17,7 +18,7 @@ export async function findAllRooms<User>(userData: User): Promise<any> {
     }
 }
 
-export const Room: React.FC<{ roomId: number }> = ({ roomId }) => {
+export const RoomElement: React.FC<{ roomId: number }> = ({ roomId }) => {
     const [roomName, setRoomName] = useState<string>('');
     const { user } = useAuth();
 

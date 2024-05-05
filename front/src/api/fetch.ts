@@ -2,7 +2,7 @@ import axios, { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
 const BASE_URL = 'http://localhost:8000';
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
     access_token?: string;
     success: boolean;
     data?: T;

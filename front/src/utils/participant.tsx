@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
 import type { User, UserParticipant } from '../types/user';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from "../api/fetch";
 
 export async function findAllParticipants(userData: User): Promise<UserParticipant[]> {
-    const participants = await fetchApi<UserParticipant[]>('GET', 'participants/', undefined, {
+    const participants: ApiResponse<UserParticipant[]> = await fetchApi<UserParticipant[]>('GET', 'participants/', undefined, {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import type { User, UserProps } from '../types/user';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from '../api/fetch';
 
 export async function findAllUsers(userData: User): Promise<User[]> {
-    const usersData = await fetchApi<User[]>('GET', 'users/', undefined, {
+    const usersData: ApiResponse<User[]> = await fetchApi<User[]>('GET', 'users/', undefined, {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',
@@ -60,7 +60,7 @@ export async function findUser(userData: User, userId: number): Promise<User | u
     return users.find((user: User): boolean => user.id === userId);
 }
 
-const User: React.FC<UserProps> = ({ userId, userData }) => {
+export const UserElement: React.FC<UserProps> = ({ userId, userData }) => {
     const [userLastname, setUserLastname] = useState<string | undefined>(undefined);
 
     useEffect(() => {
@@ -74,5 +74,3 @@ const User: React.FC<UserProps> = ({ userId, userData }) => {
 
     return <span>{userLastname}</span>;
 };
-
-export default User;

@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
-import fetchApi from "../../../api/fetch";
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import type { User } from "../../../types/user";
 import { findLastUserId } from "../../../utils/user";
 import { findAllGroups, findGroupId } from "../../../utils/group";
@@ -34,7 +34,7 @@ export const FormUser: React.FC<any> = () => {
 
     const handleUserForm = async (e: any) => {
         e.preventDefault();
-        
+
         if (!lastName || !firstName || !email || !password || !groupName) {
             setError('Veuillez remplir tous les champs');
             return;
@@ -61,7 +61,7 @@ export const FormUser: React.FC<any> = () => {
                 groupId: groupId ? groupId : 1,
             }
 
-            const response = await fetchApi<User>('POST', 'users/', JSON.stringify(newUser), {
+            const response: ApiResponse<User> = await fetchApi<User>('POST', 'users/', JSON.stringify(newUser), {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',

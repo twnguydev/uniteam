@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate, NavigateFunction } from 'react-router-dom';
 import type { User } from '../types/user';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from "../api/fetch";
 
 export const Login: React.FC = () => {
     const { login } = useAuth();
@@ -19,7 +19,7 @@ export const Login: React.FC = () => {
         formData.append('password', password);
     
         try {
-            const response = await fetchApi('POST', 'token', formData, {
+            const response: ApiResponse<unknown> = await fetchApi('POST', 'token', formData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
@@ -30,7 +30,7 @@ export const Login: React.FC = () => {
     
                 if (accessToken) {
                     try {
-                        const userResponse = await fetchApi<User>('GET', 'me/', undefined, {
+                        const userResponse: ApiResponse<User> = await fetchApi<User>('GET', 'me/', undefined, {
                             headers: {
                                 Authorization: `Bearer ${accessToken}`,
                                 Accept: 'application/json',

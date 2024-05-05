@@ -14,7 +14,7 @@ import { findLastParticipantId } from '../utils/participant';
 
 import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
-import type { Group } from '../types/group';
+import type { Group } from '../types/Group';
 import type { User } from '../types/user';
 import type { Notification } from '../types/notification';
 import type { UserParticipant } from '../types/user';
@@ -421,104 +421,104 @@ export const Calendar: React.FC = () => {
                                 </svg>
                             </div>
                             <div className="shadow w-full rounded-lg bg-white overflow-hidden block max-h-[90vh] overflow-y-auto p-8">
-                                    <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
-                                    <div className="mb-4">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
+                                <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="text"
+                                        onChange={(e) => setEventTitle(e.target.value)}
+                                    />
+                                </div>
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
+                                    <textarea
+                                        name="eventDesc"
+                                        rows={4}
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                        onChange={(e) => setEventDesc(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="flex justify-between space-x-4 mb-4">
+                                    <div className="w-2/3">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="text"
-                                            onChange={(e) => setEventTitle(e.target.value)}
+                                            value={eventDate ? formatDate(eventDate) : ''}
+                                            readOnly
                                         />
                                     </div>
-                                    <div className="mb-4">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
-                                        <textarea
-                                            name="eventDesc"
-                                            rows={4}
-                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
-                                            onChange={(e) => setEventDesc(e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="flex justify-between space-x-4 mb-4">
-                                        <div className="w-2/3">
-                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
-                                            <input
-                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                                type="text"
-                                                value={eventDate ? formatDate(eventDate) : ''}
-                                                readOnly
-                                            />
-                                        </div>
-                                        <div className="w-1/3">
-                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
-                                            <input
-                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                                type="time"
-                                                onChange={(e) => setStartTime(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="mb-4">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
+                                    <div className="w-1/3">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="time"
-                                            onChange={(e): void => setEndTime(e.target.value)}
+                                            onChange={(e) => setStartTime(e.target.value)}
                                         />
                                     </div>
-                                    <div className="flex justify-between space-x-4 mb-4">
-                                        <div className='w-2/3'>
-                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
-                                            <select
-                                                className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                                onChange={(e): void => setEventGroup(e.target.value)}
-                                            >
-                                                {loadedGroups.map((group: Group, index: number) => (
-                                                    <option key={index} value={group.name}>{group.name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                        <div className='w-1/3'>
-                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
-                                            <select
-                                                className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                                onChange={(e) => setEventRoom(e.target.value)}
-                                            >
-                                                {loadedRooms.map((room: Room, index: number) => (
-                                                    <option key={index} value={room.name}>{room.name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="mb-4">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
-                                        {renderParticipantInputs()}
-                                        <div className="flex justify-end space-x-4">
-                                            <button
-                                                className="bg-white hover:bg-gray-100 text-gray-700 mt-3 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm"
-                                                onClick={handleAddInputClick}
-                                            >
-                                                Ajouter un participant
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="mt-8 text-right">
-                                        <button
-                                            type="button"
-                                            className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
-                                            onClick={() => setOpenEventModal(false)}
+                                </div>
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="time"
+                                        onChange={(e): void => setEndTime(e.target.value)}
+                                    />
+                                </div>
+                                <div className="flex justify-between space-x-4 mb-4">
+                                    <div className='w-2/3'>
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
+                                        <select
+                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                            onChange={(e): void => setEventGroup(e.target.value)}
                                         >
-                                            Annuler
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
-                                            onClick={handleSubmit}
+                                            {loadedGroups.map((group: Group, index: number) => (
+                                                <option key={index} value={group.name}>{group.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className='w-1/3'>
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
+                                        <select
+                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                            onChange={(e) => setEventRoom(e.target.value)}
                                         >
-                                            {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
+                                            {loadedRooms.map((room: Room, index: number) => (
+                                                <option key={index} value={room.name}>{room.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
+                                    {renderParticipantInputs()}
+                                    <div className="flex justify-end space-x-4">
+                                        <button
+                                            className="bg-white hover:bg-gray-100 text-gray-700 mt-3 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm"
+                                            onClick={handleAddInputClick}
+                                        >
+                                            Ajouter un participant
                                         </button>
                                     </div>
+                                </div>
+                                <div className="mt-8 text-right">
+                                    <button
+                                        type="button"
+                                        className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
+                                        onClick={() => setOpenEventModal(false)}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
+                                        onClick={handleSubmit}
+                                    >
+                                        {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

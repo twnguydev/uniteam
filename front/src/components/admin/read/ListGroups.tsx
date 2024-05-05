@@ -1,8 +1,8 @@
 import React, { useEffect, ReactElement } from "react";
 import { useAuth } from '../../../auth/AuthContext';
-import type { Group } from '../../../types/group';
+import type { Group } from '../../../types/Group';
 import { GroupItem } from '../../item/GroupItem';
-import fetchApi from '../../../api/fetch';
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import { Pagination } from '../../Pagination';
 import type { ListGroupsAdminProps } from "../../../types/admin";
 
@@ -14,7 +14,7 @@ export const ListGroups: React.FC<ListGroupsAdminProps> = ({ selectedLimit }): R
 
     useEffect(() => {
         const fetchGroups = async (): Promise<void> => {
-            const response = await fetchApi('GET', 'groups/', undefined, {
+            const response: ApiResponse<Group[]> = await fetchApi('GET', 'groups/', undefined, {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',
@@ -23,7 +23,7 @@ export const ListGroups: React.FC<ListGroupsAdminProps> = ({ selectedLimit }): R
             });
 
             if (response.success && response.data) {
-                setGroups(response.data as Group[]);
+                setGroups(response.data);
             }
         };
 

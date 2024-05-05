@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import type { Group } from '../../types/group';
+import type { Group } from '../../types/Group';
 import { countUsersInGroup, countEventsInGroup } from '../../utils/group';
 
 export const GroupItem: React.FC<{ group: Group }> = ({ group }) => {

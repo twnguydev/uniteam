@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
-import fetchApi from '../../../api/fetch';
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import type { Event } from '../../../types/Event';
 import type { ListEventsAdminProps } from '../../../types/admin';
 import { EventItem } from '../../item/EventItem';
@@ -20,7 +20,7 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
                 const groupId: number | undefined = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
                 const statusId: number | undefined = selectedStatus ? await getStatusId(selectedStatus, user) : undefined;
 
-                const response = await fetchApi<Event[]>('GET', 'events/', undefined, {
+                const response: ApiResponse<Event[]> = await fetchApi<Event[]>('GET', 'events/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
                         Accept: 'application/json',

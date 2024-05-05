@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from '../api/fetch';
+import type { Status } from '../types/Status';
 
 export async function findAllStatus<User>(userData: User): Promise<any> {
-    const statusData = await fetchApi('GET', 'status/', undefined, {
+    const statusData: ApiResponse<Status[]> = await fetchApi('GET', 'status/', undefined, {
         headers: {
             Authorization: `Bearer ${(userData as any).token}`,
             Accept: 'application/json',
@@ -16,7 +17,7 @@ export async function findAllStatus<User>(userData: User): Promise<any> {
     }
 }
 
-export const Status: React.FC<{ statusId: number }> = ({ statusId }) => {
+export const StatusElement: React.FC<{ statusId: number }> = ({ statusId }) => {
     const [statusName, setStatusName] = useState<string>('');
     const { user } = useAuth();
 

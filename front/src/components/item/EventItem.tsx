@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import fetchApi from '../../api/fetch';
+import fetchApi, { ApiResponse } from "../../api/fetch";
 import { useAuth } from '../../auth/AuthContext';
 import { formatDate, formatDateHour } from '../../utils/date';
 import { Badge } from '../../utils/badge';
-import { Room } from '../../utils/room';
+import { RoomElement } from '../../utils/room';
 import statusData from '../../data/status.json';
 import type { Event } from '../../types/Event';
 import type { UserParticipant } from '../../types/user';
@@ -20,7 +20,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
 
     const updateStatusData = async (): Promise<void> => {
         try {
-            const response = await fetchApi('PUT', `events/${id}`, {
+            const response: ApiResponse<Event> = await fetchApi('PUT', `events/${id}`, {
                 id: id,
                 name: name,
                 dateStart: dateStart,
@@ -165,7 +165,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                         {hostName ? `${hostName}` : 'Inconnu'}
                                     </th>
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        <Room roomId={roomId} />
+                                        <RoomElement roomId={roomId} />
                                     </th>
                                     <td className="px-6 py-4">
                                         {description}

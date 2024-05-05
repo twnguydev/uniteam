@@ -2,7 +2,7 @@ import React, { useEffect, ReactElement } from "react";
 import { useAuth } from '../../../auth/AuthContext';
 import type { Room } from '../../../types/Room';
 import { RoomItem } from '../../item/RoomItem';
-import fetchApi from '../../../api/fetch';
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import { Pagination } from '../../Pagination';
 import type { ListRoomsAdminProps } from "../../../types/admin";
 
@@ -14,7 +14,7 @@ export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): Rea
 
     useEffect(() => {
         const fetchRooms = async (): Promise<void> => {
-            const response = await fetchApi('GET', 'rooms/', undefined, {
+            const response: ApiResponse<Room[]> = await fetchApi('GET', 'rooms/', undefined, {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',
@@ -23,7 +23,7 @@ export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): Rea
             });
 
             if (response.success && response.data) {
-                setRooms(response.data as Room[]);
+                setRooms(response.data);
             }
         };
 
@@ -33,14 +33,14 @@ export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): Rea
     useEffect((): void => {
         const start: number = (page - 1) * selectedLimit;
         const end: number = start + selectedLimit;
-        
+
         const totalPages: number = Math.ceil(rooms.length / selectedLimit);
 
         if (page < 1 || page > totalPages) {
             setPage(prevPage => Math.max(1, Math.min(totalPages, prevPage)));
             return;
         }
-    
+
         setCurrentPageRooms(rooms.slice(start, end));
     }, [page, rooms, selectedLimit]);
 

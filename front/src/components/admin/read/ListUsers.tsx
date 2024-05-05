@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../auth/AuthContext';
 import { UserItem } from '../../item/UserItem';
-import fetchApi from '../../../api/fetch';
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import { findGroupId } from '../../../utils/group';
 import type { User } from '../../../types/user';
 import type { ListUsersAdminProps } from '../../../types/admin';
@@ -17,7 +17,7 @@ export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, select
         const fetchUsers = async (): Promise<void> => {
             try {
                 const groupId: number | undefined = selectedGroup ? await findGroupId(selectedGroup, user) : undefined;
-                const response = await fetchApi<User[]>('GET', 'users/', undefined, {
+                const response: ApiResponse<User[]> = await fetchApi<User[]>('GET', 'users/', undefined, {
                     headers: {
                         Authorization: `Bearer ${user?.token}`,
                         Accept: 'application/json',
@@ -26,7 +26,7 @@ export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, select
                 });
 
                 if (response.success && response.data) {
-                    let filteredUsers = response.data;
+                    let filteredUsers: User[] = response.data;
                     if (groupId) {
                         filteredUsers = filteredUsers.filter((user: User): boolean => user.groupId === groupId);
                     }

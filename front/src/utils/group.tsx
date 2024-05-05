@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../auth/AuthContext";
-import fetchApi from "../api/fetch";
+import fetchApi, { ApiResponse } from "../api/fetch";
 import { groupBadges } from "../data/badges";
 import type { Badge } from "../types/Badge";
+import type { Group } from "../types/Group";
 
 export async function findAllGroups<User>(userData: User): Promise<any> {
-    const groupsData = await fetchApi('GET', 'groups/', undefined, {
+    const groupsData: ApiResponse<Group[]> = await fetchApi('GET', 'groups/', undefined, {
         headers: {
             Authorization: `Bearer ${(userData as any).token}`,
             Accept: 'application/json',
@@ -18,7 +19,7 @@ export async function findAllGroups<User>(userData: User): Promise<any> {
     }
 }
 
-export const Group: React.FC<{ groupId: number }> = ({ groupId }) => {
+export const GroupElement: React.FC<{ groupId: number }> = ({ groupId }) => {
     const [groupName, setGroupName] = React.useState<string>('');
     const { user } = useAuth();
 

@@ -1,8 +1,8 @@
 import React from "react";
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
-import fetchApi from "../../../api/fetch";
-import type { Group } from "../../../types/group";
+import fetchApi, { ApiResponse } from "../../../api/fetch";
+import type { Group } from "../../../types/Group";
 import { findLastGroupId } from "../../../utils/group";
 
 export const FormGroup: React.FC<any> = () => {
@@ -26,7 +26,7 @@ export const FormGroup: React.FC<any> = () => {
                 name: groupName,
             }
 
-            const response = await fetchApi<Group>('POST', 'groups/', JSON.stringify(newGroup), {
+            const response: ApiResponse<Group> = await fetchApi<Group>('POST', 'groups/', JSON.stringify(newGroup), {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',

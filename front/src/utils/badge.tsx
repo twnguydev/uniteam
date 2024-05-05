@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { findAllGroups } from './group';
 import { findAllStatus } from './status';
 import { badges, groupBadges } from '../data/badges';
-import type { Group } from '../types/group';
-import type { Status } from '../types/status';
+import type { Group } from '../types/Group';
+import type { Status } from '../types/Status';
 
 export const Badge: React.FC<{ Id: number, Name: string, UserData: any }> = ({ Id, Name, UserData }) => {
     const [groups, setGroups] = useState<Group[]>([]);

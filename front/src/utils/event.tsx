@@ -1,15 +1,5 @@
-import eventData from '../data/events.json';
-import fetchApi from '../api/fetch';
-
-export function findEventId(eventName: string): number | undefined {
-    const event = eventData.events.find(event => event.name === eventName);
-    return event ? event.id : undefined;
-}
-
-export function findEventName(eventId: number): string | undefined {
-    const event = eventData.events.find(event => event.id === eventId);
-    return event ? event.name : undefined;
-}
+import fetchApi, { ApiResponse } from "../api/fetch";
+import type { Event } from '../types/Event';
 
 export async function findLastEventId(userData: any): Promise<number> {
     const events = await findAllEvents(userData);
@@ -23,7 +13,7 @@ export async function findLastEventId(userData: any): Promise<number> {
 }
 
 export async function findAllEvents<User>(userData: User): Promise<any> {
-    const eventsData = await fetchApi('GET', 'events/', undefined, {
+    const eventsData: ApiResponse<Event[]> = await fetchApi('GET', 'events/', undefined, {
         headers: {
             Authorization: `Bearer ${(userData as any).token}`,
             Accept: 'application/json',

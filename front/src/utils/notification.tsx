@@ -1,9 +1,9 @@
 import type { Notification } from '../types/notification';
 import type { User } from '../types/user';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from "../api/fetch";
 
 export async function findAllNotifications(userData: any): Promise<Notification[]> {
-    const notifications = await fetchApi('GET', 'notifications/', undefined, {
+    const notifications: ApiResponse<Notification[]> = await fetchApi('GET', 'notifications/', undefined, {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',
@@ -19,7 +19,7 @@ export async function findAllNotifications(userData: any): Promise<Notification[
 }
 
 export async function findNotificationsForUser(userData: any): Promise<Notification[]> {
-    const notifications = await fetchApi('GET', `notifications/user/${userData.id}`, undefined, {
+    const notifications: ApiResponse<Notification[]> = await fetchApi('GET', `notifications/user/${userData.id}`, undefined, {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',
@@ -46,7 +46,7 @@ export async function findLastNotificationId(userData: User): Promise<number | u
 }
 
 export async function createNotification(userData: any, notification: Notification): Promise<any> {
-    const response = await fetchApi('POST', 'notifications/', JSON.stringify(notification), {
+    const response: ApiResponse<Notification> = await fetchApi('POST', 'notifications/', JSON.stringify(notification), {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',
@@ -58,7 +58,7 @@ export async function createNotification(userData: any, notification: Notificati
 }
 
 export async function deleteNotifications(userData: any): Promise<boolean> {
-    const response = await fetchApi('DELETE', `notifications/user/${userData.id}`, undefined, {
+    const response: ApiResponse<unknown> = await fetchApi('DELETE', `notifications/user/${userData.id}`, undefined, {
         headers: {
             Authorization: `Bearer ${userData.token}`,
             Accept: 'application/json',

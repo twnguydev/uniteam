@@ -1,7 +1,7 @@
 import React from "react";
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
-import fetchApi from "../../../api/fetch";
+import fetchApi, { ApiResponse } from "../../../api/fetch";
 import type { Room } from "../../../types/Room";
 import { findLastRoomId } from "../../../utils/room";
 
@@ -26,7 +26,7 @@ export const FormRoom: React.FC<any> = () => {
                 name: roomName,
             }
 
-            const response = await fetchApi<Room>('POST', 'rooms/', JSON.stringify(newRoom), {
+            const response: ApiResponse<Room> = await fetchApi<Room>('POST', 'rooms/', JSON.stringify(newRoom), {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',
