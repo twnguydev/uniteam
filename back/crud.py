@@ -363,29 +363,21 @@ def get_participants_by_event(db: Session, event_id: int) -> list[models.Partici
     """
     return db.query(models.Participants).filter(models.Participants.eventId == event_id).all()
 
-def get_events_by_user(db: Session, user_id: int) -> list[models.Event]:
+def get_events_invited_to(db: Session, user_id: int) -> list[models.Events]:
     """
-    Retrieve a list of events for a specific user, including events created by the user and events where the user is invited.
+    Retrieve a list of events where the user is invited.
 
     Args:
         db (Session): The database session.
-        user_id (int): The ID of the user to retrieve events for.
+        user_id (int): The ID of the user.
 
     Returns:
-        list[models.Event]: A list of event objects.
+        list[models.Event]: A list of event objects where the user is invited.
     """
-    user_events = (
-        db.query(models.Event)
-        .filter(models.Event.hostId == user_id)
-        .all()
-    )
-
     invited_events = (
-        db.query(models.Event)
-        .join(models.Participants, models.Participants.eventId == models.Event.id)
+        db.query(models.Events)
+        .join(models.Participants, models.Participants.eventId == models.Events.id)
         .filter(models.Participants.userId == user_id)
         .all()
     )
-
-    all_events = user_events + invited_events
-    return all_events
+    return invited_events
