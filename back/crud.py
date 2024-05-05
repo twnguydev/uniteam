@@ -350,6 +350,20 @@ def add_participant_to_event(db: Session, participant: schemas.Participant) -> m
     db.refresh(db_participant)
     return db_participant
 
+def get_participants(db: Session, skip: int = 0, limit: int = 100) -> list[models.Participants]:
+    """
+    Retrieve a list of participants from the database.
+
+    Args:
+        db (Session): The database session.
+        skip (int, optional): Number of records to skip. Defaults to 0.
+        limit (int, optional): Maximum number of records to retrieve. Defaults to 100.
+
+    Returns:
+        list[models.Participants]: A list of participant objects.
+    """
+    return db.query(models.Participants).offset(skip).limit(limit).all()
+
 def get_participants_by_event(db: Session, event_id: int) -> list[models.Participants]:
     """
     Retrieve a list of participants for a specific event.

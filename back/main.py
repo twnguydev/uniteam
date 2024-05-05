@@ -508,6 +508,24 @@ async def create_participant(
     """
     return crud.add_participant_to_event(db=db, participant=participant)
 
+@app.get("/participants/", response_model=list[schemas.Participant])
+async def read_participants(
+    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+) -> list[models.Participants]:
+    """
+    Retrieve a list of participants from the database.
+
+    Args:
+        skip (int): Number of participants to skip (default: 0).
+        limit (int): Maximum number of participants to retrieve (default: 100).
+        db (Session): Database session object.
+
+    Returns:
+        list[models.Participants]: List of participants.
+
+    """
+    return crud.get_participants(db, skip=skip, limit=limit)
+
 @app.get("/participants/{event_id}", response_model=list[schemas.Participant])
 async def read_participants(
     event_id: int, db: Session = Depends(get_db)

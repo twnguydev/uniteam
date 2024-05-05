@@ -4,7 +4,7 @@ import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi from '../api/fetch';
 import { groupBadges } from '../data/badges';
-import { findUserId, findUserLastname, findUserFirstname } from '../utils/user';
+import { findUserId, findUserLastname, findUserFirstname, findUserIdByEmail } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
@@ -116,31 +116,29 @@ export const Calendar: React.FC = () => {
         }
     };
 
-    const handleAddInputClick = () => {
+    const handleAddInputClick = (): void => {
         setInputCount(inputCount + 1);
         setShowAddInput(false);
     };
 
-    const handleInputChange = (index: number, value: string) => {
-        const updatedParticipantEmails: string[] = [...participantEmails];
-        updatedParticipantEmails[index] = value;
-        setParticipantEmails(updatedParticipantEmails);
+    const handleInputChange = (index: number, value: string): void => {
+        setParticipantEmails((prevEmails) => {
+            const updatedEmails = [...prevEmails];
+            updatedEmails[index] = value;
+            return updatedEmails;
+        });
     };
 
-    const renderParticipantInputs = (): any[] => {
-        const inputs: any[] = [];
-        for (let i: number = 0; i < inputCount; i++) {
-            inputs.push(
-                <input
-                    key={i}
-                    className="bg-gray-200 appearance-none border-2 border-gray-200 mt-3 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                    type="text"
-                    placeholder="Adresse e-mail du participant"
-                    onChange={(e) => handleInputChange(i, e.target.value)}
-                />
-            );
-        }
-        return inputs;
+    const renderParticipantInputs = (): JSX.Element[] => {
+        return Array.from({ length: inputCount }, (_, index) => (
+            <input
+                key={index}
+                className="bg-gray-200 appearance-none border-2 border-gray-200 mt-3 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                type="text"
+                placeholder="Adresse e-mail du participant"
+                onChange={(e) => handleInputChange(index, e.target.value)}
+            />
+        ));
     };
 
     const deleteEvent = async (): Promise<void> => {
@@ -181,7 +179,7 @@ export const Calendar: React.FC = () => {
         }
     };
 
-    const addEvent = async (): Promise<void> => {
+    const handleSubmit = async (): Promise<void> => {
         try {
             if (!eventTitle || !eventDate || !startTime || !endTime || startTime >= endTime) {
                 alert("Certains champs sont invalides");
@@ -220,25 +218,6 @@ export const Calendar: React.FC = () => {
                 hostName: user ? `${user.lastName}` : null,
             };
 
-            if (participantEmails.length > 0 && user) {
-                const participants: UserParticipant[] = [];
-                for (let i: number = 0; i < participantEmails.length; i++) {
-                    const participantId: number | undefined = await findUserId(participantEmails[i], user);
-
-                    if (participantId) {
-                        const lastParticipantId: number = await findLastParticipantId(user);
-
-                        const newParticipant: UserParticipant = {
-                            id: lastParticipantId + 1,
-                            eventId: newEvent.id,
-                            userId: participantId,
-                        };
-
-                        participants.push(newParticipant);
-                    }
-                }
-            }
-
             try {
                 const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
                     headers: {
@@ -251,7 +230,7 @@ export const Calendar: React.FC = () => {
                 const registerParticipants = async (): Promise<void> => {
                     if (participantEmails.length > 0 && user) {
                         for (let i: number = 0; i < participantEmails.length; i++) {
-                            const participantId: number | undefined = await findUserId(participantEmails[i], user);
+                            const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
 
                             if (participantId) {
                                 const lastParticipantId: number = await findLastParticipantId(user);
@@ -262,6 +241,8 @@ export const Calendar: React.FC = () => {
                                     userId: participantId,
                                 };
 
+                                console.log('newParticipant:', newParticipant);
+
                                 await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
                                     headers: {
                                         Authorization: `Bearer ${user.token}`,
@@ -269,6 +250,22 @@ export const Calendar: React.FC = () => {
                                         'Content-Type': 'application/json',
                                     },
                                 });
+
+                                const lastNotificationId: number | undefined = await findLastNotificationId(user);
+
+                                const notification: Notification = {
+                                    id: (lastNotificationId ?? 0) + 1,
+                                    userId: participantId,
+                                    message: `Vous avez été invité à l'événement ${newEvent.name} par ${user.lastName} ${user.firstName}.`,
+                                };
+
+                                const create: any = await createNotification(user, notification);
+
+                                if (create.success) {
+                                    console.log('Notification créée avec succès');
+                                } else {
+                                    console.error('Erreur lors de la création de la notification :', create.error);
+                                }
                             }
                         }
                     }
@@ -280,43 +277,16 @@ export const Calendar: React.FC = () => {
                     setEvents([...events, (registerEvent.data as Event)]);
                     resetForm();
 
-                    if (participantEmails.length > 0 && user) {
-                        for (let i: number = 0; i < participantEmails.length; i++) {
-                            const participantId: number | undefined = await findUserId(participantEmails[i], user);
-
-                            if (participantId) {
-                                const participantLastname: string | undefined = await findUserLastname(participantId, user);
-                                const participantFirstname: string | undefined = await findUserFirstname(participantId, user);
-
-                                if (participantLastname && participantFirstname) {
-                                    const lastNotificationId: number | undefined = await findLastNotificationId(user);
-
-                                    const notification: Notification = {
-                                        id: (lastNotificationId ?? 0) + 1,
-                                        userId: participantId,
-                                        message: `Vous avez été ajouté à l'événement ${newEvent.name} par ${user.lastName} ${user.firstName}.`,
-                                    };
-
-                                    const create: any = await createNotification(user, notification);
-
-                                    if (create.success) {
-                                        console.log('Notification créée avec succès');
-                                    } else {
-                                        console.error('Erreur lors de la création de la notification :', create.error);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     if (user) {
                         const hostId: number | undefined = await findUserId(user.lastName, user);
                         const lastNotificationId: number | undefined = await findLastNotificationId(user);
 
+                        const message = user.is_admin ? `L'événement ${newEvent.name} a été validé.` : `Votre demande d'événement ${newEvent.name} a été envoyée. Elle est en cours de traitement.`;
+
                         const notification: Notification = {
                             id: (lastNotificationId ?? 0) + 1,
                             userId: hostId ?? 0,
-                            message: `L'événement ${newEvent.name} a été ajouté.`,
+                            message: message,
                         };
 
                         const create: any = await createNotification(user, notification);
@@ -467,104 +437,104 @@ export const Calendar: React.FC = () => {
                                 </svg>
                             </div>
                             <div className="shadow w-full rounded-lg bg-white overflow-hidden block max-h-[90vh] overflow-y-auto p-8">
-                                <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
-                                    <input
-                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                        type="text"
-                                        onChange={(e) => setEventTitle(e.target.value)}
-                                    />
-                                </div>
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
-                                    <textarea
-                                        name="eventDesc"
-                                        rows={4}
-                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
-                                        onChange={(e) => setEventDesc(e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="flex justify-between space-x-4 mb-4">
-                                    <div className="w-2/3">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
+                                    <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
+                                    <div className="mb-4">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="text"
-                                            value={eventDate ? formatDate(eventDate) : ''}
-                                            readOnly
+                                            onChange={(e) => setEventTitle(e.target.value)}
                                         />
                                     </div>
-                                    <div className="w-1/3">
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
+                                    <div className="mb-4">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
+                                        <textarea
+                                            name="eventDesc"
+                                            rows={4}
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                            onChange={(e) => setEventDesc(e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-between space-x-4 mb-4">
+                                        <div className="w-2/3">
+                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
+                                            <input
+                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                                type="text"
+                                                value={eventDate ? formatDate(eventDate) : ''}
+                                                readOnly
+                                            />
+                                        </div>
+                                        <div className="w-1/3">
+                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
+                                            <input
+                                                className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                                type="time"
+                                                onChange={(e) => setStartTime(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="time"
-                                            onChange={(e) => setStartTime(e.target.value)}
+                                            onChange={(e): void => setEndTime(e.target.value)}
                                         />
                                     </div>
-                                </div>
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
-                                    <input
-                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                                        type="time"
-                                        onChange={(e): void => setEndTime(e.target.value)}
-                                    />
-                                </div>
-                                <div className="flex justify-between space-x-4 mb-4">
-                                    <div className='w-2/3'>
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
-                                        <select
-                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                            onChange={(e): void => setEventGroup(e.target.value)}
-                                        >
-                                            {loadedGroups.map((group: Group, index: number) => (
-                                                <option key={index} value={group.name}>{group.name}</option>
-                                            ))}
-                                        </select>
+                                    <div className="flex justify-between space-x-4 mb-4">
+                                        <div className='w-2/3'>
+                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
+                                            <select
+                                                className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                                onChange={(e): void => setEventGroup(e.target.value)}
+                                            >
+                                                {loadedGroups.map((group: Group, index: number) => (
+                                                    <option key={index} value={group.name}>{group.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className='w-1/3'>
+                                            <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
+                                            <select
+                                                className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                                onChange={(e) => setEventRoom(e.target.value)}
+                                            >
+                                                {loadedRooms.map((room: Room, index: number) => (
+                                                    <option key={index} value={room.name}>{room.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div className='w-1/3'>
-                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
-                                        <select
-                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                            onChange={(e) => setEventRoom(e.target.value)}
-                                        >
-                                            {loadedRooms.map((room: Room, index: number) => (
-                                                <option key={index} value={room.name}>{room.name}</option>
-                                            ))}
-                                        </select>
+                                    <div className="mb-4">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
+                                        {renderParticipantInputs()}
+                                        <div className="flex justify-end space-x-4">
+                                            <button
+                                                className="bg-white hover:bg-gray-100 text-gray-700 mt-3 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm"
+                                                onClick={handleAddInputClick}
+                                            >
+                                                Ajouter un participant
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="mb-4">
-                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
-                                    {renderParticipantInputs()}
-                                    <div className="flex justify-end space-x-4">
+                                    <div className="mt-8 text-right">
                                         <button
-                                            className="bg-white hover:bg-gray-100 text-gray-700 mt-3 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm"
-                                            onClick={handleAddInputClick}
+                                            type="button"
+                                            className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
+                                            onClick={() => setOpenEventModal(false)}
                                         >
-                                            Ajouter un participant
+                                            Annuler
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
+                                            onClick={handleSubmit}
+                                        >
+                                            {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
                                         </button>
                                     </div>
-                                </div>
-                                <div className="mt-8 text-right">
-                                    <button
-                                        type="button"
-                                        className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
-                                        onClick={() => setOpenEventModal(false)}
-                                    >
-                                        Annuler
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
-                                        onClick={addEvent}
-                                    >
-                                        {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>

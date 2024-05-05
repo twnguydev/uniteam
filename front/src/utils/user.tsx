@@ -43,6 +43,12 @@ export async function findUserFirstname(userId: number, userData: User): Promise
     return user ? user.firstName : undefined;
 }
 
+export async function findUserIdByEmail(userEmail: string, userData: User): Promise<number> {
+    const users: User[] = await findAllUsers(userData);
+    const user: User | undefined = users.find((user: User): boolean => user.email === userEmail);
+    return user ? user.id : 0;
+}
+
 export async function findUserId(userLastname: string, userData: User): Promise<number> {
     const users: User[] = await findAllUsers(userData);
     const user: User | undefined = users.find((user: User): boolean => user.lastName === userLastname);
