@@ -1,4 +1,4 @@
-import React, { useEffect, ReactElement } from "react";
+import React, { useEffect } from "react";
 import { useAuth } from '../../../auth/AuthContext';
 import type { Group } from '../../../types/Group';
 import { GroupItem } from '../../item/GroupItem';
@@ -6,7 +6,7 @@ import fetchApi, { ApiResponse } from "../../../api/fetch";
 import { Pagination } from '../../Pagination';
 import type { ListGroupsAdminProps } from "../../../types/admin";
 
-export const ListGroups: React.FC<ListGroupsAdminProps> = ({ selectedLimit }): ReactElement => {
+export const ListGroups: React.FC<ListGroupsAdminProps> = ({ selectedLimit }): JSX.Element => {
     const [groups, setGroups] = React.useState<Group[]>([]);
     const { user } = useAuth();
     const [page, setPage] = React.useState<number>(1);

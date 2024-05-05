@@ -1,4 +1,4 @@
-import React, { useEffect, ReactElement } from "react";
+import React, { useEffect } from "react";
 import { useAuth } from '../../../auth/AuthContext';
 import type { Room } from '../../../types/Room';
 import { RoomItem } from '../../item/RoomItem';
@@ -6,7 +6,7 @@ import fetchApi, { ApiResponse } from "../../../api/fetch";
 import { Pagination } from '../../Pagination';
 import type { ListRoomsAdminProps } from "../../../types/admin";
 
-export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): ReactElement => {
+export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): JSX.Element => {
     const [rooms, setRooms] = React.useState<Room[]>([]);
     const [currentPageRooms, setCurrentPageRooms] = React.useState<Room[]>([]);
     const [page, setPage] = React.useState<number>(1);

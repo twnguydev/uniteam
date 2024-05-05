@@ -22,7 +22,7 @@ import type { UserParticipant } from '../types/user';
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
-export const Calendar: React.FC = () => {
+export const Calendar: React.FC = (): JSX.Element => {
     const { user } = useAuth();
     const [selectedGroup, setSelectedGroup] = useState<string>('');
     const [month, setMonth] = useState<number>(new Date().getMonth());

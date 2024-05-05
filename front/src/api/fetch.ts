@@ -10,8 +10,8 @@ export interface ApiResponse<T> {
 }
 
 const handleError = (error: AxiosError): ApiResponse<any> => {
-    const status = error.response?.status;
-    const data = error.response?.data;
+    const status: number | undefined = error.response?.status;
+    const data: unknown = error.response?.data;
     return { success: false, error: `${status}: ${data}`, access_token: undefined };
 };
 

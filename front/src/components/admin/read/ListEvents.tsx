@@ -8,7 +8,7 @@ import { findGroupId } from '../../../utils/group';
 import { getStatusId } from '../../../utils/status';
 import { Pagination } from '../../Pagination';
 
-export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }) => {
+export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }): JSX.Element => {
     const { user } = useAuth();
     const [events, setEvents] = useState<Event[]>([]);
     const [page, setPage] = useState<number>(1);

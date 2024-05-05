@@ -7,7 +7,7 @@ import type { User } from '../../../types/user';
 import type { ListUsersAdminProps } from '../../../types/admin';
 import { Pagination } from '../../Pagination';
 
-export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }) => {
+export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }): JSX.Element => {
     const { user } = useAuth();
     const [users, setUsers] = useState<User[]>([]);
     const [page, setPage] = useState<number>(1);

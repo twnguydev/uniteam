@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const Pagination: React.FC<{ page: number, setPage: (page: number) => void, total: number, limit: number }> = ({ page, setPage, total, limit }) => {
-    const totalPages = Math.ceil(total / limit);
+    const totalPages: number = Math.ceil(total / limit);
 
     const handleClick = (newPage: number): void => {
         if (newPage >= 1 && newPage <= totalPages) {
@@ -43,7 +43,7 @@ export const Pagination: React.FC<{ page: number, setPage: (page: number) => voi
                 <li>
                     <button
                         className={`flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${page === 1 ? 'disabled:opacity-50' : ''}`}
-                        onClick={() => handleClick(page - 1)}
+                        onClick={(): void => handleClick(page - 1)}
                         disabled={page <= 1}
                     >
                         <span className="sr-only">Previous</span>
@@ -56,7 +56,7 @@ export const Pagination: React.FC<{ page: number, setPage: (page: number) => voi
                 <li>
                     <button
                         className={`flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white ${page === totalPages ? 'disabled:opacity-50' : ''}`}
-                        onClick={() => handleClick(page + 1)}
+                        onClick={(): void => handleClick(page + 1)}
                         disabled={page >= totalPages}
                     >
                         <span className="sr-only">Next</span>

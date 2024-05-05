@@ -4,13 +4,13 @@ import { useAuth } from '../auth/AuthContext';
 import type { Notification } from '../types/notification';
 import { findNotificationsForUser, deleteNotifications } from '../utils/notification';
 
-export const NotificationNavbar = () => {
+export const NotificationNavbar = (): JSX.Element => {
     const { user } = useAuth();
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
 
     const clearNotifications = async (): Promise<void> => {
-        const response = await deleteNotifications(user);
+        const response: boolean = await deleteNotifications(user);
         if (response) {
             setNotifications([]);
         } else {
@@ -39,7 +39,7 @@ export const NotificationNavbar = () => {
 
     return (
         <>
-            <div className="relative group inline-block" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+            <div className="relative group inline-block" onClick={(): void => setIsDropdownOpen(!isDropdownOpen)}>
                 <div className="text-white cursor-pointer hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium transition duration-200 relative" aria-haspopup="true">
                     Notifications
                     {notifications.length > 0 && (
@@ -48,7 +48,7 @@ export const NotificationNavbar = () => {
                 </div>
                 {isDropdownOpen && notifications.length > 0 && (
                     <div className="absolute z-50 right-50 w-96 bg-gray-800 border border-gray-700 rounded-md shadow-md">
-                        {notifications.map((notification: any, index: number) => (
+                        {notifications.map((notification: any, index: number): JSX.Element => (
                             <Link to="/member/schedule" key={index} className="block px-4 py-2 text-sm text-white hover:bg-gray-700">
                                 {notification.message}
                             </Link>

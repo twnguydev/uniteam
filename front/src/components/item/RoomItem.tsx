@@ -3,15 +3,15 @@ import { useAuth } from '../../auth/AuthContext';
 import type { Room } from '../../types/Room';
 import { countEventsInRoom } from '../../utils/room';
 
-export const RoomItem: React.FC<{ room: Room }> = ({ room }) => {
+export const RoomItem: React.FC<{ room: Room }> = ({ room }): JSX.Element => {
     const { user } = useAuth();
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [numEvents, setNumEvents] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchNumEvents = async (): Promise<void> => {
             if (user) {
-                const count = await countEventsInRoom(room.id, user);
+                const count: number = await countEventsInRoom(room.id, user);
                 setNumEvents(count);
             }
         };

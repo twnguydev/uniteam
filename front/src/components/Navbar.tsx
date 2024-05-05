@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { NotificationNavbar } from './Notification';
 
-const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }): JSX.Element => {
   const { user, logout } = useAuth();
 
   return (
@@ -21,7 +21,7 @@ const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
           )}
           {user && (
             <>
-              <Link to="/" onClick={() => { logout(); onClose(); }} className="text-white hover:text-gray-300 py-2 font-medium">Déconnexion</Link>
+              <Link to="/" onClick={(): void => { logout(); onClose(); }} className="text-white hover:text-gray-300 py-2 font-medium">Déconnexion</Link>
               <div className="text-white py-2 font-medium">Bienvenue, {user.firstName} {user.lastName} !</div>
             </>
           )}

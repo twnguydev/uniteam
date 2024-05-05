@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Banner: React.FC<{ type: string, message: string }> = ({ type, message }) => {
+export const Banner: React.FC<{ type: string, message: string }> = ({ type, message }): JSX.Element => {
     if (type === 'success') {
         return <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
         <strong className="font-bold mr-20">Succès !</strong>

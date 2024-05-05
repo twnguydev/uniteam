@@ -6,7 +6,7 @@ import { findAllEvents } from '../utils/event';
 import { getEvents } from '../utils/participant';
 import { Pagination } from './Pagination';
 
-export const Schedule: React.FC = () => {
+export const Schedule: React.FC = (): JSX.Element => {
     const { user } = useAuth();
     const [events, setEvents] = React.useState<Event[]>([]);
     const [page, setPage] = React.useState<number>(1);

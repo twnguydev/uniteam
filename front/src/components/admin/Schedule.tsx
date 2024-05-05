@@ -18,18 +18,18 @@ import { FormGroup } from './form/FormGroup';
 import { FormUser } from './form/FormUser';
 import { Banner } from '../Banner';
 
-export const ScheduleAdmin: React.FC = () => {
+export const ScheduleAdmin: React.FC = (): JSX.Element => {
     const { user } = useAuth();
     const location = useLocation();
 
-    const [isUserListOpen, setIsUserListOpen] = useState(false);
-    const [isEventListOpen, setIsEventListOpen] = useState(true);
-    const [isGroupListOpen, setIsGroupListOpen] = useState(false);
-    const [isRoomListOpen, setIsRoomListOpen] = useState(false);
+    const [isUserListOpen, setIsUserListOpen] = useState<boolean>(false);
+    const [isEventListOpen, setIsEventListOpen] = useState<boolean>(true);
+    const [isGroupListOpen, setIsGroupListOpen] = useState<boolean>(false);
+    const [isRoomListOpen, setIsRoomListOpen] = useState<boolean>(false);
 
-    const [isRoomFormOpen, setIsRoomFormOpen] = useState(false);
-    const [isGroupFormOpen, setIsGroupFormOpen] = useState(false);
-    const [isUserFormOpen, setIsUserFormOpen] = useState(false);
+    const [isRoomFormOpen, setIsRoomFormOpen] = useState<boolean>(false);
+    const [isGroupFormOpen, setIsGroupFormOpen] = useState<boolean>(false);
+    const [isUserFormOpen, setIsUserFormOpen] = useState<boolean>(false);
 
     const [events, setEvents] = useState<Event[]>([]);
     const [users, setUsers] = useState<User[]>([]);

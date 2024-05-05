@@ -12,11 +12,11 @@ import { findAllParticipants } from '../../utils/participant';
 import type { Notification } from '../../types/notification';
 import { findLastNotificationId, createNotification } from '../../utils/notification';
 
-export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
+export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }): JSX.Element => {
     const { user } = useAuth();
-    const [selectedStatusId, setSelectedStatusId] = useState(statusId);
-    const [isOpen, setIsOpen] = useState(false);
-    const [statusUpdated, setStatusUpdated] = useState(false);
+    const [selectedStatusId, setSelectedStatusId] = useState<number>(statusId);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [statusUpdated, setStatusUpdated] = useState<boolean>(false);
 
     const updateStatusData = async (): Promise<void> => {
         try {

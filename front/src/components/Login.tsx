@@ -4,14 +4,14 @@ import { useNavigate, NavigateFunction } from 'react-router-dom';
 import type { User } from '../types/user';
 import fetchApi, { ApiResponse } from "../api/fetch";
 
-export const Login: React.FC = () => {
+export const Login: React.FC = (): JSX.Element => {
     const { login } = useAuth();
     const navigate: NavigateFunction = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState<string>('');
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
     
         const formData = new URLSearchParams();

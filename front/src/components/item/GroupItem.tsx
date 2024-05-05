@@ -3,23 +3,23 @@ import { useAuth } from '../../auth/AuthContext';
 import type { Group } from '../../types/Group';
 import { countUsersInGroup, countEventsInGroup } from '../../utils/group';
 
-export const GroupItem: React.FC<{ group: Group }> = ({ group }) => {
+export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element => {
     const { user } = useAuth();
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
     const [numMembers, setNumMembers] = useState<number | null>(null);
     const [numEvents, setNumEvents] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchNumMembers = async (): Promise<void> => {
             if (user) {
-                const count = await countUsersInGroup(group.id, user);
+                const count: number = await countUsersInGroup(group.id, user);
                 setNumMembers(count);
             }
         };
 
         const fetchNumEvents = async (): Promise<void> => {
             if (user) {
-                const count = await countEventsInGroup(group.id, user);
+                const count: number = await countEventsInGroup(group.id, user);
                 setNumEvents(count);
             }
         }
