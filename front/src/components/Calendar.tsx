@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi from '../api/fetch';
 import { groupBadges } from '../data/badges';
-import { findUserId, findUserLastname, findUserFirstname, findUserIdByEmail } from '../utils/user';
+import { findUserId, findUserIdByEmail } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
@@ -50,8 +50,6 @@ export const Calendar: React.FC = () => {
 
     const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
     const [loadedRooms, setLoadedRooms] = useState<Room[]>([]);
-
-    const [success, setSuccess] = useState<string>('');
 
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(event.target.value);
@@ -160,7 +158,7 @@ export const Calendar: React.FC = () => {
                 const notification: Notification = {
                     id: (lastNotificationId ?? 0) + 1,
                     userId: hostId ?? 0,
-                    message: `L'événement ${selectedEvent.name} a été supprimé.`,
+                    message: `L'événement "${selectedEvent.name}" a été supprimé.`,
                 };
 
                 const create: any = await createNotification(user, notification);
@@ -254,16 +252,10 @@ export const Calendar: React.FC = () => {
                                 const notification: Notification = {
                                     id: (lastNotificationId ?? 0) + 1,
                                     userId: participantId,
-                                    message: `Vous avez été invité à l'événement ${newEvent.name} par ${user.firstName} ${user.lastName}.`,
+                                    message: `Vous avez été invité à l'événement "${newEvent.name}" par ${user.firstName} ${user.lastName}.`,
                                 };
 
-                                const create: any = await createNotification(user, notification);
-
-                                if (create.success) {
-                                    console.log('Notification créée avec succès');
-                                } else {
-                                    console.error('Erreur lors de la création de la notification :', create.error);
-                                }
+                                await createNotification(user, notification);
                             }
                         }
                     }
@@ -279,7 +271,7 @@ export const Calendar: React.FC = () => {
                         const hostId: number | undefined = await findUserId(user.lastName, user);
                         const lastNotificationId: number | undefined = await findLastNotificationId(user);
 
-                        const message = user.is_admin ? `L'événement ${newEvent.name} a été validé.` : `Votre demande d'événement ${newEvent.name} a été envoyée. Elle est en cours de traitement.`;
+                        const message = user.is_admin ? `L'événement "${newEvent.name}" a été validé.` : `Votre demande d'événement "${newEvent.name}" a été envoyée. Elle est en cours de traitement.`;
 
                         const notification: Notification = {
                             id: (lastNotificationId ?? 0) + 1,
@@ -287,13 +279,7 @@ export const Calendar: React.FC = () => {
                             message: message,
                         };
 
-                        const create: any = await createNotification(user, notification);
-
-                        if (create.success) {
-                            console.log('Notification créée avec succès');
-                        } else {
-                            console.error('Erreur lors de la création de la notification :', create.error);
-                        }
+                        await createNotification(user, notification);
                     }
                 } else if (registerEvent.error) {
                     alert(registerEvent.error);

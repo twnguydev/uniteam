@@ -58,14 +58,8 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                     message: notificationMessages[selectedStatusId],
                 };
 
-                const create: any = await createNotification(user, notification);
-
-                if (create.success) {
-                    console.log('Notification envoyée avec succès !');
-                } else {
-                    console.error('Échec de l\'envoi de la notification.');
-                }
-
+                await createNotification(user, notification);
+                
                 const getParticipants: UserParticipant[] = await findAllParticipants(user);
                 const getAllParticipantsIdToEvent: number[] = getParticipants.filter((participant: UserParticipant): boolean => participant.eventId === id).map((participant: UserParticipant): number => participant.userId);
 
@@ -86,13 +80,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                             message: notificationMessages[selectedStatusId],
                         };
 
-                        const create: any = await createNotification(user, notification);
-
-                        if (create.success) {
-                            console.log('Notification envoyée avec succès !');
-                        } else {
-                            console.error('Échec de l\'envoi de la notification.');
-                        }
+                        await createNotification(user, notification);
                     }
                 });
             } else {
