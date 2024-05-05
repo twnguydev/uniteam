@@ -32,7 +32,7 @@ export const NotificationNavbar = () => {
 
         fetchNotifications();
 
-        const intervalId = setInterval(fetchNotifications, 60000);
+        const intervalId = setInterval(fetchNotifications, 15000);
 
         return (): void => clearInterval(intervalId);
     }, [user])

@@ -241,8 +241,6 @@ export const Calendar: React.FC = () => {
                                     userId: participantId,
                                 };
 
-                                console.log('newParticipant:', newParticipant);
-
                                 await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
                                     headers: {
                                         Authorization: `Bearer ${user.token}`,
@@ -256,7 +254,7 @@ export const Calendar: React.FC = () => {
                                 const notification: Notification = {
                                     id: (lastNotificationId ?? 0) + 1,
                                     userId: participantId,
-                                    message: `Vous avez été invité à l'événement ${newEvent.name} par ${user.lastName} ${user.firstName}.`,
+                                    message: `Vous avez été invité à l'événement ${newEvent.name} par ${user.firstName} ${user.lastName}.`,
                                 };
 
                                 const create: any = await createNotification(user, notification);

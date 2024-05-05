@@ -3,10 +3,14 @@ import fetchApi from '../../api/fetch';
 import { useAuth } from '../../auth/AuthContext';
 import { formatDate, formatDateHour } from '../../utils/date';
 import { Badge } from '../../utils/badge';
-import { Group } from '../../utils/group';
 import { Room } from '../../utils/room';
 import statusData from '../../data/status.json';
 import type { Event } from '../../types/Event';
+import type { UserParticipant } from '../../types/user';
+import { findUserId } from '../../utils/user';
+import { findAllParticipants } from '../../utils/participant';
+import type { Notification } from '../../types/notification';
+import { findLastNotificationId, createNotification } from '../../utils/notification';
 
 export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }) => {
     const { user } = useAuth();
@@ -34,8 +38,63 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                 },
             });
 
-            if (response.success) {
-                console.error('Statut de l\'événement mis à jour avec succès !');
+            if (response.success && response.data && user) {
+                alert('Statut de l\'événement mis à jour avec succès !');
+
+                const getHostId: number | null = hostName ? await findUserId(hostName, user) : null;
+
+                const notificationMessages: { [key: number]: string } = {
+                    1: `Votre événement "${name}" a été validé par un administrateur.`,
+                    2: `Votre événement "${name}" a été refusé par un administrateur.`,
+                    3: `Votre événement "${name}" a été annulé par un administrateur.`,
+                    4: `Votre événement "${name}" est en cours de traitement.`,
+                };
+
+                const lastId: number | undefined = await findLastNotificationId(user);
+
+                const notification: Notification = {
+                    id: lastId ? lastId + 1 : 0,
+                    userId: getHostId ? getHostId : 0,
+                    message: notificationMessages[selectedStatusId],
+                };
+
+                const create: any = await createNotification(user, notification);
+
+                if (create.success) {
+                    console.log('Notification envoyée avec succès !');
+                } else {
+                    console.error('Échec de l\'envoi de la notification.');
+                }
+
+                const getParticipants: UserParticipant[] = await findAllParticipants(user);
+                const getAllParticipantsIdToEvent: number[] = getParticipants.filter((participant: UserParticipant): boolean => participant.eventId === id).map((participant: UserParticipant): number => participant.userId);
+
+                getAllParticipantsIdToEvent.forEach(async (participantId: number): Promise<void> => {
+                    if (participantId !== getHostId) {
+                        const notificationMessages: { [key: number]: string } = {
+                            1: `L'événement "${name}" auquel vous participez a été validé par un administrateur.`,
+                            2: `L'événement "${name}" auquel vous participez a été refusé par un administrateur.`,
+                            3: `L'événement "${name}" auquel vous participez a été annulé par un administrateur.`,
+                            4: `L'événement "${name}" auquel vous participez est en cours de traitement.`,
+                        };
+
+                        const lastId: number | undefined = await findLastNotificationId(user);
+
+                        const notification: Notification = {
+                            id: lastId ? lastId + 1 : 0,
+                            userId: participantId,
+                            message: notificationMessages[selectedStatusId],
+                        };
+
+                        const create: any = await createNotification(user, notification);
+
+                        if (create.success) {
+                            console.log('Notification envoyée avec succès !');
+                        } else {
+                            console.error('Échec de l\'envoi de la notification.');
+                        }
+                    }
+                });
             } else {
                 console.error('Échec de la mise à jour du statut de l\'événement.');
             }
