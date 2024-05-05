@@ -51,7 +51,7 @@ export const FormRoom: React.FC<any> = () => {
 
     return (
         <section>
-            <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
+            <div className="flow-root my-4 sm:my-4 lg:my-16">
                 <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
                     <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleRoomForm}>
                         <div>

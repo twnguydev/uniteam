@@ -235,13 +235,13 @@ export const ScheduleAdmin: React.FC = () => {
                             <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-l-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isEventListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des événements</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleUserList}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isUserListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des utilisateurs</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isUserListOpen || isUserFormOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des utilisateurs</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleGroupList}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isGroupListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des groupes</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 focus:ring-4 focus:ring-blue-300 focus:outline-none ${isGroupListOpen || isGroupFormOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des groupes</div>
                         </li>
                         <li className="focus-within:z-10" onClick={toggleRoomList}>
-                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-r-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isRoomListOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des salles</div>
+                            <div className={`inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 rounded-r-lg focus:ring-4 focus:ring-blue-300 focus:outline-none ${isRoomListOpen || isRoomFormOpen ? 'text-gray-900 dark:bg-gray-700 dark:text-white' : 'dark:bg-gray-800 dark:hover:bg-gray-700 hover:text-white hover:bg-gray-50'}`}>Gestion des salles</div>
                         </li>
                     </ul>
                 </div>

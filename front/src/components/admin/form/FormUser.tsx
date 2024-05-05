@@ -27,13 +27,26 @@ export const FormUser: React.FC<any> = () => {
         fetchGroups();
     }, [user]);
 
+    const checkPassword = (password: string): boolean => {
+        const regex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})');
+        return regex.test(password);
+    }
+
     const handleUserForm = async (e: any) => {
         e.preventDefault();
+        
         if (!lastName || !firstName || !email || !password || !groupName) {
             setError('Veuillez remplir tous les champs');
             return;
         }
+
+        if (!checkPassword(password)) {
+            setError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial');
+            return;
+        }
+
         setError('');
+
         try {
             const lastUserId: number | undefined = await findLastUserId(user as User);
             const groupId: number | undefined = await findGroupId(groupName, user);
@@ -73,9 +86,9 @@ export const FormUser: React.FC<any> = () => {
 
     return (
         <section>
-            <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
+            <div className="flow-root my-4 sm:my-4 lg:my-16">
                 <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
-                    <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleUserForm}>
+                    <form className="space-y-4 max-w-xl mx-auto" onSubmit={handleUserForm}>
                         <div>
                             <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Prénom</label>
                             <input
@@ -121,7 +134,7 @@ export const FormUser: React.FC<any> = () => {
                                 onChange={(e): any => setGroupName(e.target.value)}
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             >
-                                <option value="">Filtrer par groupe de travail</option>
+                                <option value="">Assigner un groupe de travail</option>
                                 {groups.map(group => (
                                     <option key={group.id} value={group.name}>{group.name}</option>
                                 ))}
@@ -138,10 +151,9 @@ export const FormUser: React.FC<any> = () => {
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 placeholder="Mot de passe de l'utilisateur"
                             />
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Pensez à communiquer le mot de passe à l'utilisateur</p>
+                            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">Pensez à communiquer le mot de passe à l'utilisateur. Utilisez un mot de passe sécurisé.</p>
                         </div>
-                        <div>
-                            <label htmlFor="is_admin" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Administrateur</label>
+                        <div className="flex items-center">
                             <input
                                 type="checkbox"
                                 name="is_admin"
@@ -150,6 +162,7 @@ export const FormUser: React.FC<any> = () => {
                                 onChange={(e): any => setAdmin(e.target.checked)}
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             />
+                            <label htmlFor="is_admin" className="block uppercase text-sm ml-10 font-medium text-gray-900 dark:text-white">Cet utilisateur est un administrateur</label>
                         </div>
                         {error && (
                             <div className="text-red-500 text-sm font-medium">
