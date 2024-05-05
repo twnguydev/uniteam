@@ -176,3 +176,22 @@ class Notification(BaseModel):
 
     class Config:
         orm_mode = True
+
+class Participant(BaseModel):
+    """
+    Represents a participant in an event.
+
+    Attributes:
+        eventId (int): The ID of the event.
+        userId (int): The ID of the user.
+
+    Config:
+        orm_mode (bool): Whether to enable ORM mode or not.
+    """
+
+    id: int
+    eventId: int
+    userId: int
+
+    class Config:
+        orm_mode = True

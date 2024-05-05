@@ -490,3 +490,54 @@ async def delete_notifications(user_id: int, db: Session = Depends(get_db)) -> d
     """
     crud.delete_notifications_by_user(db, user_id=user_id)
     return {"message": "Notifications deleted"}
+
+@app.post("/participants/", response_model=schemas.Participant)
+async def create_participant(
+    participant: schemas.Participant, db: Session = Depends(get_db)
+) -> models.Participants:
+    """
+    Create a new participant in the database.
+
+    Args:
+        participant (schemas.Participant): The participant data to be created.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        models.Participants: The created participant.
+
+    """
+    return crud.add_participant_to_event(db=db, participant=participant)
+
+@app.get("/participants/{event_id}", response_model=list[schemas.Participant])
+async def read_participants(
+    event_id: int, db: Session = Depends(get_db)
+) -> list[models.Participants]:
+    """
+    Retrieve a list of participants for a specific event.
+
+    Args:
+        event_id (int): The ID of the event to retrieve participants for.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        list[models.Participants]: A list of participants for the specified event.
+
+    """
+    return crud.get_participants_by_event(db, event_id=event_id)
+
+@app.get("/events/user/{user_id}", response_model=list[schemas.Participant])
+async def read_participants(
+    user_id: int, db: Session = Depends(get_db)
+) -> list[models.Participants]:
+    """
+    Retrieve a list of events for a specific user wether he is a participant or not.
+
+    Args:
+        user_id (int): The ID of the user to retrieve events for.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        list[models.Events]: A list of events for the specified user.
+
+    """
+    return crud.get_events_by_user(db, user_id=user_id)

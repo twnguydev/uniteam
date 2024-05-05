@@ -116,3 +116,19 @@ class Notifications(Base):
     id = Column(Integer, primary_key=True)
     userId = Column(Integer, ForeignKey("users.id"))
     message = Column(String)
+
+class Participants(Base):
+    """
+    Represents a participant in the application.
+
+    Attributes:
+        id (int): The unique identifier of the participant.
+        eventId (int): The ID of the event the participant is attending.
+        userId (int): The ID of the user who is the participant.
+    """
+
+    __tablename__: str = "participants"
+
+    id = Column(Integer, primary_key=True)
+    eventId = Column(Integer, ForeignKey("events.id"))
+    userId = Column(Integer, ForeignKey("users.id"))

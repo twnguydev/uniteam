@@ -331,3 +331,61 @@ def delete_notifications_by_user(db: Session, user_id: int) -> None:
     """
     db.query(models.Notifications).filter(models.Notifications.userId == user_id).delete()
     db.commit()
+
+def add_participant_to_event(db: Session, participant: schemas.Participant) -> models.Participants:
+    """
+    Add a participant to an event.
+
+    Args:
+        db (Session): The database session.
+        participant (schemas.Participant): The participant data to be added.
+
+    Returns:
+        models.Participants: The created participant object.
+    """
+    participant_dict: dict[str, Any] = participant.model_dump()
+    db_participant = models.Participants(**participant_dict)
+    db.add(db_participant)
+    db.commit()
+    db.refresh(db_participant)
+    return db_participant
+
+def get_participants_by_event(db: Session, event_id: int) -> list[models.Participants]:
+    """
+    Retrieve a list of participants for a specific event.
+
+    Args:
+        db (Session): The database session.
+        event_id (int): The ID of the event to retrieve participants for.
+
+    Returns:
+        list[models.Participants]: A list of participant objects.
+    """
+    return db.query(models.Participants).filter(models.Participants.eventId == event_id).all()
+
+def get_events_by_user(db: Session, user_id: int) -> list[models.Event]:
+    """
+    Retrieve a list of events for a specific user, including events created by the user and events where the user is invited.
+
+    Args:
+        db (Session): The database session.
+        user_id (int): The ID of the user to retrieve events for.
+
+    Returns:
+        list[models.Event]: A list of event objects.
+    """
+    user_events = (
+        db.query(models.Event)
+        .filter(models.Event.hostId == user_id)
+        .all()
+    )
+
+    invited_events = (
+        db.query(models.Event)
+        .join(models.Participants, models.Participants.eventId == models.Event.id)
+        .filter(models.Participants.userId == user_id)
+        .all()
+    )
+
+    all_events = user_events + invited_events
+    return all_events
