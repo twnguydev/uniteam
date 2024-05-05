@@ -14,3 +14,9 @@ export interface UserProps {
     userId: number;
     userData: User;
 }
+
+export interface UserParticipant {
+    id: number;
+    userId: number;
+    eventId: number;
+}

@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
+import fetchApi from '../api/fetch';
 import { groupBadges } from '../data/badges';
-import { findUserId } from '../utils/user';
+import { findUserId, findUserLastname, findUserFirstname } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
+import { createNotification, findLastNotificationId } from '../utils/notification';
+import { getStatusId } from '../utils/status';
+import { findLastParticipantId } from '../utils/participant';
+
 import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
 import type { Group } from '../types/group';
 import type { User } from '../types/user';
 import type { Notification } from '../types/notification';
-import { getStatusId } from '../utils/status';
-import fetchApi from '../api/fetch';
-import { createNotification, findAllNotifications, findLastNotificationId } from '../utils/notification';
+import type { UserParticipant } from '../types/user';
 
 const MONTH_NAMES: string[] = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 const DAYS: string[] = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -33,6 +36,10 @@ export const Calendar: React.FC = () => {
     const [selectedRoom, setSelectedRoom] = useState<string>('');
     const [deleteButton, setDeleteButton] = useState<boolean>(false);
 
+    const [participantEmails, setParticipantEmails] = useState<string[]>([]);
+    const [inputCount, setInputCount] = useState<number>(1);
+    const [showAddInput, setShowAddInput] = useState<boolean>(true);
+
     const [eventTitle, setEventTitle] = useState<string>('');
     const [eventDesc, setEventDesc] = useState<string>('');
     const [eventDate, setEventDate] = useState<Date | null>(null);
@@ -44,6 +51,8 @@ export const Calendar: React.FC = () => {
     const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
     const [loadedRooms, setLoadedRooms] = useState<Room[]>([]);
 
+    const [success, setSuccess] = useState<string>('');
+
     const handleGroupChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedGroup(event.target.value);
     };
@@ -53,7 +62,7 @@ export const Calendar: React.FC = () => {
     };
 
     useEffect((): void => {
-        const getNoOfDays  = (): void => {
+        const getNoOfDays = (): void => {
             const firstDayOfMonth = new Date(year, month, 1);
             const daysInMonth: number = new Date(year, month + 1, 0).getDate();
             const indexOfFirstDay: number = (firstDayOfMonth.getDay() + 6) % 7;
@@ -68,31 +77,31 @@ export const Calendar: React.FC = () => {
             if (!user) {
                 return;
             }
-    
+
             const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
             const selectedRoomId: number | undefined = await findRoomId(selectedRoom, user);
             const allEvents: any = await findAllEvents<User>(user);
             let filteredEvents: any = allEvents;
-    
+
             if (selectedGroup) {
                 filteredEvents = allEvents.filter((event: any): boolean => event.groupId === selectedGroupId);
             }
-    
+
             if (selectedRoom) {
                 filteredEvents = filteredEvents.filter((event: any): boolean => event.roomId === selectedRoomId);
             }
-    
+
             filteredEvents = filteredEvents.filter((event: any): boolean => event.statusId !== 3 && event.statusId !== 2);
-    
+
             setEvents(filteredEvents || []);
-    
+
             const fetchedGroups: any = await findAllGroups<User>(user);
             setLoadedGroups(fetchedGroups || []);
-    
+
             const fetchedRooms: any = await findAllRooms<User>(user);
             setLoadedRooms(fetchedRooms || []);
         };
-    
+
         fetchData();
     }, [user, selectedGroup, selectedRoom]);
 
@@ -107,6 +116,33 @@ export const Calendar: React.FC = () => {
         }
     };
 
+    const handleAddInputClick = () => {
+        setInputCount(inputCount + 1);
+        setShowAddInput(false);
+    };
+
+    const handleInputChange = (index: number, value: string) => {
+        const updatedParticipantEmails = [...participantEmails];
+        updatedParticipantEmails[index] = value;
+        setParticipantEmails(updatedParticipantEmails);
+    };
+
+    const renderParticipantInputs = (): any[] => {
+        const inputs: any[] = [];
+        for (let i: number = 0; i < inputCount; i++) {
+            inputs.push(
+                <input
+                    key={i}
+                    className="bg-gray-200 appearance-none border-2 border-gray-200 mt-3 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                    type="text"
+                    placeholder="Adresse e-mail du participant"
+                    onChange={(e) => handleInputChange(i, e.target.value)}
+                />
+            );
+        }
+        return inputs;
+    };
+
     const deleteEvent = async (): Promise<void> => {
         const response = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {
             headers: {
@@ -115,10 +151,10 @@ export const Calendar: React.FC = () => {
                 'Content-Type': 'application/json',
             },
         });
-    
+
         if (response.success) {
             alert('Événement supprimé avec succès !');
-    
+
             if (selectedEvent && user) {
                 const hostId: number | undefined = await findUserId(selectedEvent.hostName ?? '', user);
                 const lastNotificationId: number | undefined = await findLastNotificationId(user);
@@ -137,13 +173,13 @@ export const Calendar: React.FC = () => {
                     console.error('Erreur lors de la création de la notification :', create.error);
                 }
             }
-    
+
             setEvents(events.filter(event => event.id !== selectedEvent?.id));
             setOpenEventDetailsModal(false);
         } else {
             alert('Échec de la suppression de l\'événement.');
         }
-    };    
+    };
 
     const addEvent = async (): Promise<void> => {
         try {
@@ -211,6 +247,38 @@ export const Calendar: React.FC = () => {
         }
     };
 
+    // const addParticipant = async (event: Event): Promise<void> => {
+    //     if (user) {
+    //         const lastParticipantId: number = await findLastParticipantId(user);
+
+    //         const newParticipant: UserParticipant = {
+    //             id: lastParticipantId + 1,
+    //             eventId: event.id,
+    //             userId: user.id,
+    //         };
+
+    //         const response = await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
+    //             headers: {
+    //                 Authorization: `Bearer ${user.token}`,
+    //                 Accept: 'application/json',
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+
+    //         if (response.success && response.data) {
+    //             const newParticipant: UserParticipant = response.data;
+    //             const participantLastname: string | undefined = await findUserLastname(newParticipant.userId, user);
+    //             const participantFirstname: string | undefined = await findUserFirstname(newParticipant.userId, user);
+
+    //             if (newParticipant) {
+    //                 setParticipants([...participants, newParticipant]);
+    //             }
+    //         } else {
+    //             alert('Échec de l\'ajout du participant.');
+    //         }
+    //     }
+    // };
+
     const displayEvents: () => { noOfDays: number[], events: React.ReactNode } = () => {
         const eventNodes: React.ReactNode[] = [];
 
@@ -248,6 +316,10 @@ export const Calendar: React.FC = () => {
         setEventRoom('1');
         setStartTime('');
         setEndTime('');
+        setParticipantEmails([]);
+        setInputCount(1);
+        setShowAddInput(true);
+        setOpenEventModal(false);
     };
 
     const formatDate = (date: Date): string => {
@@ -327,41 +399,66 @@ export const Calendar: React.FC = () => {
                 </div>
                 {openEventModal && (
                     <div style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }} className="fixed z-50 top-0 right-0 left-0 bottom-0 h-full w-full">
-                        <div className="p-4 max-w-xl mx-auto relative absolute left-0 right-0 overflow-hidden mt-24">
-                            <div className="shadow absolute right-0 top-0 w-10 h-10 rounded-full bg-white text-gray-500 hover:text-gray-800 inline-flex items-center justify-center cursor-pointer" onClick={() => setOpenEventModal(false)}>
+                        <div className="p-4 max-w-2xl mx-auto relative absolute left-0 right-0 overflow-hidden mt-10">
+                            <div className="shadow absolute right-0 top-0 w-10 h-10 rounded-full bg-white text-gray-500 hover:text-gray-800 inline-flex items-center justify-center cursor-pointer" onClick={() => resetForm()}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </div>
-                            <div className="shadow w-full rounded-lg bg-white overflow-hidden block max-h-[80vh] overflow-y-auto p-8">
+                            <div className="shadow w-full rounded-lg bg-white overflow-hidden block max-h-[90vh] overflow-y-auto p-8">
                                 <h2 className="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">Ajouter un événement</h2>
                                 <div className="mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
-                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" onChange={(e) => setEventTitle(e.target.value)} />
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="text"
+                                        onChange={(e) => setEventTitle(e.target.value)}
+                                    />
                                 </div>
                                 <div className="mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
-                                    <textarea name="eventDesc" rows={4} className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none" onChange={(e) => setEventDesc(e.target.value)} />
+                                    <textarea
+                                        name="eventDesc"
+                                        rows={4}
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                        onChange={(e) => setEventDesc(e.target.value)}
+                                    />
                                 </div>
 
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className="w-2/3">
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Date de l'événement</label>
-                                        <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="text" value={eventDate ? formatDate(eventDate) : ''} readOnly />
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="text"
+                                            value={eventDate ? formatDate(eventDate) : ''}
+                                            readOnly
+                                        />
                                     </div>
                                     <div className="w-1/3">
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de début</label>
-                                        <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="time" onChange={(e) => setStartTime(e.target.value)} />
+                                        <input
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                            type="time"
+                                            onChange={(e) => setStartTime(e.target.value)}
+                                        />
                                     </div>
                                 </div>
                                 <div className="mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Heure de fin</label>
-                                    <input className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500" type="time" onChange={(e) => setEndTime(e.target.value)} />
+                                    <input
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                                        type="time"
+                                        onChange={(e): void => setEndTime(e.target.value)}
+                                    />
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className='w-2/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
-                                        <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventGroup(e.target.value)}>
+                                        <select
+                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                            onChange={(e): void => setEventGroup(e.target.value)}
+                                        >
                                             {loadedGroups.map((group: Group, index: number) => (
                                                 <option key={index} value={group.name}>{group.name}</option>
                                             ))}
@@ -369,20 +466,43 @@ export const Calendar: React.FC = () => {
                                     </div>
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
-                                        <select className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700" onChange={(e) => setEventRoom(e.target.value)}>
+                                        <select
+                                            className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
+                                            onChange={(e) => setEventRoom(e.target.value)}
+                                        >
                                             {loadedRooms.map((room: Room, index: number) => (
                                                 <option key={index} value={room.name}>{room.name}</option>
                                             ))}
                                         </select>
                                     </div>
                                 </div>
+                                <div className="mb-4">
+                                    <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
+                                    {renderParticipantInputs()}
+                                    <div className="flex justify-end space-x-4">
+                                        <button
+                                            className="bg-white hover:bg-gray-100 text-gray-700 mt-3 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm"
+                                            onClick={handleAddInputClick}
+                                        >
+                                            Ajouter un participant
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="mt-8 text-right">
-                                    <button type="button" className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2" onClick={() => setOpenEventModal(false)}>Annuler</button>
-                                    {user?.is_admin ? (
-                                        <button type="button" className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm" onClick={addEvent}>Enregistrer</button>
-                                    ) : (
-                                        <button type="button" className='bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm' onClick={addEvent}>Faire une demande</button>
-                                    )}
+                                    <button
+                                        type="button"
+                                        className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
+                                        onClick={() => setOpenEventModal(false)}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
+                                        onClick={addEvent}
+                                    >
+                                        {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -401,7 +521,12 @@ export const Calendar: React.FC = () => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className='w-2/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Titre de l'événement</label>
-                                        <input name="eventDesc" className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.name} readOnly />
+                                        <input
+                                            name="eventDesc"
+                                            className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                            value={selectedEvent.name}
+                                            readOnly
+                                        />
                                     </div>
                                     <div className='w-1/3'>
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Lead</label>
@@ -415,7 +540,13 @@ export const Calendar: React.FC = () => {
                                 </div>
                                 <div className="mb-4">
                                     <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Description de l'événement</label>
-                                    <textarea name="eventDesc" rows={4} className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none " value={selectedEvent.description} readOnly />
+                                    <textarea
+                                        name="eventDesc"
+                                        rows={4}
+                                        className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
+                                        value={selectedEvent.description}
+                                        readOnly
+                                    />
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <div className="w-2/3">
@@ -449,7 +580,7 @@ export const Calendar: React.FC = () => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <DisplayInputs selectedEvent={selectedEvent} userData={user} />
                                 </div>
-                                {deleteButton  && (
+                                {deleteButton && (
                                     <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
                                         Supprimer l'événement
                                     </button>
@@ -468,7 +599,7 @@ const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }
     const [roomName, setRoomName] = useState<string>('');
 
     useEffect(() => {
-        const fetchGroupName = async () => {
+        const fetchGroupName = async (): Promise<void> => {
             try {
                 const groupName = await findGroupName(selectedEvent.groupId, userData) || 'Groupe inconnu';
                 setGroupName(groupName);
@@ -477,7 +608,7 @@ const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }
             }
         };
 
-        const fetchRoomName = async () => {
+        const fetchRoomName = async (): Promise<void> => {
             try {
                 const roomName = await findRoomName(selectedEvent.roomId, userData) || 'Salle inconnue';
                 setRoomName(roomName);

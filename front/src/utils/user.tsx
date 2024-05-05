@@ -37,10 +37,21 @@ export async function findUserLastname(userId: number, userData: User): Promise<
     return user ? user.lastName : undefined;
 }
 
+export async function findUserFirstname(userId: number, userData: User): Promise<string | undefined> {
+    const users: User[] = await findAllUsers(userData);
+    const user: User | undefined = users.find((user: User): boolean => user.id === userId);
+    return user ? user.firstName : undefined;
+}
+
 export async function findUserId(userLastname: string, userData: User): Promise<number> {
     const users: User[] = await findAllUsers(userData);
     const user: User | undefined = users.find((user: User): boolean => user.lastName === userLastname);
     return user ? user.id : 0;
+}
+
+export async function findUser(userData: User, userId: number): Promise<User | undefined> {
+    const users: User[] = await findAllUsers(userData);
+    return users.find((user: User): boolean => user.id === userId);
 }
 
 const User: React.FC<UserProps> = ({ userId, userData }) => {
