@@ -18,7 +18,7 @@ export const NotificationNavbar = () => {
         }
     };
 
-    useEffect(() => {
+    useEffect((): (() => void) | undefined => {
         if (!user) return;
 
         const fetchNotifications = async (): Promise<void> => {
@@ -31,7 +31,11 @@ export const NotificationNavbar = () => {
         };
 
         fetchNotifications();
-    })
+
+        const intervalId = setInterval(fetchNotifications, 60000);
+
+        return (): void => clearInterval(intervalId);
+    }, [user])
 
     return (
         <>
