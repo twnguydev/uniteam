@@ -40,13 +40,14 @@ export const Schedule: React.FC = () => {
     useEffect((): void => {
         const start: number = (page - 1) * parseInt(selectedLimit);
         const end: number = start + parseInt(selectedLimit);
+        
+        const totalPages: number = Math.ceil(events.length / parseInt(selectedLimit));
 
-        if (page < 1) {
-            setPage(1);
-        } else if (page > Math.ceil(events.length / parseInt(selectedLimit))) {
-            setPage(Math.ceil(events.length / parseInt(selectedLimit)));
+        if (page < 1 || page > totalPages) {
+            setPage(prevPage => Math.max(1, Math.min(totalPages, prevPage)));
+            return;
         }
-
+    
         setCurrentPageEvents(events.slice(start, end));
     }, [page, events, selectedLimit]);
 
