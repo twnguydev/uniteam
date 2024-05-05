@@ -25,3 +25,8 @@ export async function findAllEvents<User>(userData: User): Promise<any> {
         return eventsData.data;
     }
 }
+
+export async function countAllEvents(userData: any): Promise<number> {
+    const events: Event[] = await findAllEvents(userData);
+    return events.length;
+}

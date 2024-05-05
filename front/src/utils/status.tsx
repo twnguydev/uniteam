@@ -47,3 +47,8 @@ export async function getStatusName(statusId: number, userData: any): Promise<st
     const status = statuses.find((status: any): boolean => status.id === statusId);
     return status ? status.name : undefined;
 }
+
+export async function countAllStatus(userData: any): Promise<number> {
+    const statuses: any = await findAllStatus(userData);
+    return statuses.length;
+}

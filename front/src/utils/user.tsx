@@ -18,6 +18,11 @@ export async function findAllUsers(userData: User): Promise<User[]> {
     }
 }
 
+export async function countAllUsers(userData: User): Promise<number> {
+    const users: User[] = await findAllUsers(userData);
+    return users.length;
+}
+
 export async function findLastUserId(userData: User): Promise<number | undefined> {
     const users: User[] = await findAllUsers(userData);
     let maxId: number | undefined = undefined;

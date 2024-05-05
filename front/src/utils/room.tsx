@@ -58,3 +58,8 @@ export async function findLastRoomId(userData: any): Promise<number | undefined>
     const rooms = await findAllRooms(userData);
     return rooms.length > 0 ? rooms[rooms.length - 1].id : undefined;
 }
+
+export async function countAllRooms(userData: any): Promise<number> {
+    const rooms: any = await findAllRooms(userData);
+    return rooms.length;
+}

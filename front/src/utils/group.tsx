@@ -80,3 +80,8 @@ export async function findLastGroupId(userData: any): Promise<number | undefined
     const groups: any = await findAllGroups(userData);
     return groups.length > 0 ? groups[groups.length - 1].id : undefined;
 }
+
+export async function countAllGroups(userData: any): Promise<number> {
+    const groups: any = await findAllGroups(userData);
+    return groups.length;
+}

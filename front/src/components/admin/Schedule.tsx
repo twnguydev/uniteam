@@ -5,9 +5,11 @@ import { ListUsers } from './read/ListUsers';
 import { ListEvents } from './read/ListEvents';
 import { ListRooms } from './read/ListRooms';
 import { ListGroups } from './read/ListGroups';
-import { findAllEvents } from '../../utils/event';
-import { findAllGroups, findGroupId } from '../../utils/group';
+import { findAllEvents, countAllEvents } from '../../utils/event';
+import { findAllGroups, findGroupId, countAllGroups } from '../../utils/group';
 import { findAllStatus, getStatusId } from '../../utils/status';
+import { countAllUsers } from '../../utils/user';
+import { countAllRooms } from '../../utils/room';
 import type { Group } from '../../types/Group';
 import type { User } from '../../types/user';
 import type { Status } from '../../types/Status';
@@ -17,7 +19,7 @@ import { FormUser } from './form/FormUser';
 import { Banner } from '../Banner';
 
 export const ScheduleAdmin: React.FC = () => {
-    const { user, logout } = useAuth();
+    const { user } = useAuth();
     const location = useLocation();
 
     const [isUserListOpen, setIsUserListOpen] = useState(false);
@@ -31,6 +33,11 @@ export const ScheduleAdmin: React.FC = () => {
 
     const [events, setEvents] = useState<Event[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+
+    const [countUsers, setCountUsers] = useState<number>(0);
+    const [countGroups, setCountGroups] = useState<number>(0);
+    const [countEvents, setCountEvents] = useState<number>(0);
+    const [countRooms, setCountRooms] = useState<number>(0);
 
     const [selectedGroup, setSelectedGroup] = useState<string>('');
     const [loadedGroups, setLoadedGroups] = useState<Group[]>([]);
@@ -53,6 +60,28 @@ export const ScheduleAdmin: React.FC = () => {
     const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedLimit(event.target.value);
     };
+
+    useEffect(() => {
+        const fetchCounters = async (): Promise<void> => {
+            if (!user) {
+                return;
+            }
+
+            const countUsers: number = await countAllUsers(user);
+            setCountUsers(countUsers);
+
+            const countGroups: number = await countAllGroups(user);
+            setCountGroups(countGroups);
+
+            const countRooms: number = await countAllRooms(user);
+            setCountRooms(countRooms);
+
+            const countEvents: number = await countAllEvents(user);
+            setCountEvents(countEvents);
+        };
+
+        fetchCounters();
+    }, [user]);
 
     useEffect(() => {
         const fetchData = async (): Promise<void> => {
@@ -245,156 +274,176 @@ export const ScheduleAdmin: React.FC = () => {
                     </ul>
                 </div>
                 {isEventListOpen && (
-                    <div className="flex items-end justify-end w-3xl mt-6">
-                        <div className="flex">
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Statut</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedStatus}
-                                    onChange={handleStatusChange}
-                                >
-                                    <option value="">Filtrer par status</option>
-                                    {loadedStatus.map(status => (
-                                        <option key={status.id} value={status.name}>{status.name}</option>
-                                    ))}
-                                </select>
-                            </form>
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedGroup}
-                                    onChange={handleGroupChange}
-                                >
-                                    <option value="">Filtrer par groupe de travail</option>
-                                    {loadedGroups.map(group => (
-                                        <option key={group.id} value={group.name}>{group.name}</option>
-                                    ))}
-                                </select>
-                            </form>
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Limite</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedLimit}
-                                    onChange={handleLimitChange}
-                                >
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="75">75</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </form>
+                    <>
+                        <div className="flex items-end justify-end w-3xl mt-6">
+                            <div className="flex">
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Statut</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedStatus}
+                                        onChange={handleStatusChange}
+                                    >
+                                        <option value="">Filtrer par status</option>
+                                        {loadedStatus.map(status => (
+                                            <option key={status.id} value={status.name}>{status.name}</option>
+                                        ))}
+                                    </select>
+                                </form>
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Groupe</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedGroup}
+                                        onChange={handleGroupChange}
+                                    >
+                                        <option value="">Filtrer par groupe de travail</option>
+                                        {loadedGroups.map(group => (
+                                            <option key={group.id} value={group.name}>{group.name}</option>
+                                        ))}
+                                    </select>
+                                </form>
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedLimit}
+                                        onChange={handleLimitChange}
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                        <div className="flex items-end justify-end w-3xl mt-6">
+                            <p className="text-lg font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">Il y a {countEvents} événements enregistrés.</p>
+                        </div>
+                    </>
                 )}
                 {isUserListOpen && (
-                    <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleUserForm}>
-                            Ajouter un utilisateur
-                        </button>
-                        <div className="flex">
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Statut</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedStatus}
-                                    onChange={handleStatusChange}
-                                >
-                                    <option value="">Filtrer par status</option>
-                                    <option value="true">Administrateur</option>
-                                    <option value="false">Membre</option>
-                                </select>
-                            </form>
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Groupe</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedGroup}
-                                    onChange={handleGroupChange}
-                                >
-                                    <option value="">Filtrer par groupe de travail</option>
-                                    {loadedGroups.map(group => (
-                                        <option key={group.id} value={group.name}>{group.name}</option>
-                                    ))}
-                                </select>
-                            </form>
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Limite</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedLimit}
-                                    onChange={handleLimitChange}
-                                >
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="75">75</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </form>
+                    <>
+                        <div className="flex items-end justify-between w-3xl mt-6">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleUserForm}>
+                                Ajouter un utilisateur
+                            </button>
+                            <div className="flex">
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Statut</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedStatus}
+                                        onChange={handleStatusChange}
+                                    >
+                                        <option value="">Filtrer par status</option>
+                                        <option value="true">Administrateur</option>
+                                        <option value="false">Membre</option>
+                                    </select>
+                                </form>
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Groupe</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedGroup}
+                                        onChange={handleGroupChange}
+                                    >
+                                        <option value="">Filtrer par groupe de travail</option>
+                                        {loadedGroups.map(group => (
+                                            <option key={group.id} value={group.name}>{group.name}</option>
+                                        ))}
+                                    </select>
+                                </form>
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedLimit}
+                                        onChange={handleLimitChange}
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                        <div className="flex items-end justify-end w-3xl mt-6">
+                            <p className="text-lg font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">Il y a {countUsers} utilisateurs enregistrés.</p>
+                        </div>
+                    </>
                 )}
                 {isRoomListOpen && (
-                    <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleRoomForm}>
-                            Ajouter une salle
-                        </button>
-                        <div className="flex">
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Limite</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedLimit}
-                                    onChange={handleLimitChange}
-                                >
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="75">75</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </form>
+                    <>
+                        <div className="flex items-end justify-between w-3xl mt-6">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleRoomForm}>
+                                Ajouter une salle
+                            </button>
+                            <div className="flex">
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedLimit}
+                                        onChange={handleLimitChange}
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                        <div className="flex items-end justify-end w-3xl mt-6">
+                            <p className="text-lg font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">Il y a {countRooms} salles enregistrées.</p>
+                        </div>
+                    </>
                 )}
                 {isGroupListOpen && (
-                    <div className="flex items-end justify-between w-3xl mt-6">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleGroupForm}>
-                            Ajouter un groupe de travail
-                        </button>
-                        <div className="flex">
-                            <form className="mt-6">
-                                <label htmlFor="underline_select" className="sr-only">Limite</label>
-                                <select
-                                    id="underline_select"
-                                    className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
-                                    value={selectedLimit}
-                                    onChange={handleLimitChange}
-                                >
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="25">25</option>
-                                    <option value="50">50</option>
-                                    <option value="75">75</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </form>
+                    <>
+                        <div className="flex items-end justify-between w-3xl mt-6">
+                            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 mt-4" onClick={toggleGroupForm}>
+                                Ajouter un groupe de travail
+                            </button>
+                            <div className="flex">
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Limite</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedLimit}
+                                        onChange={handleLimitChange}
+                                    >
+                                        <option value="5">5</option>
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="75">75</option>
+                                        <option value="100">100</option>
+                                    </select>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                        <div className="flex items-end justify-end w-3xl mt-6">
+                            <p className="text-lg font-extrabold leading-tight tracking-tight text-gray-900 dark:text-white">Il y a {countGroups} groupes de travail enregistrés.</p>
+                        </div>
+                    </>
                 )}
                 {isUserListOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}
                 {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}

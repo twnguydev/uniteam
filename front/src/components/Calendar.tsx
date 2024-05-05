@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactNode, ChangeEvent } from 'react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 import { useAuth } from '../auth/AuthContext';
-import fetchApi from '../api/fetch';
+import fetchApi, { ApiResponse } from '../api/fetch';
 import { groupBadges } from '../data/badges';
 import { findUserId, findUserIdByEmail } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
@@ -11,6 +10,7 @@ import { findLastEventId, findAllEvents } from '../utils/event';
 import { createNotification, findLastNotificationId } from '../utils/notification';
 import { getStatusId } from '../utils/status';
 import { findLastParticipantId } from '../utils/participant';
+import { formatDate } from '../utils/date';
 
 import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
@@ -120,27 +120,27 @@ export const Calendar: React.FC = () => {
     };
 
     const handleInputChange = (index: number, value: string): void => {
-        setParticipantEmails((prevEmails) => {
-            const updatedEmails = [...prevEmails];
+        setParticipantEmails((prevEmails): string[] => {
+            const updatedEmails: string[] = [...prevEmails];
             updatedEmails[index] = value;
             return updatedEmails;
         });
     };
 
     const renderParticipantInputs = (): JSX.Element[] => {
-        return Array.from({ length: inputCount }, (_, index) => (
+        return Array.from({ length: inputCount }, (_: unknown, index: number): JSX.Element => (
             <input
                 key={index}
                 className="bg-gray-200 appearance-none border-2 border-gray-200 mt-3 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                 type="text"
                 placeholder="Adresse e-mail du participant"
-                onChange={(e) => handleInputChange(index, e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>): void => handleInputChange(index, e.target.value)}
             />
         ));
     };
 
     const deleteEvent = async (): Promise<void> => {
-        const response = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {
+        const response: ApiResponse<unknown> = await fetchApi('DELETE', `events/${selectedEvent?.id}`, undefined, {
             headers: {
                 Authorization: `Bearer ${user?.token}`,
                 Accept: 'application/json',
@@ -161,13 +161,7 @@ export const Calendar: React.FC = () => {
                     message: `L'événement "${selectedEvent.name}" a été supprimé.`,
                 };
 
-                const create: any = await createNotification(user, notification);
-
-                if (create.success) {
-                    console.log('Notification créée avec succès');
-                } else {
-                    console.error('Erreur lors de la création de la notification :', create.error);
-                }
+                createNotification(user, notification);
             }
 
             setEvents(events.filter(event => event.id !== selectedEvent?.id));
@@ -179,114 +173,146 @@ export const Calendar: React.FC = () => {
 
     const handleSubmit = async (): Promise<void> => {
         try {
+            if (!user) {
+                return;
+            }
+
             if (!eventTitle || !eventDate || !startTime || !endTime || startTime >= endTime) {
                 alert("Certains champs sont invalides");
                 return;
             }
 
-            const isAdmin: boolean = user?.is_admin ?? false;
-            let statusId: number = 0;
-
-            const fetchStatusId = async (): Promise<void> => {
-                if (isAdmin) {
-                    const validatedStatusId = await getStatusId('Validé', user);
-                    statusId = validatedStatusId || 1;
-                } else {
-                    const inProgressStatusId = await getStatusId('En cours', user);
-                    statusId = inProgressStatusId || 4;
+            const checkIfEmailsExist = async (): Promise<boolean> => {
+                if (participantEmails.includes(user?.email ?? '')) {
+                    alert("Vous ne pouvez pas vous ajouter en tant que participant.");
+                    return false;
                 }
+
+                const missingParticipants: string[] = [];
+                for (let i: number = 0; i < participantEmails.length; i++) {
+                    const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
+                    if (!participantId || participantId === 0) {
+                        missingParticipants.push(participantEmails[i]);
+                    }
+                }
+
+                if (missingParticipants.length > 0) {
+                    alert(`Les utilisateurs avec les adresses e-mail suivantes n'existent pas :\n\n${missingParticipants.join('\n')}`);
+                    return false;
+                }
+
+                return true;
             };
 
-            const groupId = await findGroupId(eventGroup, user) || 1;
-            const roomId = await findRoomId(eventRoom, user) || 1;
+            const isEmailsExist: boolean = await checkIfEmailsExist();
 
-            await fetchStatusId();
+            if ((participantEmails.length > 0 && isEmailsExist) || participantEmails.length === 0) {
+                const isAdmin: boolean = user?.is_admin ?? false;
+                let statusId: number = 0;
 
-            const lastEventId: number = await findLastEventId(user);
-
-            const newEvent: Event = {
-                id: lastEventId + 1,
-                dateStart: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
-                dateEnd: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
-                statusId: statusId,
-                name: eventTitle,
-                description: eventDesc,
-                groupId: groupId,
-                roomId: roomId,
-                hostName: user ? `${user.lastName}` : null,
-            };
-
-            try {
-                const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
-                    headers: {
-                        Authorization: `Bearer ${user?.token}`,
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                const registerParticipants = async (): Promise<void> => {
-                    if (participantEmails.length > 0 && user) {
-                        for (let i: number = 0; i < participantEmails.length; i++) {
-                            const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
-
-                            if (participantId) {
-                                const lastParticipantId: number = await findLastParticipantId(user);
-
-                                const newParticipant: UserParticipant = {
-                                    id: lastParticipantId + 1,
-                                    eventId: newEvent.id,
-                                    userId: participantId,
-                                };
-
-                                await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
-                                    headers: {
-                                        Authorization: `Bearer ${user.token}`,
-                                        Accept: 'application/json',
-                                        'Content-Type': 'application/json',
-                                    },
-                                });
-
-                                const lastNotificationId: number | undefined = await findLastNotificationId(user);
-
-                                const notification: Notification = {
-                                    id: (lastNotificationId ?? 0) + 1,
-                                    userId: participantId,
-                                    message: `Vous avez été invité à l'événement "${newEvent.name}" par ${user.firstName} ${user.lastName}.`,
-                                };
-
-                                await createNotification(user, notification);
-                            }
-                        }
+                const fetchStatusId = async (): Promise<void> => {
+                    if (isAdmin) {
+                        const validatedStatusId: number | undefined = await getStatusId('Validé', user);
+                        statusId = validatedStatusId || 1;
+                    } else {
+                        const inProgressStatusId: number | undefined = await getStatusId('En cours', user);
+                        statusId = inProgressStatusId || 4;
                     }
                 };
 
-                if (registerEvent.success) {
-                    await registerParticipants();
-                    alert("Événement ajouté avec succès");
-                    setEvents([...events, (registerEvent.data as Event)]);
-                    resetForm();
+                const groupId: number = await findGroupId(eventGroup, user) || 1;
+                const roomId: number = await findRoomId(eventRoom, user) || 1;
 
-                    if (user) {
-                        const hostId: number | undefined = await findUserId(user.lastName, user);
-                        const lastNotificationId: number | undefined = await findLastNotificationId(user);
+                await fetchStatusId();
 
-                        const message = user.is_admin ? `L'événement "${newEvent.name}" a été validé.` : `Votre demande d'événement "${newEvent.name}" a été envoyée. Elle est en cours de traitement.`;
+                const lastEventId: number = await findLastEventId(user);
 
-                        const notification: Notification = {
-                            id: (lastNotificationId ?? 0) + 1,
-                            userId: hostId ?? 0,
-                            message: message,
-                        };
+                const newEvent: Event = {
+                    id: lastEventId + 1,
+                    dateStart: new Date(eventDate.setHours(parseInt(startTime.split(':')[0]), parseInt(startTime.split(':')[1]))),
+                    dateEnd: new Date(eventDate.setHours(parseInt(endTime.split(':')[0]), parseInt(endTime.split(':')[1]))),
+                    statusId: statusId,
+                    name: eventTitle,
+                    description: eventDesc,
+                    groupId: groupId,
+                    roomId: roomId,
+                    hostName: user ? `${user.lastName}` : null,
+                };
 
-                        await createNotification(user, notification);
+                try {
+                    const registerEvent: ApiResponse<Event> = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
+                        headers: {
+                            Authorization: `Bearer ${user?.token}`,
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    const registerParticipants = async (): Promise<void> => {
+                        if (participantEmails.length > 0 && user) {
+                            for (let i: number = 0; i < participantEmails.length; i++) {
+                                const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
+
+                                if (participantId) {
+                                    const lastParticipantId: number = await findLastParticipantId(user);
+
+                                    const newParticipant: UserParticipant = {
+                                        id: lastParticipantId + 1,
+                                        eventId: newEvent.id,
+                                        userId: participantId,
+                                    };
+
+                                    await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
+                                        headers: {
+                                            Authorization: `Bearer ${user.token}`,
+                                            Accept: 'application/json',
+                                            'Content-Type': 'application/json',
+                                        },
+                                    });
+
+                                    const lastNotificationId: number | undefined = await findLastNotificationId(user);
+
+                                    const notification: Notification = {
+                                        id: (lastNotificationId ?? 0) + 1,
+                                        userId: participantId,
+                                        message: `Vous avez été invité à l'événement "${newEvent.name}" par ${user.firstName} ${user.lastName}.`,
+                                    };
+
+                                    await createNotification(user, notification);
+                                } else {
+                                    alert(`L'utilisateur avec l'adresse e-mail "${participantEmails[i]}" n'existe pas.`);
+                                }
+                            }
+                        }
+                    };
+
+                    if (registerEvent.success) {
+                        await registerParticipants();
+                        alert("Événement ajouté avec succès");
+                        setEvents([...events, (registerEvent.data as Event)]);
+                        resetForm();
+
+                        if (user) {
+                            const hostId: number | undefined = await findUserId(user.lastName, user);
+                            const lastNotificationId: number | undefined = await findLastNotificationId(user);
+
+                            const message: string = user.is_admin ? `L'événement "${newEvent.name}" a été validé.` : `Votre demande d'événement "${newEvent.name}" a été envoyée. Elle est en cours de traitement.`;
+
+                            const notification: Notification = {
+                                id: (lastNotificationId ?? 0) + 1,
+                                userId: hostId ?? 0,
+                                message: message,
+                            };
+
+                            await createNotification(user, notification);
+                        }
+                    } else if (registerEvent.error) {
+                        alert(registerEvent.error);
                     }
-                } else if (registerEvent.error) {
-                    alert(registerEvent.error);
+                } catch (error) {
+                    console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
+                    alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
                 }
-            } catch (error) {
-                console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
-                alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
             }
         } catch (error) {
             console.error("Une erreur s'est produite lors de l'ajout de l'événement :", error);
@@ -297,7 +323,7 @@ export const Calendar: React.FC = () => {
     const displayEvents: () => { noOfDays: number[], events: React.ReactNode } = () => {
         const eventNodes: React.ReactNode[] = [];
 
-        noOfDays.forEach((date: number, index: number) => {
+        noOfDays.forEach((date: number, index: number): void => {
             const filteredEvents = events.filter((event: any) => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString());
             const renderedEvents = filteredEvents.map((event: any, idx: number) => {
                 const groupBadgeClassNames = event.groupId !== undefined && groupBadges[event.groupId - 1] ? groupBadges[event.groupId - 1].classNames : '';
@@ -335,10 +361,6 @@ export const Calendar: React.FC = () => {
         setInputCount(1);
         setShowAddInput(true);
         setOpenEventModal(false);
-    };
-
-    const formatDate = (date: Date): string => {
-        return format(date, "EEEE d MMMM yyyy", { locale: fr });
     };
 
     return (
@@ -382,13 +404,23 @@ export const Calendar: React.FC = () => {
                                 </select>
                             </form>
                             <div className="border rounded-lg px-1" style={{ paddingTop: '2px' }}>
-                                <button onClick={(): void => setMonth(month - 1)} disabled={month === 0} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center">
+                                <button
+                                    onClick={(): void => setMonth(month - 1)}
+                                    disabled={month === 0}
+                                    type="button"
+                                    className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex cursor-pointer hover:bg-gray-200 p-1 items-center"
+                                >
                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
                                     </svg>
                                 </button>
                                 <div className="border-r inline-flex h-6"></div>
-                                <button onClick={(): void => setMonth(month + 1)} disabled={month === 11} type="button" className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1">
+                                <button
+                                    onClick={(): void => setMonth(month + 1)}
+                                    disabled={month === 11}
+                                    type="button"
+                                    className="leading-none rounded-lg transition ease-in-out duration-100 inline-flex items-center cursor-pointer hover:bg-gray-200 p-1"
+                                >
                                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
                                     </svg>
@@ -398,14 +430,14 @@ export const Calendar: React.FC = () => {
                     </div>
                     <div className="-mx-1 -mb-1">
                         <div className="flex flex-wrap" style={{ marginBottom: '-40px' }}>
-                            {DAYS.map((day: string, index: number) => (
+                            {DAYS.map((day: string, index: number): ReactNode => (
                                 <div key={index} style={{ width: '14.26%' }} className="px-2 py-2">
                                     <div className="text-gray-600 text-sm uppercase tracking-wide font-bold text-center">{day}</div>
                                 </div>
                             ))}
                         </div>
                         <div className="flex flex-wrap border-t border-l">
-                            {blankDays.map((_: number, index: number) => (
+                            {blankDays.map((_: number, index: number): ReactNode => (
                                 <div key={index} style={{ width: '14.28%', height: '120px' }} className="text-center border-r border-b px-4 pt-2"></div>
                             ))}
                             {displayEvents().events}
@@ -427,7 +459,7 @@ export const Calendar: React.FC = () => {
                                     <input
                                         className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                         type="text"
-                                        onChange={(e) => setEventTitle(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>): void => setEventTitle(e.target.value)}
                                     />
                                 </div>
                                 <div className="mb-4">
@@ -436,7 +468,7 @@ export const Calendar: React.FC = () => {
                                         name="eventDesc"
                                         rows={4}
                                         className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 resize-none"
-                                        onChange={(e) => setEventDesc(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLTextAreaElement>): void => setEventDesc(e.target.value)}
                                     />
                                 </div>
 
@@ -455,7 +487,7 @@ export const Calendar: React.FC = () => {
                                         <input
                                             className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                             type="time"
-                                            onChange={(e) => setStartTime(e.target.value)}
+                                            onChange={(e: ChangeEvent<HTMLInputElement>): void => setStartTime(e.target.value)}
                                         />
                                     </div>
                                 </div>
@@ -464,7 +496,7 @@ export const Calendar: React.FC = () => {
                                     <input
                                         className="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
                                         type="time"
-                                        onChange={(e): void => setEndTime(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>): void => setEndTime(e.target.value)}
                                     />
                                 </div>
                                 <div className="flex justify-between space-x-4 mb-4">
@@ -472,9 +504,9 @@ export const Calendar: React.FC = () => {
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Groupe</label>
                                         <select
                                             className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                            onChange={(e): void => setEventGroup(e.target.value)}
+                                            onChange={(e: ChangeEvent<HTMLSelectElement>): void => setEventGroup(e.target.value)}
                                         >
-                                            {loadedGroups.map((group: Group, index: number) => (
+                                            {loadedGroups.map((group: Group, index: number): ReactNode => (
                                                 <option key={index} value={group.name}>{group.name}</option>
                                             ))}
                                         </select>
@@ -483,9 +515,9 @@ export const Calendar: React.FC = () => {
                                         <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Salle</label>
                                         <select
                                             className="block appearance-none w-full bg-gray-200 border-2 border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight focus:outline-none focus:bg-white focus:border-blue-500 text-gray-700"
-                                            onChange={(e) => setEventRoom(e.target.value)}
+                                            onChange={(e: ChangeEvent<HTMLSelectElement>): void => setEventRoom(e.target.value)}
                                         >
-                                            {loadedRooms.map((room: Room, index: number) => (
+                                            {loadedRooms.map((room: Room, index: number): ReactNode => (
                                                 <option key={index} value={room.name}>{room.name}</option>
                                             ))}
                                         </select>
@@ -507,7 +539,7 @@ export const Calendar: React.FC = () => {
                                     <button
                                         type="button"
                                         className="bg-white hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 border border-gray-300 rounded-lg shadow-sm mr-2"
-                                        onClick={() => setOpenEventModal(false)}
+                                        onClick={(): void => setOpenEventModal(false)}
                                     >
                                         Annuler
                                     </button>
@@ -613,7 +645,7 @@ const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }
     const [groupName, setGroupName] = useState<string>('');
     const [roomName, setRoomName] = useState<string>('');
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchGroupName = async (): Promise<void> => {
             try {
                 const groupName = await findGroupName(selectedEvent.groupId, userData) || 'Groupe inconnu';

@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import type { Event } from '../types/Event';
 import { EventItem } from './item/EventItem';
-import fetchApi from '../api/fetch';
+import { findAllEvents } from '../utils/event';
+import { getEvents } from '../utils/participant';
 import { Pagination } from './Pagination';
 
 export const Schedule: React.FC = () => {
@@ -16,17 +17,22 @@ export const Schedule: React.FC = () => {
         const fetchEvents = async (): Promise<void> => {
             try {
                 if (user && user.lastName) {
-                    const response = await fetchApi<Event[]>('GET', 'events/', undefined, {
-                        headers: {
-                            Authorization: `Bearer ${user.token}`,
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    if (response.success && response.data) {
-                        const eventsWithHost: Event[] = response.data.filter(event => event.hostName === user.lastName);
+                    const response: Event[] = await findAllEvents(user);
+                    const eventsWithHost: Event[] = response.filter((event: Event): boolean => event.hostName === user.lastName);
+                    const eventsInvitedTo: Event[] = await getEvents(user, user.id);
+                    
+                    if (eventsWithHost && eventsInvitedTo) {
+                        const allEvents: Event[] = [...eventsWithHost, ...eventsInvitedTo];
+                        allEvents.sort((a: Event, b: Event): number => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime());
+                        setEvents(allEvents);
+                    } else if (eventsWithHost) {
+                        eventsWithHost.sort((a: Event, b: Event): number => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime());
                         setEvents(eventsWithHost);
+                    } else if (eventsInvitedTo) {
+                        eventsInvitedTo.sort((a: Event, b: Event): number => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime());
+                        setEvents(eventsInvitedTo);
+                    } else {
+                        setEvents([]);
                     }
                 }
             } catch (error) {
