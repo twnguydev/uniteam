@@ -122,7 +122,7 @@ export const Calendar: React.FC = () => {
     };
 
     const handleInputChange = (index: number, value: string) => {
-        const updatedParticipantEmails = [...participantEmails];
+        const updatedParticipantEmails: string[] = [...participantEmails];
         updatedParticipantEmails[index] = value;
         setParticipantEmails(updatedParticipantEmails);
     };
@@ -220,6 +220,25 @@ export const Calendar: React.FC = () => {
                 hostName: user ? `${user.lastName}` : null,
             };
 
+            if (participantEmails.length > 0 && user) {
+                const participants: UserParticipant[] = [];
+                for (let i: number = 0; i < participantEmails.length; i++) {
+                    const participantId: number | undefined = await findUserId(participantEmails[i], user);
+
+                    if (participantId) {
+                        const lastParticipantId: number = await findLastParticipantId(user);
+
+                        const newParticipant: UserParticipant = {
+                            id: lastParticipantId + 1,
+                            eventId: newEvent.id,
+                            userId: participantId,
+                        };
+
+                        participants.push(newParticipant);
+                    }
+                }
+            }
+
             try {
                 const registerEvent = await fetchApi<Event>('POST', 'events/', JSON.stringify(newEvent), {
                     headers: {
@@ -229,11 +248,85 @@ export const Calendar: React.FC = () => {
                     },
                 });
 
+                const registerParticipants = async (): Promise<void> => {
+                    if (participantEmails.length > 0 && user) {
+                        for (let i: number = 0; i < participantEmails.length; i++) {
+                            const participantId: number | undefined = await findUserId(participantEmails[i], user);
+
+                            if (participantId) {
+                                const lastParticipantId: number = await findLastParticipantId(user);
+
+                                const newParticipant: UserParticipant = {
+                                    id: lastParticipantId + 1,
+                                    eventId: newEvent.id,
+                                    userId: participantId,
+                                };
+
+                                await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
+                                    headers: {
+                                        Authorization: `Bearer ${user.token}`,
+                                        Accept: 'application/json',
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+                            }
+                        }
+                    }
+                };
+
                 if (registerEvent.success) {
+                    await registerParticipants();
                     alert("Événement ajouté avec succès");
                     setEvents([...events, (registerEvent.data as Event)]);
                     resetForm();
-                    setOpenEventModal(false);
+
+                    if (participantEmails.length > 0 && user) {
+                        for (let i: number = 0; i < participantEmails.length; i++) {
+                            const participantId: number | undefined = await findUserId(participantEmails[i], user);
+
+                            if (participantId) {
+                                const participantLastname: string | undefined = await findUserLastname(participantId, user);
+                                const participantFirstname: string | undefined = await findUserFirstname(participantId, user);
+
+                                if (participantLastname && participantFirstname) {
+                                    const lastNotificationId: number | undefined = await findLastNotificationId(user);
+
+                                    const notification: Notification = {
+                                        id: (lastNotificationId ?? 0) + 1,
+                                        userId: participantId,
+                                        message: `Vous avez été ajouté à l'événement ${newEvent.name} par ${user.lastName} ${user.firstName}.`,
+                                    };
+
+                                    const create: any = await createNotification(user, notification);
+
+                                    if (create.success) {
+                                        console.log('Notification créée avec succès');
+                                    } else {
+                                        console.error('Erreur lors de la création de la notification :', create.error);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (user) {
+                        const hostId: number | undefined = await findUserId(user.lastName, user);
+                        const lastNotificationId: number | undefined = await findLastNotificationId(user);
+
+                        const notification: Notification = {
+                            id: (lastNotificationId ?? 0) + 1,
+                            userId: hostId ?? 0,
+                            message: `L'événement ${newEvent.name} a été ajouté.`,
+                        };
+
+                        const create: any = await createNotification(user, notification);
+
+                        if (create.success) {
+                            console.log('Notification créée avec succès');
+                        } else {
+                            console.error('Erreur lors de la création de la notification :', create.error);
+                        }
+                    }
                 } else if (registerEvent.error) {
                     alert(registerEvent.error);
                 }
@@ -246,38 +339,6 @@ export const Calendar: React.FC = () => {
             alert("Une erreur s'est produite lors de l'ajout de l'événement. Veuillez réessayer plus tard.");
         }
     };
-
-    // const addParticipant = async (event: Event): Promise<void> => {
-    //     if (user) {
-    //         const lastParticipantId: number = await findLastParticipantId(user);
-
-    //         const newParticipant: UserParticipant = {
-    //             id: lastParticipantId + 1,
-    //             eventId: event.id,
-    //             userId: user.id,
-    //         };
-
-    //         const response = await fetchApi<UserParticipant>('POST', 'participants/', JSON.stringify(newParticipant), {
-    //             headers: {
-    //                 Authorization: `Bearer ${user.token}`,
-    //                 Accept: 'application/json',
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-
-    //         if (response.success && response.data) {
-    //             const newParticipant: UserParticipant = response.data;
-    //             const participantLastname: string | undefined = await findUserLastname(newParticipant.userId, user);
-    //             const participantFirstname: string | undefined = await findUserFirstname(newParticipant.userId, user);
-
-    //             if (newParticipant) {
-    //                 setParticipants([...participants, newParticipant]);
-    //             }
-    //         } else {
-    //             alert('Échec de l\'ajout du participant.');
-    //         }
-    //     }
-    // };
 
     const displayEvents: () => { noOfDays: number[], events: React.ReactNode } = () => {
         const eventNodes: React.ReactNode[] = [];
