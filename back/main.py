@@ -543,7 +543,7 @@ async def read_participants(
     """
     return crud.get_participants_by_event(db, event_id=event_id)
 
-@app.get("/participants/events/user/{user_id}", response_model=list[schemas.Participant])
+@app.get("/participants/{user_id}/events", response_model=list[schemas.Event])
 async def get_events(
     user_id: int, db: Session = Depends(get_db)
 ) -> list[models.Participants]:
