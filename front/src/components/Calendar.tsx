@@ -3,13 +3,13 @@ import { format } from 'date-fns';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi, { ApiResponse } from '../api/fetch';
 import { groupBadges } from '../data/badges';
-import { findUserId, findUserIdByEmail } from '../utils/user';
+import { findUserId, findUserIdByEmail, findUser } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
 import { findAllGroups, findGroupId, findGroupName } from '../utils/group';
 import { findLastEventId, findAllEvents } from '../utils/event';
 import { createNotification, findLastNotificationId } from '../utils/notification';
 import { getStatusId } from '../utils/status';
-import { findLastParticipantId } from '../utils/participant';
+import { findLastParticipantId, getParticipantsFromEventId } from '../utils/participant';
 import { formatDate } from '../utils/date';
 
 import type { Event, DisplayInputsProps } from '../types/Event';
@@ -103,7 +103,18 @@ export const Calendar: React.FC = (): JSX.Element => {
         fetchData();
     }, [user, selectedGroup, selectedRoom]);
 
-    const handleEventClick = (event: Event): void => {
+    const handleEventClick = async (event: Event): Promise<void> => {
+        if (!user) return;
+
+        const participants: UserParticipant[] = await getParticipantsFromEventId(user, event.id);
+
+        for (let i: number = 0; i < participants.length; i++) {
+            const participant: User | undefined = await findUser(user, participants[i].userId);
+            if (participant) {
+                event = { ...event, participants: [...(event.participants ?? []), participant] };
+            }
+        }
+
         setSelectedEvent(event);
         setOpenEventDetailsModal(true);
 
@@ -120,7 +131,7 @@ export const Calendar: React.FC = (): JSX.Element => {
     };
 
     const handleInputChange = (index: number, value: string): void => {
-        setParticipantEmails((prevEmails): string[] => {
+        setParticipantEmails((prevEmails: string[]): string[] => {
             const updatedEmails: string[] = [...prevEmails];
             updatedEmails[index] = value;
             return updatedEmails;
@@ -324,11 +335,11 @@ export const Calendar: React.FC = (): JSX.Element => {
         const eventNodes: React.ReactNode[] = [];
 
         noOfDays.forEach((date: number, index: number): void => {
-            const filteredEvents = events.filter((event: any) => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString());
-            const renderedEvents = filteredEvents.map((event: any, idx: number) => {
-                const groupBadgeClassNames = event.groupId !== undefined && groupBadges[event.groupId - 1] ? groupBadges[event.groupId - 1].classNames : '';
+            const filteredEvents: Event[] = events.filter((event: any): boolean => new Date(event.dateStart).toDateString() === new Date(year, month, date).toDateString());
+            const renderedEvents: JSX.Element[] = filteredEvents.map((event: any, idx: number): JSX.Element => {
+                const groupBadgeClassNames: string = event.groupId !== undefined && groupBadges[event.groupId - 1] ? groupBadges[event.groupId - 1].classNames : '';
                 return (
-                    <div key={idx} onClick={(): void => handleEventClick(event)} className={`px-2 py-1 cursor-pointer rounded-lg mt-1 overflow-hidden border ${groupBadgeClassNames}`}>
+                    <div key={idx} onClick={(): Promise<void> => handleEventClick(event)} className={`px-2 py-1 cursor-pointer rounded-lg mt-1 overflow-hidden border ${groupBadgeClassNames}`}>
                         <p className="text-sm truncate leading-tight">{event.name}</p>
                     </div>
                 );
@@ -627,6 +638,20 @@ export const Calendar: React.FC = (): JSX.Element => {
                                 <div className="flex justify-between space-x-4 mb-4">
                                     <DisplayInputs selectedEvent={selectedEvent} userData={user} />
                                 </div>
+                                {selectedEvent && selectedEvent.participants && selectedEvent.participants.length > 0 && (
+                                    <div className="mb-4">
+                                        <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Participants</label>
+                                        <div className="flex flex-col">
+                                            {selectedEvent.participants?.map((participant: User, index: number): JSX.Element => (
+                                                <div key={index} className="flex items-center gap-2">
+                                                    <span>{participant.firstName} {participant.lastName}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex justify-between space-x-4 mb-4">
+                                </div>
                                 {deleteButton && (
                                     <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
                                         Supprimer l'événement
@@ -641,7 +666,7 @@ export const Calendar: React.FC = (): JSX.Element => {
     );
 };
 
-const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }) => {
+const DisplayInputs: React.FC<DisplayInputsProps> = ({ selectedEvent, userData }): JSX.Element => {
     const [groupName, setGroupName] = useState<string>('');
     const [roomName, setRoomName] = useState<string>('');
 

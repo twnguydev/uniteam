@@ -34,6 +34,22 @@ export async function getEvents(userData: User, participantId: number): Promise<
     }
 }
 
+export async function getParticipantsFromEventId(userData: User, eventId: number): Promise<UserParticipant[]> {
+    const participantsData: ApiResponse<UserParticipant[]> = await fetchApi('GET', `participants/${eventId}`, undefined, {
+        headers: {
+            Authorization: `Bearer ${userData.token}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (participantsData.success && participantsData.data) {
+        return participantsData.data;
+    } else {
+        return [];
+    }
+}
+
 export async function findLastParticipantId(userData: User): Promise<number> {
     const participants: UserParticipant[] = await findAllParticipants(userData);
 

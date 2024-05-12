@@ -10,6 +10,7 @@ export interface Event {
     groupId: number;
     description: string;
     statusId: number;
+    participants?: User[];
 }
 
 export interface DisplayInputsProps {
