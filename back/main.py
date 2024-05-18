@@ -213,6 +213,23 @@ async def create_group(group: schemas.Group, db: Session = Depends(get_db)) -> m
     return crud.create_group(db=db, group=group)
 
 
+@app.delete("/groups/{group_id}", response_model=dict[str, str])
+async def delete_group(group_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    """
+    Delete a group from the database.
+
+    Args:
+        group_id (int): The ID of the group to delete.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        dict[str, str]: A dictionary with a message indicating the success of the deletion.
+
+    """
+    crud.delete_group(db, group_id=group_id)
+    return {"message": "Group deleted"}
+
+
 @app.get("/status/", response_model=list[schemas.Status])
 async def read_status(
     skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
@@ -250,6 +267,7 @@ async def read_rooms(
     """
     return crud.get_rooms(db, skip=skip, limit=limit)
 
+
 @app.post("/rooms/", response_model=schemas.Room)
 async def create_room(room: schemas.Room, db: Session = Depends(get_db)) -> models.Rooms:
     """
@@ -266,6 +284,24 @@ async def create_room(room: schemas.Room, db: Session = Depends(get_db)) -> mode
     if crud.get_room_by_name(db, room_name=room.name):
         raise HTTPException(status_code=400, detail="Room already registered")
     return crud.create_room(db=db, room=room)
+
+
+@app.delete("/rooms/{room_id}", response_model=dict[str, str])
+async def delete_room(room_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    """
+    Delete a room from the database.
+
+    Args:
+        room_id (int): The ID of the room to delete.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        dict[str, str]: A dictionary with a message indicating the success of the deletion.
+
+    """
+    crud.delete_room(db, room_id=room_id)
+    return {"message": "Room deleted"}
+
 
 @app.post("/users/", response_model=schemas.User)
 async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> models.User:
@@ -326,6 +362,7 @@ async def read_user(user_id: int, db: Session = Depends(get_db)) -> models.User:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+
 @app.delete("/users/{user_id}", response_model=dict[str, str])
 async def delete_user(user_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
     """
@@ -341,6 +378,7 @@ async def delete_user(user_id: int, db: Session = Depends(get_db)) -> dict[str, 
     """
     crud.delete_user(db, user_id=user_id)
     return {"message": "User deleted"}
+
 
 @app.post("/events/", response_model=schemas.Event)
 async def create_event(
@@ -473,6 +511,7 @@ async def read_notifications(
     """
     return crud.get_notifications_by_user(db, user_id=user_id)
 
+
 @app.post("/notifications/", response_model=schemas.Notification)
 async def create_notification(
     notification: schemas.Notification, db: Session = Depends(get_db)
@@ -490,6 +529,7 @@ async def create_notification(
     """
     return crud.create_notification(db=db, notification=notification)
 
+
 @app.delete("/notifications/user/{user_id}", response_model=dict[str, str])
 async def delete_notifications(user_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
     """
@@ -505,6 +545,7 @@ async def delete_notifications(user_id: int, db: Session = Depends(get_db)) -> d
     """
     crud.delete_notifications_by_user(db, user_id=user_id)
     return {"message": "Notifications deleted"}
+
 
 @app.post("/participants/", response_model=schemas.Participant)
 async def create_participant(
@@ -522,6 +563,7 @@ async def create_participant(
 
     """
     return crud.add_participant_to_event(db=db, participant=participant)
+
 
 @app.get("/participants/", response_model=list[schemas.Participant])
 async def read_participants(
@@ -541,6 +583,7 @@ async def read_participants(
     """
     return crud.get_participants(db, skip=skip, limit=limit)
 
+
 @app.get("/participants/{event_id}", response_model=list[schemas.Participant])
 async def read_participants(
     event_id: int, db: Session = Depends(get_db)
@@ -557,6 +600,7 @@ async def read_participants(
 
     """
     return crud.get_participants_by_event(db, event_id=event_id)
+
 
 @app.get("/participants/{user_id}/events", response_model=list[schemas.Event])
 async def get_events(

@@ -81,7 +81,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
         };
 
         fetchCounters();
-    }, [user]);
+    }, [user, selectedGroup, selectedStatus, selectedLimit]);
 
     useEffect((): void => {
         const fetchData = async (): Promise<void> => {
@@ -109,7 +109,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
         };
 
         fetchData();
-    }, [user, selectedGroup, selectedStatus]);
+    }, [user, selectedGroup, selectedStatus, selectedLimit]);
 
     useEffect((): () => void => {
         const fetchSuccess = (): void => {
@@ -285,7 +285,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                                         value={selectedStatus}
                                         onChange={handleStatusChange}
                                     >
-                                        <option value="">Filtrer par status</option>
+                                        <option value="">Filtrer par statut</option>
                                         {loadedStatus.map(status => (
                                             <option key={status.id} value={status.name}>{status.name}</option>
                                         ))}
@@ -343,7 +343,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                                         value={selectedStatus}
                                         onChange={handleStatusChange}
                                     >
-                                        <option value="">Filtrer par status</option>
+                                        <option value="">Filtrer par statut</option>
                                         <option value="true">Administrateur</option>
                                         <option value="false">Membre</option>
                                     </select>

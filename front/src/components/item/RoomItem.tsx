@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import fetchApi, { ApiResponse } from '../../api/fetch';
 import { useAuth } from '../../auth/AuthContext';
 import type { Room } from '../../types/Room';
 import { countEventsInRoom } from '../../utils/room';
@@ -7,6 +9,23 @@ export const RoomItem: React.FC<{ room: Room }> = ({ room }): JSX.Element => {
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [numEvents, setNumEvents] = useState<number | null>(null);
+    const [redirect, setRedirect] = useState<boolean>(false);
+
+    const deleteRoom = async (): Promise<void> => {
+        const response: ApiResponse<Room> = await fetchApi('DELETE', `rooms/${room.id}`, undefined, {
+            headers: {
+                Authorization: `Bearer ${user?.token}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.success) {
+            setRedirect(true);
+        } else {
+            console.error('An error occurred while deleting the room.');
+        }
+    }
 
     useEffect((): void => {
         const fetchNumEvents = async (): Promise<void> => {
@@ -23,6 +42,10 @@ export const RoomItem: React.FC<{ room: Room }> = ({ room }): JSX.Element => {
         e.preventDefault();
         setIsOpen(!isOpen);
     };
+
+    if (redirect) {
+        return <Navigate to={`/admin/schedule?success=true&type=room&message=La salle ${room.name} a été supprimée.`} />;
+    }
 
     return (
         <div className="relative">
@@ -61,7 +84,12 @@ export const RoomItem: React.FC<{ room: Room }> = ({ room }): JSX.Element => {
                                     </th>
                                     <td className="px-6 py-4">
                                         <button className="text-sm text-blue-500 underline">Modifier</button>
-                                        <button className="text-sm text-red-500 underline ml-5">Supprimer</button>
+                                        <button
+                                            className="text-sm text-red-500 underline ml-5"
+                                            onClick={deleteRoom}
+                                        >
+                                            Supprimer
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>

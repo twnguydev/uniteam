@@ -228,6 +228,23 @@ def create_group(db: Session, group: schemas.Group) -> models.Groups:
     return db_group
 
 
+def delete_group(db: Session, group_id: int) -> None:
+    """
+    Delete a group from the database.
+
+    Args:
+        db (Session): The database session.
+        group_id (int): The ID of the group to be deleted.
+
+    Returns:
+        None
+    """
+    db_group: Optional[models.Groups] = db.query(models.Groups).filter(models.Groups.id == group_id).first()
+    if db_group is not None:
+        db.delete(db_group)
+        db.commit()
+
+
 def get_status(db: Session, skip: int = 0, limit: int = 100) -> list[models.Status]:
     """
     Retrieve a list of status records from the database.
@@ -257,6 +274,7 @@ def get_rooms(db: Session, skip: int = 0, limit: int = 100) -> list[models.Rooms
     """
     return db.query(models.Rooms).offset(skip).limit(limit).all()
 
+
 def get_room_by_name(db: Session, room_name: str) -> models.Rooms:
     """
     Retrieve a room from the database by its name.
@@ -269,6 +287,7 @@ def get_room_by_name(db: Session, room_name: str) -> models.Rooms:
         models.Rooms: The room object.
     """
     return db.query(models.Rooms).filter(models.Rooms.name == room_name).first()
+
 
 def create_room(db: Session, room: schemas.Room) -> models.Rooms:
     """
@@ -288,6 +307,23 @@ def create_room(db: Session, room: schemas.Room) -> models.Rooms:
     db.refresh(db_room)
     return db_room
 
+def delete_room(db: Session, room_id: int) -> None:
+    """
+    Delete a room from the database.
+
+    Args:
+        db (Session): The database session.
+        room_id (int): The ID of the room to be deleted.
+
+    Returns:
+        None
+    """
+    db_room: Optional[models.Rooms] = db.query(models.Rooms).filter(models.Rooms.id == room_id).first()
+    if db_room is not None:
+        db.delete(db_room)
+        db.commit()
+
+
 def create_notification(db: Session, notification: schemas.Notification) -> models.Notifications:
     """
     Create a new notification in the database.
@@ -306,6 +342,7 @@ def create_notification(db: Session, notification: schemas.Notification) -> mode
     db.refresh(db_notification)
     return db_notification
     
+
 def get_notifications(db: Session, skip: int = 0, limit: int = 100) -> list[models.Notifications]:
     """
     Retrieve a list of notifications from the database.
@@ -320,6 +357,7 @@ def get_notifications(db: Session, skip: int = 0, limit: int = 100) -> list[mode
     """
     return db.query(models.Notifications).offset(skip).limit(limit).all()
 
+
 def get_notifications_by_user(db: Session, user_id: int) -> list[models.Notifications]:
     """
     Retrieve a list of notifications for a specific user.
@@ -332,6 +370,7 @@ def get_notifications_by_user(db: Session, user_id: int) -> list[models.Notifica
         list[models.Notifications]: A list of notification objects.
     """
     return db.query(models.Notifications).filter(models.Notifications.userId == user_id).order_by(models.Notifications.id.desc()).all()
+
 
 def delete_notifications_by_user(db: Session, user_id: int) -> None:
     """
@@ -346,6 +385,7 @@ def delete_notifications_by_user(db: Session, user_id: int) -> None:
     """
     db.query(models.Notifications).filter(models.Notifications.userId == user_id).delete()
     db.commit()
+
 
 def add_participant_to_event(db: Session, participant: schemas.Participant) -> models.Participants:
     """
@@ -365,6 +405,7 @@ def add_participant_to_event(db: Session, participant: schemas.Participant) -> m
     db.refresh(db_participant)
     return db_participant
 
+
 def get_participants(db: Session, skip: int = 0, limit: int = 100) -> list[models.Participants]:
     """
     Retrieve a list of participants from the database.
@@ -379,6 +420,7 @@ def get_participants(db: Session, skip: int = 0, limit: int = 100) -> list[model
     """
     return db.query(models.Participants).offset(skip).limit(limit).all()
 
+
 def get_participants_by_event(db: Session, event_id: int) -> list[models.Participants]:
     """
     Retrieve a list of participants for a specific event.
@@ -391,6 +433,7 @@ def get_participants_by_event(db: Session, event_id: int) -> list[models.Partici
         list[models.Participants]: A list of participant objects.
     """
     return db.query(models.Participants).filter(models.Participants.eventId == event_id).all()
+
 
 def get_events_invited_to(db: Session, user_id: int) -> list[models.Events]:
     """

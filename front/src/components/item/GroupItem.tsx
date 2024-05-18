@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import fetchApi, { ApiResponse } from '../../api/fetch';
 import { useAuth } from '../../auth/AuthContext';
 import type { Group } from '../../types/Group';
 import { countUsersInGroup, countEventsInGroup } from '../../utils/group';
@@ -8,6 +10,23 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [numMembers, setNumMembers] = useState<number | null>(null);
     const [numEvents, setNumEvents] = useState<number | null>(null);
+    const [redirect, setRedirect] = useState<boolean>(false);
+
+    const deleteGroup = async (): Promise<void> => {
+        const response: ApiResponse<Group> = await fetchApi('DELETE', `groups/${group.id}`, undefined, {
+            headers: {
+                Authorization: `Bearer ${user?.token}`,
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (response.success) {
+            setRedirect(true);
+        } else {
+            console.error('An error occurred while deleting the group.');
+        }
+    }
 
     useEffect((): void => {
         const fetchNumMembers = async (): Promise<void> => {
@@ -32,6 +51,10 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
         e.preventDefault();
         setIsOpen(!isOpen);
     };
+
+    if (redirect) {
+        return <Navigate to={`/admin/schedule?success=true&type=group&message=Le groupe de travail ${group.name} a été supprimé.`} />;
+    }
 
     return (
         <div className="relative">
@@ -76,7 +99,12 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
                                     </th>
                                     <td className="px-6 py-4">
                                         <button className="text-sm text-blue-500 underline">Modifier</button>
-                                        <button className="text-sm text-red-500 underline ml-5">Supprimer</button>
+                                        <button
+                                            className="text-sm text-red-500 underline ml-5"
+                                            onClick={deleteGroup}
+                                        >
+                                            Supprimer
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
