@@ -1,3 +1,5 @@
+import random
+import string
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -29,3 +31,16 @@ def get_password_hash(password: str) -> str:
 
     """
     return pwd_context.hash(password)
+
+def generate_random_password(length: int = 8) -> str:
+    """
+    Generate a random password.
+
+    Args:
+        length (int): The length of the password. Defaults to 8.
+
+    Returns:
+        str: The generated password.
+    """
+
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))

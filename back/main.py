@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 
 import crud, models, schemas
 from database import SessionLocal, engine
-from utils import verify_password
+from utils import verify_password, generate_random_password
+from mail import send_welcome_email
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -307,6 +308,7 @@ async def delete_room(room_id: int, db: Session = Depends(get_db)) -> dict[str, 
 async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> models.User:
     """
     Create a new user in the database.
+    Generate a random password and send a welcome email to the user.
 
     Args:
         user (schemas.User): The user data to be created.
@@ -318,9 +320,21 @@ async def create_user(user: schemas.User, db: Session = Depends(get_db)) -> mode
     Raises:
         HTTPException: If the email is already registered.
     """
-    if crud.get_user_by_email(db, email=user.email):
-        raise HTTPException(status_code=400, detail="email already registered")
-    return crud.create_user(db=db, user=user)
+    db_user = crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    password = generate_random_password()
+    user.password = password
+    created_user = crud.create_user(db=db, user=user)
+    if created_user is None:
+        raise HTTPException(status_code=400, detail="Error creating user")
+
+    email_sent = send_welcome_email(user.email, user.firstName, password)
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Error sending welcome email")
+
+    return created_user
 
 
 @app.get("/users/", response_model=list[schemas.User])
