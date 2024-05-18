@@ -1,11 +1,33 @@
 import React, { useState } from 'react';
+import fetchApi, { ApiResponse } from '../../api/fetch';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import type { User } from '../../types/user';
 import { Badge } from '../../utils/badge';
+import { set } from 'date-fns';
 
-export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin, groupId }: User): JSX.Element => {
+export const UserItem: React.FC<User> = ({ id, firstName, lastName, email, is_admin, groupId }: User): JSX.Element => {
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [redirect, setRedirect] = useState<boolean>(false);
+
+    const deleteUser = async (): Promise<void> => {
+        try {
+            const response: ApiResponse<User> = await fetchApi<User>('DELETE', `users/${id}`, undefined, {
+                headers: {
+                    Authorization: `Bearer ${user?.token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.success) {
+                setRedirect(true);
+            }
+        } catch (error) {
+            console.error('An error occurred while deleting user:', error);
+        }
+    }
 
     const toggleAccordion = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -13,6 +35,10 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
     };
 
     const adminText: 'Administrateur' | 'Membre' = is_admin ? 'Administrateur' : 'Membre';
+
+    if (redirect) {
+        return <Navigate to={`/admin/schedule?success=true&type=user&message=L'utilisateur ${firstName} ${lastName} a été supprimé.`} />;
+    }
 
     return (
         <div className="relative">
@@ -47,6 +73,9 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
                                     <th scope="col" className="px-6 py-3">
                                         Groupe
                                     </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -67,6 +96,15 @@ export const UserItem: React.FC<User> = ({ firstName, lastName, email, is_admin,
                                     </td>
                                     <td className="px-6 py-4">
                                         <Badge Id={groupId} Name={'group'} UserData={user} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button className="text-sm text-blue-500 underline">Modifier</button>
+                                        <button
+                                            className="text-sm text-red-500 underline ml-5"
+                                            onClick={deleteUser}
+                                        >
+                                            Supprimer
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>

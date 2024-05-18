@@ -83,7 +83,7 @@ export const Schedule: React.FC = (): JSX.Element => {
 
                     <div className="mt-4">
                         <div className="inline-flex items-center text-lg font-medium text-primary-600 text-blue-500">
-                            Il s'agit des événements à venir que vous avez planifiés.
+                            Il s'agit des événements à venir que vous avez planifiés ou auxquels vous participez.
                         </div>
                     </div>
                 </div>

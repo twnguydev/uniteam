@@ -2,31 +2,31 @@ import React from "react";
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../../auth/AuthContext';
 import fetchApi, { ApiResponse } from "../../../api/fetch";
-import type { Group } from "../../../types/Group";
-import { findLastGroupId } from "../../../utils/group";
+import type { Room } from "../../../types/Room";
+import { findLastRoomId } from "../../../utils/room";
 
-export const FormGroup: React.FC<any> = () => {
+export const FormRoom: React.FC<any> = (): JSX.Element => {
     const { user } = useAuth();
     const [error, setError] = React.useState<string>('');
-    const [groupName, setGroupName] = React.useState<string>('');
+    const [roomName, setRoomName] = React.useState<string>('');
     const [redirect, setRedirect] = React.useState<boolean>(false);
 
-    const handleGroupForm = async (e: any) => {
+    const handleRoomForm = async (e: any): Promise<void> => {
         e.preventDefault();
-        if (!groupName) {
-            setError('Veuillez spécifier un nom de groupe de travail');
+        if (!roomName) {
+            setError('Veuillez saisir un nom de salle');
             return;
         }
         setError('');
         try {
-            const lastGroupId: number | undefined = await findLastGroupId(user);
+            const lastRoomId: number | undefined = await findLastRoomId(user);
 
-            const newGroup: Group = {
-                id: lastGroupId ? lastGroupId + 1 : 1,
-                name: groupName,
+            const newRoom: Room = {
+                id: lastRoomId ? lastRoomId + 1 : 1,
+                name: roomName,
             }
 
-            const response: ApiResponse<Group> = await fetchApi<Group>('POST', 'groups/', JSON.stringify(newGroup), {
+            const response: ApiResponse<Room> = await fetchApi<Room>('POST', 'rooms/', JSON.stringify(newRoom), {
                 headers: {
                     Authorization: `Bearer ${user?.token}`,
                     Accept: 'application/json',
@@ -37,33 +37,33 @@ export const FormGroup: React.FC<any> = () => {
             if (response.success) {
                 setRedirect(true);
             } else {
-                setError('Erreur lors de la création du groupe de travail');
+                setError('Erreur lors de la création de la salle');
             }
         } catch (e) {
-            setError('Erreur lors de la création du groupe de travail');
+            setError('Erreur lors de la création de la salle');
             console.error("Une erreur s'est produite lors de l'ajout de l'élément :", e);
         }
     }
 
     if (redirect) {
-        return <Navigate to={`/admin/schedule?success=true&type=group&message=Le groupe ${groupName} a été créé !`} />;
+        return <Navigate to={`/admin/schedule?success=true&type=room&message=La salle ${roomName} a été créée !`} />;
     }
 
     return (
         <section>
             <div className="flow-root my-4 sm:my-4 lg:my-16">
                 <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
-                    <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleGroupForm}>
+                    <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleRoomForm}>
                         <div>
                             <label htmlFor="username" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Nom</label>
                             <input
-                                value={groupName}
-                                onChange={(e): any => setGroupName(e.target.value)}
+                                value={roomName}
+                                onChange={(e): any => setRoomName(e.target.value)}
                                 type="text"
                                 name="name"
                                 id="name"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Nom du groupe de travail"
+                                placeholder="Nom de la salle"
                             />
                         </div>
                         {error && (

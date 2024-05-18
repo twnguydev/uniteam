@@ -8,7 +8,7 @@ export const RoomItem: React.FC<{ room: Room }> = ({ room }): JSX.Element => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [numEvents, setNumEvents] = useState<number | null>(null);
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchNumEvents = async (): Promise<void> => {
             if (user) {
                 const count: number = await countEventsInRoom(room.id, user);

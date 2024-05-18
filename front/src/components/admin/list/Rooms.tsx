@@ -12,7 +12,7 @@ export const ListRooms: React.FC<ListRoomsAdminProps> = ({ selectedLimit }): JSX
     const [page, setPage] = React.useState<number>(1);
     const { user } = useAuth();
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchRooms = async (): Promise<void> => {
             const response: ApiResponse<Room[]> = await fetchApi('GET', 'rooms/', undefined, {
                 headers: {

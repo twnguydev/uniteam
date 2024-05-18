@@ -6,7 +6,7 @@ import type { User } from "../../../types/user";
 import { findLastUserId } from "../../../utils/user";
 import { findAllGroups, findGroupId } from "../../../utils/group";
 
-export const FormUser: React.FC<any> = () => {
+export const FormUser: React.FC<any> = (): JSX.Element => {
     const { user } = useAuth();
     const [error, setError] = React.useState<string>('');
     const [lastName, setLastName] = React.useState<string>('');
@@ -32,7 +32,7 @@ export const FormUser: React.FC<any> = () => {
         return regex.test(password);
     }
 
-    const handleUserForm = async (e: any) => {
+    const handleUserForm = async (e: any): Promise<void> => {
         e.preventDefault();
 
         if (!lastName || !firstName || !email || !password || !groupName) {

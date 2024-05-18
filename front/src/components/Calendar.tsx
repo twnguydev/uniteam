@@ -1,7 +1,9 @@
 import React, { useState, useEffect, ReactNode, ChangeEvent } from 'react';
+import { Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi, { ApiResponse } from '../api/fetch';
+import { Banner } from './Banner';
 import { groupBadges } from '../data/badges';
 import { findUserId, findUserIdByEmail, findUser } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
@@ -35,6 +37,7 @@ export const Calendar: React.FC = (): JSX.Element => {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [selectedRoom, setSelectedRoom] = useState<string>('');
     const [deleteButton, setDeleteButton] = useState<boolean>(false);
+    const [redirect, setRedirect] = useState<boolean>(false);
 
     const [participantEmails, setParticipantEmails] = useState<string[]>([]);
     const [inputCount, setInputCount] = useState<number>(1);

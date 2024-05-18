@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import fetchApi, { ApiResponse } from "../../api/fetch";
 import { useAuth } from '../../auth/AuthContext';
 import { formatDate, formatDateHour } from '../../utils/date';
@@ -8,15 +9,17 @@ import statusData from '../../data/status.json';
 import type { Event } from '../../types/Event';
 import type { UserParticipant } from '../../types/user';
 import { findUserId } from '../../utils/user';
-import { findAllParticipants } from '../../utils/participant';
+import { findAllParticipants, getParticipantsFromEventId } from '../../utils/participant';
 import type { Notification } from '../../types/notification';
 import { findLastNotificationId, createNotification } from '../../utils/notification';
+import { create } from 'domain';
 
-export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }): JSX.Element => {
+export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }: Event): JSX.Element => {
     const { user } = useAuth();
     const [selectedStatusId, setSelectedStatusId] = useState<number>(statusId);
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [statusUpdated, setStatusUpdated] = useState<boolean>(false);
+    const [redirect, setRedirect] = useState<boolean>(false);
 
     const updateStatusData = async (): Promise<void> => {
         try {
@@ -91,6 +94,55 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
         }
     };
 
+    const deleteEvent = async (): Promise<void> => {
+        try {
+            if (user) {
+                const getAllParticipantsIdToEvent: UserParticipant[] = await getParticipantsFromEventId(user, id);
+
+                const response: ApiResponse<Event> = await fetchApi('DELETE', `events/${id}`, undefined, {
+                    headers: {
+                        Authorization: `Bearer ${user?.token}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                });
+        
+                if (response.success && user) {
+                    const getHostId: number | null = hostName ? await findUserId(hostName, user) : null;
+                    const lastId: number | undefined = await findLastNotificationId(user);
+
+                    const notification: Notification = {
+                        id: lastId ? lastId + 1 : 0,
+                        userId: getHostId ? getHostId : 0,
+                        message: `Votre événement "${name}" a été supprimé par un administrateur.`,
+                    };
+
+                    await createNotification(user, notification);
+
+                    getAllParticipantsIdToEvent.forEach(async (participant: UserParticipant): Promise<void> => {
+                        if (participant.userId !== getHostId) {
+                            const lastId: number | undefined = await findLastNotificationId(user);
+
+                            const notification: Notification = {
+                                id: lastId ? lastId + 1 : 0,
+                                userId: participant.userId,
+                                message: `L'événement "${name}" auquel vous participez a été supprimé par un administrateur.`,
+                            };
+
+                            await createNotification(user, notification);
+                        }
+                    });
+
+                    setRedirect(true);
+                } else {
+                    console.error('Échec de la suppression de l\'événement.');
+                }
+            }
+        } catch (error) {
+            console.error('Une erreur est survenue lors de la suppression de l\'événement :', error);
+        }
+    };
+
     useEffect(() => {
         if (statusUpdated) {
             updateStatusData();
@@ -105,6 +157,10 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
 
     const formattedStartDate: string = formatDate(dateStart.toString());
     const formattedEndDate: string = formatDateHour(dateEnd.toString());
+
+    if (redirect) {
+        return <Navigate to={`/admin/schedule?success=true&type=event&message=L'événement ${name} a été supprimé. Les participants ont été notifiés.`} />;
+    }
 
     return (
         <div className="relative">
@@ -157,6 +213,9 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     <th scope="col" className="px-6 py-3">
                                         Status
                                     </th>
+                                    <th scope="col" className="px-6 py-3">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -175,6 +234,14 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     </td>
                                     <td className="px-6 py-4">
                                         <Badge Id={statusId} Name={'status'} UserData={user} />
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <button
+                                            className="text-sm text-red-500 underline"
+                                            onClick={(): Promise<void> => deleteEvent()}
+                                        >
+                                            Supprimer
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>

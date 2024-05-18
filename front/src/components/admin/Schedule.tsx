@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { ListUsers } from './read/ListUsers';
-import { ListEvents } from './read/ListEvents';
-import { ListRooms } from './read/ListRooms';
-import { ListGroups } from './read/ListGroups';
+import { ListUsers } from './list/Users';
+import { ListEvents } from './list/Events';
+import { ListRooms } from './list/Rooms';
+import { ListGroups } from './list/Groups';
 import { findAllEvents, countAllEvents } from '../../utils/event';
 import { findAllGroups, findGroupId, countAllGroups } from '../../utils/group';
 import { findAllStatus, getStatusId } from '../../utils/status';
@@ -13,9 +13,9 @@ import { countAllRooms } from '../../utils/room';
 import type { Group } from '../../types/Group';
 import type { User } from '../../types/user';
 import type { Status } from '../../types/Status';
-import { FormRoom } from './form/FormRoom';
-import { FormGroup } from './form/FormGroup';
-import { FormUser } from './form/FormUser';
+import { FormRoom } from './form/Room';
+import { FormGroup } from './form/Group';
+import { FormUser } from './form/User';
 import { Banner } from '../Banner';
 
 export const ScheduleAdmin: React.FC = (): JSX.Element => {
@@ -61,7 +61,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
         setSelectedLimit(event.target.value);
     };
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchCounters = async (): Promise<void> => {
             if (!user) {
                 return;
@@ -83,16 +83,16 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
         fetchCounters();
     }, [user]);
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchData = async (): Promise<void> => {
             if (!user) {
                 return;
             }
 
-            const fetchedGroups = await findAllGroups(user);
+            const fetchedGroups: any = await findAllGroups(user);
             setLoadedGroups(fetchedGroups || []);
 
-            const fetchedStatus = await findAllStatus(user);
+            const fetchedStatus: any = await findAllStatus(user);
             setLoadedStatus(fetchedStatus || []);
 
             const selectedGroupId: number | undefined = await findGroupId(selectedGroup, user);
@@ -113,41 +113,41 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
 
     useEffect((): () => void => {
         const fetchSuccess = (): void => {
-            const isSuccessMessage: string | null = new URLSearchParams(window.location.search).get('success');
-            const typeOfSuccess: string | null = new URLSearchParams(window.location.search).get('type');
-            const message: string | null = new URLSearchParams(window.location.search).get('message');
-
-            if (isSuccessMessage === 'true' && typeOfSuccess === 'room') {
+            const searchParams = new URLSearchParams(window.location.search);
+            const isSuccessMessage: string | null = searchParams.get('success');
+            const typeOfSuccess: string | null = searchParams.get('type');
+            const message: string | null = searchParams.get('message');
+    
+            if (isSuccessMessage === 'true') {
                 setBanner(message || '');
                 setBannerType('success');
-                setBannerSection('room');
-            } else if (isSuccessMessage === 'true' && typeOfSuccess === 'event') {
-                setBanner(message || '');
-                setBannerType('success');
-                setBannerSection('event');
-            } else if (isSuccessMessage === 'true' && typeOfSuccess === 'user') {
-                setBanner(message || '');
-                setBannerType('success');
-                setBannerSection('user');
-            } else if (isSuccessMessage === 'true' && typeOfSuccess === 'group') {
-                setBanner(message || '');
-                setBannerType('success');
-                setBannerSection('group');
+                if (typeOfSuccess === 'room') {
+                    setBannerSection('room');
+                } else if (typeOfSuccess === 'event') {
+                    setBannerSection('event');
+                } else if (typeOfSuccess === 'user') {
+                    setBannerSection('user');
+                } else if (typeOfSuccess === 'group') {
+                    setBannerSection('group');
+                }
             }
         };
-
+    
         fetchSuccess();
-
+    
         const timer = setTimeout((): void => {
             setBanner('');
             setBannerType('');
             setBannerSection('');
-        }, 5000);
 
-        return (): void => {
+            const newUrl: string = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }, 20000);
+    
+        return () => {
             clearTimeout(timer);
         };
-    }, [location.search]);
+    }, [location.search]);    
 
     const toggleUserList = (): void => {
         setIsUserListOpen(!isUserListOpen);

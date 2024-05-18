@@ -9,7 +9,7 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
     const [numMembers, setNumMembers] = useState<number | null>(null);
     const [numEvents, setNumEvents] = useState<number | null>(null);
 
-    useEffect(() => {
+    useEffect((): void => {
         const fetchNumMembers = async (): Promise<void> => {
             if (user) {
                 const count: number = await countUsersInGroup(group.id, user);
