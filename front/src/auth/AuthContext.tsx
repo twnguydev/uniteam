@@ -11,23 +11,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [token, setToken] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
+    useEffect((): () => void => {
         const storedUser: string | null = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-
         const storedToken: string | null = localStorage.getItem('token');
-        if (storedToken) {
+    
+        if (storedUser && storedToken) {
+            setUser(JSON.parse(storedUser));
             setToken(storedToken);
-        } else {
-            setUser(null);
         }
-
+    
         const tokenTimeout = setTimeout((): void => {
             logout();
-        }, 30 * 60);
-
+        }, 30 * 60 * 1000);
+    
         return (): void => {
             clearTimeout(tokenTimeout);
         };
@@ -57,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = (): void => {
         setUser(null);
+        setToken(null);
         localStorage.removeItem('user');
         localStorage.removeItem('token');
         navigate('/');
