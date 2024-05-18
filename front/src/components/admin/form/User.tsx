@@ -12,7 +12,6 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
     const [lastName, setLastName] = React.useState<string>('');
     const [firstName, setFirstName] = React.useState<string>('');
     const [email, setEmail] = React.useState<string>('');
-    const [password, setPassword] = React.useState<string>('');
     const [groupName, setGroupName] = React.useState<string>('');
     const [admin, setAdmin] = React.useState<boolean>(false);
     const [redirect, setRedirect] = React.useState<boolean>(false);
@@ -27,21 +26,11 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
         fetchGroups();
     }, [user]);
 
-    const checkPassword = (password: string): boolean => {
-        const regex = new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,})');
-        return regex.test(password);
-    }
-
     const handleUserForm = async (e: any): Promise<void> => {
         e.preventDefault();
 
-        if (!lastName || !firstName || !email || !password || !groupName) {
+        if (!lastName || !firstName || !email || !groupName) {
             setError('Veuillez remplir tous les champs');
-            return;
-        }
-
-        if (!checkPassword(password)) {
-            setError('Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial');
             return;
         }
 
@@ -56,7 +45,7 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                 lastName: lastName,
                 firstName: firstName,
                 email: email,
-                password: password,
+                password: '',
                 is_admin: admin,
                 groupId: groupId ? groupId : 1,
             }
@@ -86,9 +75,9 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
 
     return (
         <section>
-            <div className="flow-root my-4 sm:my-4 lg:my-16">
-                <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
-                    <form className="space-y-4 max-w-xl mx-auto" onSubmit={handleUserForm}>
+            <div className="flow-root">
+                <div className="divide-gray-200 mt-10 dark:divide-gray-700">
+                    <form className="space-y-8 max-w-xl mx-auto" onSubmit={handleUserForm}>
                         <div>
                             <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Prénom</label>
                             <input
@@ -142,18 +131,9 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                         </div>
                         <div>
                             <label htmlFor="password" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Mot de passe</label>
-                            <input
-                                value={password}
-                                onChange={(e): any => setPassword(e.target.value)}
-                                type="password"
-                                name="password"
-                                id="password"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Mot de passe de l'utilisateur"
-                            />
-                            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">Pensez à communiquer le mot de passe à l'utilisateur. Utilisez un mot de passe sécurisé.</p>
+                            <p className="text-xs text-gray-500 mt-2 dark:text-gray-400">Le mot de passe est généré automatiquement et envoyé par email à l'utilisateur.</p>
                         </div>
-                        <div className="flex items-center">
+                        <div className="flex items-center mt-12">
                             <input
                                 type="checkbox"
                                 name="is_admin"

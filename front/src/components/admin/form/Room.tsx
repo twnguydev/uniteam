@@ -51,8 +51,8 @@ export const FormRoom: React.FC<any> = (): JSX.Element => {
 
     return (
         <section>
-            <div className="flow-root my-4 sm:my-4 lg:my-16">
-                <div className="-my-4 divide-y divide-gray-200 mt-20 dark:divide-gray-700">
+            <div className="flow-root">
+                <div className="divide-gray-200 mt-10 dark:divide-gray-700">
                     <form className="space-y-4 max-w-xl mx-auto md:space-y-6" onSubmit={handleRoomForm}>
                         <div>
                             <label htmlFor="username" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Nom</label>
