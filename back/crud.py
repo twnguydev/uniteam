@@ -67,6 +67,21 @@ def create_user(db: Session, user: schemas.User) -> models.User:
     db.refresh(db_user)
     return db_user
 
+def delete_user(db: Session, user_id: int) -> None:
+    """
+    Delete a user from the database.
+
+    Args:
+        db (Session): The database session.
+        user_id (int): The ID of the user to be deleted.
+
+    Returns:
+        None
+    """
+    db_user: Optional[models.User] = db.query(models.User).filter(models.User.id == user_id).first()
+    if db_user is not None:
+        db.delete(db_user)
+        db.commit()
 
 def create_event(
     db: Session, event: schemas.Event, current_user: schemas.User

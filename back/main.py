@@ -326,6 +326,21 @@ async def read_user(user_id: int, db: Session = Depends(get_db)) -> models.User:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user
 
+@app.delete("/users/{user_id}", response_model=dict[str, str])
+async def delete_user(user_id: int, db: Session = Depends(get_db)) -> dict[str, str]:
+    """
+    Delete a user from the database.
+
+    Args:
+        user_id (int): The ID of the user to delete.
+        db (Session, optional): The database session. Defaults to Depends(get_db).
+
+    Returns:
+        dict[str, str]: A dictionary with a message indicating the success of the deletion.
+
+    """
+    crud.delete_user(db, user_id=user_id)
+    return {"message": "User deleted"}
 
 @app.post("/events/", response_model=schemas.Event)
 async def create_event(
