@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useAuth } from '../auth/AuthContext';
 import fetchApi, { ApiResponse } from '../api/fetch';
-import { Banner } from './Banner';
 import { groupBadges } from '../data/badges';
 import { findUserId, findUserIdByEmail, findUser } from '../utils/user';
 import { findAllRooms, findRoomId, findRoomName } from '../utils/room';
@@ -13,6 +12,7 @@ import { createNotification, findLastNotificationId } from '../utils/notificatio
 import { getStatusId } from '../utils/status';
 import { findLastParticipantId, getParticipantsFromEventId } from '../utils/participant';
 import { formatDate } from '../utils/date';
+import { generateGoogleCalendarLink, generateAppleCalendarLink, generateOutlookCalendarLink } from '../utils/calendar';
 
 import type { Event, DisplayInputsProps } from '../types/Event';
 import type { Room } from '../types/Room';
@@ -42,6 +42,10 @@ export const Calendar: React.FC = (): JSX.Element => {
     const [participantEmails, setParticipantEmails] = useState<string[]>([]);
     const [inputCount, setInputCount] = useState<number>(1);
     const [showAddInput, setShowAddInput] = useState<boolean>(true);
+
+    const [googleCalendarLink, setGoogleCalendarLink] = useState<string>('');
+    const [outlookCalendarLink, setOutlookCalendarLink] = useState<string>('');
+    const [appleCalendarLink, setAppleCalendarLink] = useState<string>('');
 
     const [eventTitle, setEventTitle] = useState<string>('');
     const [eventDesc, setEventDesc] = useState<string>('');
@@ -127,6 +131,20 @@ export const Calendar: React.FC = (): JSX.Element => {
             setDeleteButton(false);
         }
     };
+
+    useEffect(() => {
+        const generateLinks = async () => {
+            if (selectedEvent && user) {
+                const googleLink = await generateGoogleCalendarLink(selectedEvent, user);
+                const outlookLink = await generateOutlookCalendarLink(selectedEvent, user);
+                const appleLink = await generateAppleCalendarLink(selectedEvent, user);
+                setGoogleCalendarLink(googleLink);
+                setOutlookCalendarLink(outlookLink);
+                setAppleCalendarLink(appleLink);
+            }
+        };
+        generateLinks();
+    }, [selectedEvent, user]);
 
     const handleAddInputClick = (): void => {
         setInputCount(inputCount + 1);
@@ -653,7 +671,31 @@ export const Calendar: React.FC = (): JSX.Element => {
                                         </div>
                                     </div>
                                 )}
-                                <div className="flex justify-between space-x-4 mb-4">
+                                <label className="text-gray-800 block mb-1 font-bold text-sm tracking-wide">Ajouter à un calendrier</label>
+                                <div className="flex space-x-4 mb-4">
+                                    <a
+                                        href={googleCalendarLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Google
+                                    </a>
+                                    <a
+                                        href={outlookCalendarLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Outlook
+                                    </a>
+                                    <a
+                                        href={appleCalendarLink}
+                                        download="event.ics"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Apple
+                                    </a>
                                 </div>
                                 {deleteButton && (
                                     <button onClick={deleteEvent} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 mt-10">
