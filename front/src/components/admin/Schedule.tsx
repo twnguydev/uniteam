@@ -44,6 +44,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
     const [selectedStatus, setSelectedStatus] = useState<string>('');
     const [loadedStatus, setLoadedStatus] = useState<Status[]>([]);
     const [selectedLimit, setSelectedLimit] = useState<string>('5');
+    const [selectedDate, setSelectedDate] = useState<string>('');
 
     const [banner, setBanner] = useState<string>('');
     const [bannerType, setBannerType] = useState<string>('');
@@ -59,6 +60,10 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
 
     const handleLimitChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedLimit(event.target.value);
+    };
+
+    const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedDate(event.target.value);
     };
 
     useEffect((): void => {
@@ -85,9 +90,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
 
     useEffect((): void => {
         const fetchData = async (): Promise<void> => {
-            if (!user) {
-                return;
-            }
+            if (!user) return;
 
             const fetchedGroups: any = await findAllGroups(user);
             setLoadedGroups(fetchedGroups || []);
@@ -99,17 +102,19 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
             const selectedStatusId: number | undefined = await getStatusId(selectedStatus, user);
 
             const allEvents: any = await findAllEvents(user);
-            let filteredEvents: any = allEvents.filter((event: any): boolean => {
+
+            let filteredEvents = allEvents.filter((event: any): boolean => {
                 const groupMatch: boolean = selectedGroupId ? event.groupId === selectedGroupId : true;
                 const statusMatch: boolean = selectedStatusId ? event.statusId === selectedStatusId : true;
                 return groupMatch && statusMatch;
             });
+
             setEvents(filteredEvents || []);
             setUsers(filteredEvents || []);
         };
 
         fetchData();
-    }, [user, selectedGroup, selectedStatus, selectedLimit]);
+    }, [user, selectedGroup, selectedStatus, selectedLimit, selectedDate]);
 
     useEffect((): () => void => {
         const fetchSuccess = (): void => {
@@ -277,6 +282,20 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                     <>
                         <div className="flex items-end justify-end w-3xl mt-6">
                             <div className="flex">
+                                <form className="mt-6">
+                                    <label htmlFor="underline_select" className="sr-only">Date</label>
+                                    <select
+                                        id="underline_select"
+                                        className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
+                                        value={selectedDate}
+                                        onChange={handleDateChange}
+                                    >
+                                        <option value="">Filtrer par date</option>
+                                        <option value="last_day">Dernier jour</option>
+                                        <option value="last_week">Dernière semaine</option>
+                                        <option value="last_month">Dernier mois</option>
+                                    </select>
+                                </form>
                                 <form className="mt-6">
                                     <label htmlFor="underline_select" className="sr-only">Statut</label>
                                     <select
@@ -446,7 +465,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                     </>
                 )}
                 {isUserListOpen && <ListUsers selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}
-                {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} />}
+                {isEventListOpen && <ListEvents selectedGroup={selectedGroup} selectedStatus={selectedStatus} selectedLimit={parseInt(selectedLimit)} selectedDate={selectedDate} />}
                 {isGroupListOpen && <ListGroups selectedLimit={parseInt(selectedLimit)} />}
                 {isRoomListOpen && <ListRooms selectedLimit={parseInt(selectedLimit)} />}
                 {isRoomFormOpen && <FormRoom />}

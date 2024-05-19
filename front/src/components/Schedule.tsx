@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import type { Event } from '../types/Event';
 import { EventItem } from './item/EventItem';
 import { findAllEvents } from '../utils/event';
 import { getEvents } from '../utils/participant';
 import { Pagination } from './Pagination';
+import { Banner } from './Banner';
 
 export const Schedule: React.FC = (): JSX.Element => {
     const { user } = useAuth();
@@ -12,6 +14,11 @@ export const Schedule: React.FC = (): JSX.Element => {
     const [page, setPage] = React.useState<number>(1);
     const [currentPageEvents, setCurrentPageEvents] = React.useState<Event[]>([]);
     const [selectedLimit, setSelectedLimit] = React.useState<string>('5');
+
+    const location = useLocation();
+    const [banner, setBanner] = React.useState<string>('');
+    const [bannerType, setBannerType] = React.useState<string>('');
+    const [bannerSection, setBannerSection] = React.useState<string>('');
 
     useEffect((): void => {
         const fetchEvents = async (): Promise<void> => {
@@ -61,9 +68,52 @@ export const Schedule: React.FC = (): JSX.Element => {
         setSelectedLimit(event.target.value);
     };
 
+    useEffect((): () => void => {
+        const fetchSuccess = (): void => {
+            const searchParams = new URLSearchParams(window.location.search);
+            const isSuccessMessage: string | null = searchParams.get('success');
+            const typeOfSuccess: string | null = searchParams.get('type');
+            const message: string | null = searchParams.get('message');
+    
+            if (isSuccessMessage === 'true') {
+                setBanner(message || '');
+                setBannerType('success');
+                if (typeOfSuccess === 'room') {
+                    setBannerSection('room');
+                } else if (typeOfSuccess === 'event') {
+                    setBannerSection('event');
+                } else if (typeOfSuccess === 'user') {
+                    setBannerSection('user');
+                } else if (typeOfSuccess === 'group') {
+                    setBannerSection('group');
+                }
+            }
+        };
+    
+        fetchSuccess();
+    
+        const timer = setTimeout((): void => {
+            setBanner('');
+            setBannerType('');
+            setBannerSection('');
+
+            const newUrl: string = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+        }, 20000);
+    
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [location.search]);
+
     return (
         <section className="bg-white dark:bg-gray-900 antialiased min-h-screen">
             <div className="max-w-screen-xl px-4 py-8 mx-auto lg:px-6 sm:py-16 lg:py-24">
+                {banner && (
+                    <div className="flex items-center justify-center mb-8">
+                        <Banner type={bannerType} message={banner} />
+                    </div>
+                )}
                 {user ? (
                     <div className="flex flex-col items-center gap-4 mb-20 sm:mt-8 lg:mt-0">
                         <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">

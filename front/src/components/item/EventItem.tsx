@@ -12,7 +12,6 @@ import { findUserId } from '../../utils/user';
 import { findAllParticipants, getParticipantsFromEventId } from '../../utils/participant';
 import type { Notification } from '../../types/notification';
 import { findLastNotificationId, createNotification } from '../../utils/notification';
-import { create } from 'domain';
 
 export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, name, roomId, groupId, hostName, description }: Event): JSX.Element => {
     const { user } = useAuth();
@@ -96,7 +95,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
 
     const deleteEvent = async (): Promise<void> => {
         try {
-            if (user) {
+            if ((user && user.is_admin) || (user && user.lastName === hostName)) {
                 const getAllParticipantsIdToEvent: UserParticipant[] = await getParticipantsFromEventId(user, id);
 
                 const response: ApiResponse<Event> = await fetchApi('DELETE', `events/${id}`, undefined, {
@@ -158,8 +157,10 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
     const formattedStartDate: string = formatDate(dateStart.toString());
     const formattedEndDate: string = formatDateHour(dateEnd.toString());
 
-    if (redirect) {
+    if (redirect && user && user.is_admin) {
         return <Navigate to={`/admin/schedule?success=true&type=event&message=L'événement ${name} a été supprimé. Les participants ont été notifiés.`} />;
+    } else if (redirect && user && !user.is_admin) {
+        return <Navigate to={`/member/schedule?success=true&type=event&message=Votre événement ${name} a été supprimé. Les participants ont été notifiés.`} />;
     }
 
     return (
@@ -213,9 +214,11 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     <th scope="col" className="px-6 py-3">
                                         Status
                                     </th>
+                                    {(user && (user.is_admin || user.lastName === hostName)) && (
                                     <th scope="col" className="px-6 py-3">
                                         Actions
                                     </th>
+                                    )}
                                 </tr>
                             </thead>
                             <tbody>
@@ -235,14 +238,16 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     <td className="px-6 py-4">
                                         <Badge Id={statusId} Name={'status'} UserData={user} />
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <button
-                                            className="text-sm text-red-500 underline"
-                                            onClick={(): Promise<void> => deleteEvent()}
-                                        >
-                                            Supprimer
-                                        </button>
-                                    </td>
+                                    {(user && (user.is_admin || user.lastName === hostName)) && (
+                                        <td className="px-6 py-4">
+                                            <button
+                                                className="text-sm text-red-500 underline"
+                                                onClick={(): Promise<void> => deleteEvent()}
+                                            >
+                                                Supprimer
+                                            </button>
+                                        </td>
+                                    )}
                                 </tr>
                             </tbody>
                         </table>

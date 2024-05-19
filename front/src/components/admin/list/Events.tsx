@@ -8,7 +8,7 @@ import { findGroupId } from '../../../utils/group';
 import { getStatusId } from '../../../utils/status';
 import { Pagination } from '../../Pagination';
 
-export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit }): JSX.Element => {
+export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, selectedStatus, selectedLimit, selectedDate }): JSX.Element => {
     const { user } = useAuth();
     const [events, setEvents] = useState<Event[]>([]);
     const [page, setPage] = useState<number>(1);
@@ -36,7 +36,29 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
                     if (statusId) {
                         filteredEvents = filteredEvents.filter((event: Event): boolean => event.statusId === statusId);
                     }
-                    setEvents(filteredEvents);
+                    if (selectedDate) {
+                        const date: Date = new Date();
+                        let startDate: Date;
+                        let endDate: Date;
+        
+                        if (selectedDate === 'last_day') {
+                            startDate = new Date(date.setDate(date.getDate() - 1));
+                            endDate = new Date();
+                        } else if (selectedDate === 'last_week') {
+                            startDate = new Date(date.setDate(date.getDate() - 7));
+                            endDate = new Date();
+                        } else if (selectedDate === 'last_month') {
+                            startDate = new Date(date.setMonth(date.getMonth() - 1));
+                            endDate = new Date();
+                        }
+        
+                        filteredEvents = filteredEvents.filter((event: any): boolean => {
+                            const groupMatch: boolean = groupId ? event.groupId === groupId : true;
+                            const statusMatch: boolean = statusId ? event.statusId === statusId : true;
+                            const dateMatch: boolean = selectedDate ? new Date(event.dateStart) >= startDate && new Date(event.dateStart) <= endDate : true;
+                            return groupMatch && statusMatch && dateMatch;
+                        });
+                    }
                     setEvents(filteredEvents);
                 }
             } catch (error) {
@@ -45,7 +67,7 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
         };
 
         fetchEvents();
-    }, [selectedGroup, selectedStatus, user]);
+    }, [selectedGroup, selectedStatus, selectedDate, user]);
 
     useEffect((): void => {
         const start: number = (page - 1) * selectedLimit;
@@ -57,18 +79,30 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
             setPage(prevPage => Math.max(1, Math.min(totalPages, prevPage)));
             return;
         }
+
+        console.log('events:', events);
     
         setCurrentPageEvents(events.slice(start, end));
-    }, [page, events, selectedLimit]);
+    }, [page, events, selectedLimit, selectedDate]);
+
+    useEffect(() => {
+        console.log('currentPageEvents:', currentPageEvents);
+    }, [events]);
 
     return (
         <>
             <section>
                 <div className="flow-root mt-8 sm:mt-12 lg:mt-16">
                     <div className="-my-4 divide-y divide-gray-200 dark:divide-gray-700">
-                        {currentPageEvents.map(event => (
-                            <EventItem key={event.id} {...event} />
-                        ))}
+                        {events.length === 0 ? (
+                            <div className="p-4 text-center">
+                                <p className="text-gray-500 dark:text-gray-400">Aucun événement trouvé</p>
+                            </div>
+                        ) : (
+                            currentPageEvents.map(event => (
+                                <EventItem key={event.id} {...event} />
+                            ))
+                        )}
                     </div>
                 </div>
             </section>
