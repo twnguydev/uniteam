@@ -79,15 +79,9 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
             setPage(prevPage => Math.max(1, Math.min(totalPages, prevPage)));
             return;
         }
-
-        console.log('events:', events);
     
         setCurrentPageEvents(events.slice(start, end));
     }, [page, events, selectedLimit, selectedDate]);
-
-    useEffect(() => {
-        console.log('currentPageEvents:', currentPageEvents);
-    }, [events]);
 
     return (
         <>
