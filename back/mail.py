@@ -52,3 +52,24 @@ Vous pouvez vous connecter à la plateforme en cliquant sur le lien suivant : {U
     L'équipe UniTeam
     """
     return send_email(subject, to_email, body)
+
+def send_contact_admin_email(from_email, name, message, subject = None):
+    if not subject:
+        subject = "[UniTeam] Nouvelle demande de contact"
+    else:
+        subject = f"[UniTeam] {subject}"
+    body = f"""
+    Bonjour,
+
+Vous avez reçu un nouveau message de contact de la part de :
+
+    Nom : {name}
+    Email : {from_email}
+    Message : {message}
+
+Vérifiez toujours que cet utilisateur est bien inscrit sur la plateforme avant de répondre.
+
+    Merci,
+    L'équipe UniTeam
+    """
+    return send_email(subject, SMTP_USERNAME, body)

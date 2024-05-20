@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 import crud, models, schemas
 from database import SessionLocal, engine
 from utils import verify_password, generate_random_password
-from mail import send_welcome_email
+from mail import send_welcome_email, send_contact_admin_email
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -175,6 +175,26 @@ async def read_users_me(
 
     """
     return current_user
+
+
+@app.post("/contact/", response_model=dict[str, str])
+async def contact_admin(
+    contact: schemas.Contact
+) -> dict[str, str]:
+    """
+    Send a contact message to the admin.
+
+    Args:
+        contact (schemas.Contact): The contact message data.
+
+    Returns:
+        dict[str, str]: A dictionary with a message indicating the success of the operation.
+
+    """
+    email_sent = send_contact_admin_email(contact.email, contact.name, contact.message, contact.subject)
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Error sending contact email")
+    return {"message": "Contact message sent"}
 
 
 @app.get("/groups/", response_model=list[schemas.Group])

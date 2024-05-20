@@ -89,6 +89,28 @@ class Status(BaseModel):
         orm_mode = True
 
 
+class Contact(BaseModel):
+    """
+    Represents a contact message.
+
+    Attributes:
+        name (str): The name of the contact.
+        email (str): The email address of the contact.
+        message (str): The message of the contact.
+
+    Config:
+        orm_mode (bool): Indicates whether the class should be used in ORM mode or not.
+    """
+
+    name: str
+    email: str
+    subject: str = None
+    message: str
+
+    class Config:
+        orm_mode = False
+
+
 class Event(BaseModel):
     """
     Represents an event.
