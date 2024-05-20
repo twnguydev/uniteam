@@ -152,7 +152,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
         return () => {
             clearTimeout(timer);
         };
-    }, [location.search]);    
+    }, [location.search]);
 
     const toggleUserList = (): void => {
         setIsUserListOpen(!isUserListOpen);
