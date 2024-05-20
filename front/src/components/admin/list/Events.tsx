@@ -37,25 +37,31 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
                         filteredEvents = filteredEvents.filter((event: Event): boolean => event.statusId === statusId);
                     }
                     if (selectedDate) {
-                        const date: Date = new Date();
                         let startDate: Date;
                         let endDate: Date;
-        
+                        const currentDate: Date = new Date();
+                    
                         if (selectedDate === 'last_day') {
-                            startDate = new Date(date.setDate(date.getDate() - 1));
-                            endDate = new Date();
+                            startDate = new Date(currentDate);
+                            startDate.setHours(0, 0, 0, 0);
+                            endDate = new Date(currentDate);
+                            endDate.setHours(23, 59, 59, 999);
                         } else if (selectedDate === 'last_week') {
-                            startDate = new Date(date.setDate(date.getDate() - 7));
-                            endDate = new Date();
+                            const oneDayMilliseconds: number = 24 * 60 * 60 * 1000;
+                            startDate = new Date(currentDate.getTime() - (7 * oneDayMilliseconds));
+                            startDate.setHours(0, 0, 0, 0);
+                            endDate = new Date(currentDate);
+                            endDate.setHours(23, 59, 59, 999);
                         } else if (selectedDate === 'last_month') {
-                            startDate = new Date(date.setMonth(date.getMonth() - 1));
-                            endDate = new Date();
+                            startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+                            endDate = new Date(currentDate);
                         }
-        
+                    
                         filteredEvents = filteredEvents.filter((event: any): boolean => {
                             const groupMatch: boolean = groupId ? event.groupId === groupId : true;
                             const statusMatch: boolean = statusId ? event.statusId === statusId : true;
-                            const dateMatch: boolean = selectedDate ? new Date(event.dateStart) >= startDate && new Date(event.dateStart) <= endDate : true;
+                            const eventDate: Date = new Date(event.dateStart);
+                            const dateMatch: boolean = selectedDate ? eventDate >= startDate && eventDate <= endDate : true;
                             return groupMatch && statusMatch && dateMatch;
                         });
                     }

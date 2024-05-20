@@ -79,49 +79,80 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                 <div className="divide-gray-200 mt-10 dark:divide-gray-700">
                     <form className="space-y-8 max-w-xl mx-auto" onSubmit={handleUserForm}>
                         <div>
-                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Prénom</label>
+                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">
+                                Prénom
+                                {error && (
+                                    <span className="text-red-500 text-sm font-medium"> *</span>
+                                )}
+                            </label>
                             <input
                                 value={firstName}
                                 onChange={(e): any => setFirstName(e.target.value)}
                                 type="text"
                                 name="firstName"
                                 id="firstName"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className={`bg-gray-50 w-full text-gray-900 sm:text-sm rounded-lg p-2.5 
+                                dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
+                                ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                                 placeholder="Prénom de l'utilisateur"
                             />
                         </div>
                         <div>
-                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Nom</label>
+                            <label htmlFor="lastName" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">
+                                Nom
+                                {error && (
+                                    <span className="text-red-500 text-sm font-medium"> *</span>
+                                )}
+
+                            </label>
                             <input
                                 value={lastName}
                                 onChange={(e): any => setLastName(e.target.value)}
                                 type="text"
                                 name="lastName"
                                 id="lastName"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className={`bg-gray-50 w-full text-gray-900 sm:text-sm rounded-lg p-2.5 
+                                dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
+                                ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                                 placeholder="Nom de l'utilisateur"
                             />
                         </div>
                         <div>
-                            <label htmlFor="email" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                            <label htmlFor="email" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">
+                                Email
+                                {error && (
+                                    <span className="text-red-500 text-sm font-medium"> *</span>
+                                )}
+                                
+                            </label>
                             <input
                                 value={email}
                                 onChange={(e): any => setEmail(e.target.value)}
                                 type="email"
                                 name="email"
                                 id="email"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className={`bg-gray-50 w-full text-gray-900 sm:text-sm rounded-lg p-2.5 
+                                dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
+                                ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                                 placeholder="Email de l'utilisateur"
                             />
                         </div>
                         <div>
-                            <label htmlFor="group" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">Groupe de travail</label>
+                            <label htmlFor="group" className="block mb-2 uppercase text-sm font-medium text-gray-900 dark:text-white">
+                                Groupe de travail
+                                {error && (
+                                    <span className="text-red-500 text-sm font-medium"> *</span>
+                                )}
+
+                            </label>
                             <select
                                 name="group"
                                 id="group"
                                 value={groupName}
                                 onChange={(e): any => setGroupName(e.target.value)}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                className={`bg-gray-50 w-full text-gray-900 sm:text-sm rounded-lg p-2.5 
+                                dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
+                                ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                             >
                                 <option value="">Assigner un groupe de travail</option>
                                 {groups.map(group => (
@@ -140,9 +171,10 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                                 id="is_admin"
                                 checked={admin}
                                 onChange={(e): any => setAdmin(e.target.checked)}
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             />
-                            <label htmlFor="is_admin" className="block uppercase text-sm ml-10 font-medium text-gray-900 dark:text-white">Cet utilisateur est un administrateur</label>
+                            <label htmlFor="is_admin" className="block uppercase text-sm ml-10 font-medium text-gray-900 dark:text-white">
+                                Cet utilisateur est un administrateur
+                            </label>
                         </div>
                         {error && (
                             <div className="text-red-500 text-sm font-medium">
