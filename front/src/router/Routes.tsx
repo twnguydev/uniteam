@@ -8,6 +8,7 @@ import { Calendar } from '../components/Calendar';
 import { Schedule } from '../components/Schedule';
 import { ScheduleAdmin } from '../components/admin/Schedule';
 import { Navbar } from '../components/Navbar';
+import { Contact } from '../components/Contact';
 import ProtectedAdminRoute from "./ProtectedAdminRoute";
 import ProtectedUserRoute from "./ProtectedUserRoute";
 import HiddenUserRoute from "./HiddenUserRoute";
@@ -20,6 +21,7 @@ export const PageRouter = () => {
                     <Navbar />
                     <Routes>
                         <Route path="/" Component={Home as React.ComponentType} />
+                        <Route path="/contact" Component={Contact as React.ComponentType} />
                         <Route path="*" Component={Error as React.ComponentType} />
 
                         <Route element={<HiddenUserRoute />}>
