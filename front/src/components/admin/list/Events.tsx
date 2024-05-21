@@ -53,8 +53,11 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
                             endDate = new Date(currentDate);
                             endDate.setHours(23, 59, 59, 999);
                         } else if (selectedDate === 'last_month') {
-                            startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
+                            const oneDayMilliseconds: number = 24 * 60 * 60 * 1000;
+                            startDate = new Date(currentDate.getTime() - (30 * oneDayMilliseconds));
+                            startDate.setHours(0, 0, 0, 0);
                             endDate = new Date(currentDate);
+                            endDate.setHours(23, 59, 59, 999);
                         }
                     
                         filteredEvents = filteredEvents.filter((event: any): boolean => {
@@ -65,6 +68,7 @@ export const ListEvents: React.FC<ListEventsAdminProps> = ({ selectedGroup, sele
                             return groupMatch && statusMatch && dateMatch;
                         });
                     }
+                    console.log(filteredEvents);
                     setEvents(filteredEvents);
                 }
             } catch (error) {

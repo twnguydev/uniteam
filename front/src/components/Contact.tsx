@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import fetchApi, { ApiResponse } from '../api/fetch';
 import { useAuth } from '../auth/AuthContext';
 
@@ -11,6 +11,13 @@ export const Contact: React.FC = (): JSX.Element => {
     const [message, setMessage] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [success, setSuccess] = useState<string>('');
+
+    useEffect((): void => {
+        if (user) {
+            setName(user.lastName);
+            setEmail(user.email);
+        }
+    }, [user]);
 
     const handleContact = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
@@ -75,6 +82,7 @@ export const Contact: React.FC = (): JSX.Element => {
                                     dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
                                     ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                                     placeholder="John Doe"
+                                    disabled={user ? true : false}
                                 />
                             </div>
                             <div>
@@ -94,6 +102,7 @@ export const Contact: React.FC = (): JSX.Element => {
                                     dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 
                                     ${error ? 'border border-red-500 focus:ring-red-600 focus:border-red-600' : 'border border-gray-600 focus:ring-blue-600 focus:border-blue-600'}`}
                                     placeholder="john.doe@mail.com"
+                                    disabled={user ? true : false}
                                 />
                             </div>
                             <div>
@@ -142,9 +151,11 @@ export const Contact: React.FC = (): JSX.Element => {
                             <button type="submit" className="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                                 Envoyer la demande
                             </button>
-                            <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                Vous avez déjà un compte ?<br /><a href="/auth" className="font-medium text-blue-600 hover:underline dark:text-blue-500">Connectez-vous</a>
-                            </p>
+                            {!user && (
+                                <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+                                    Vous avez déjà un compte ?<br /><a href="/auth" className="font-medium text-blue-600 hover:underline dark:text-blue-500">Connectez-vous</a>
+                                </p>
+                            )}
                         </form>
                     </div>
                 </div>

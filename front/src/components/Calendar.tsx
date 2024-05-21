@@ -154,6 +154,12 @@ export const Calendar: React.FC = (): JSX.Element => {
     const handleInputChange = (index: number, value: string): void => {
         setParticipantEmails((prevEmails: string[]): string[] => {
             const updatedEmails: string[] = [...prevEmails];
+            if (value === '' && updatedEmails.length > 1) {
+                updatedEmails.splice(index, 1);
+                setInputCount(inputCount - 1);
+                setShowAddInput(true);
+                return updatedEmails;
+            }
             updatedEmails[index] = value;
             return updatedEmails;
         });
@@ -222,6 +228,7 @@ export const Calendar: React.FC = (): JSX.Element => {
 
                 const missingParticipants: string[] = [];
                 for (let i: number = 0; i < participantEmails.length; i++) {
+                    if (participantEmails[i] === '') continue;
                     const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
                     if (!participantId || participantId === 0) {
                         missingParticipants.push(participantEmails[i]);
@@ -283,6 +290,7 @@ export const Calendar: React.FC = (): JSX.Element => {
                     const registerParticipants = async (): Promise<void> => {
                         if (participantEmails.length > 0 && user) {
                             for (let i: number = 0; i < participantEmails.length; i++) {
+                                if (participantEmails[i] === '') continue;
                                 const participantId: number | undefined = await findUserIdByEmail(participantEmails[i], user);
 
                                 if (participantId) {
