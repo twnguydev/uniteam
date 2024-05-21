@@ -98,7 +98,6 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
                                         {numEvents !== null ? numEvents : 'Chargement...'}
                                     </th>
                                     <td className="px-6 py-4">
-                                        <button className="text-sm text-blue-500 underline">Modifier</button>
                                         <button
                                             className="text-sm text-red-500 underline ml-5"
                                             onClick={deleteGroup}

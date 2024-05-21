@@ -98,7 +98,6 @@ export const UserItem: React.FC<User> = ({ id, firstName, lastName, email, is_ad
                                         <Badge Id={groupId} Name={'group'} UserData={user} />
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button className="text-sm text-blue-500 underline">Modifier</button>
                                         <button
                                             className="text-sm text-red-500 underline ml-5"
                                             onClick={deleteUser}
