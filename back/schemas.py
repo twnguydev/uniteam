@@ -9,7 +9,7 @@ class User(BaseModel):
 
     Attributes:
         id (int): The unique identifier for the user.
-        is_admin (bool): Indicates whether the user is an admin or not. Defaults to False.
+        isAdmin (bool): Indicates whether the user is an admin or not. Defaults to False.
         firstName (Optional[str]): The first name of the user. Defaults to None.
         lastName (Optional[str]): The last name of the user. Defaults to None.
         email (str): The email address of the user.
@@ -21,7 +21,7 @@ class User(BaseModel):
     """
 
     id: int
-    is_admin: bool = False
+    isAdmin: bool = False
     firstName: Optional[str] = None
     lastName: Optional[str] = None
     email: str

@@ -61,7 +61,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                 };
 
                 await createNotification(user, notification);
-                
+
                 const getParticipants: UserParticipant[] = await findAllParticipants(user);
                 const getAllParticipantsIdToEvent: number[] = getParticipants.filter((participant: UserParticipant): boolean => participant.eventId === id).map((participant: UserParticipant): number => participant.userId);
 
@@ -95,7 +95,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
 
     const deleteEvent = async (): Promise<void> => {
         try {
-            if ((user && user.is_admin) || (user && user.lastName === hostName)) {
+            if ((user && user.isAdmin) || (user && user.lastName === hostName)) {
                 const getAllParticipantsIdToEvent: UserParticipant[] = await getParticipantsFromEventId(user, id);
 
                 const response: ApiResponse<Event> = await fetchApi('DELETE', `events/${id}`, undefined, {
@@ -105,7 +105,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                         'Content-Type': 'application/json',
                     },
                 });
-        
+
                 if (response.success && user) {
                     const getHostId: number | null = hostName ? await findUserId(hostName, user) : null;
                     const lastId: number | undefined = await findLastNotificationId(user);
@@ -157,9 +157,9 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
     const formattedStartDate: string = formatDate(dateStart.toString());
     const formattedEndDate: string = formatDateHour(dateEnd.toString());
 
-    if (redirect && user && user.is_admin) {
+    if (redirect && user && user.isAdmin) {
         return <Navigate to={`/admin/schedule?success=true&type=event&message=L'événement ${name} a été supprimé. Les participants ont été notifiés.`} />;
-    } else if (redirect && user && !user.is_admin) {
+    } else if (redirect && user && !user.isAdmin) {
         return <Navigate to={`/member/schedule?success=true&type=event&message=Votre événement ${name} a été supprimé. Les participants ont été notifiés.`} />;
     }
 
@@ -175,7 +175,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                     </h3>
                 </div>
                 <div>
-                    {user && user.is_admin && (
+                    {user && user.isAdmin && (
                         <select
                             className="block appearance-none w-full bg-gray-700 border-2 border-gray-900 hover:border-gray-500 px-4 py-2 pr-8 rounded-lg leading-tight text-gray-200"
                             value={selectedStatusId}
@@ -214,10 +214,10 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     <th scope="col" className="px-6 py-3">
                                         Status
                                     </th>
-                                    {(user && (user.is_admin || user.lastName === hostName)) && (
-                                    <th scope="col" className="px-6 py-3">
-                                        Actions
-                                    </th>
+                                    {(user && (user.isAdmin || user.lastName === hostName)) && (
+                                        <th scope="col" className="px-6 py-3">
+                                            Actions
+                                        </th>
                                     )}
                                 </tr>
                             </thead>
@@ -238,7 +238,7 @@ export const EventItem: React.FC<Event> = ({ id, statusId, dateStart, dateEnd, n
                                     <td className="px-6 py-4">
                                         <Badge Id={statusId} Name={'status'} UserData={user} />
                                     </td>
-                                    {(user && (user.is_admin || user.lastName === hostName)) && (
+                                    {(user && (user.isAdmin || user.lastName === hostName)) && (
                                         <td className="px-6 py-4">
                                             <button
                                                 className="text-sm text-red-500 underline"

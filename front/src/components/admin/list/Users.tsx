@@ -31,7 +31,7 @@ export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, select
                         filteredUsers = filteredUsers.filter((user: User): boolean => user.groupId === groupId);
                     }
                     if (selectedStatus) {
-                        filteredUsers = filteredUsers.filter((user: User): boolean => user.is_admin.toString() === selectedStatus);
+                        filteredUsers = filteredUsers.filter((user: User): boolean => user.isAdmin.toString() === selectedStatus);
                     }
                     setUsers(filteredUsers);
                 }
@@ -46,14 +46,14 @@ export const ListUsers: React.FC<ListUsersAdminProps> = ({ selectedGroup, select
     useEffect((): void => {
         const start: number = (page - 1) * selectedLimit;
         const end: number = start + selectedLimit;
-        
+
         const totalPages: number = Math.ceil(users.length / selectedLimit);
 
         if (page < 1 || page > totalPages) {
             setPage(prevPage => Math.max(1, Math.min(totalPages, prevPage)));
             return;
         }
-    
+
         setCurrentPageUsers(users.slice(start, end));
     }, [page, users, selectedLimit]);
 

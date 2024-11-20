@@ -122,7 +122,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
             const isSuccessMessage: string | null = searchParams.get('success');
             const typeOfSuccess: string | null = searchParams.get('type');
             const message: string | null = searchParams.get('message');
-    
+
             if (isSuccessMessage === 'true') {
                 setBanner(message || '');
                 setBannerType('success');
@@ -137,9 +137,9 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                 }
             }
         };
-    
+
         fetchSuccess();
-    
+
         const timer = setTimeout((): void => {
             setBanner('');
             setBannerType('');
@@ -148,7 +148,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
             const newUrl: string = window.location.origin + window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
         }, 20000);
-    
+
         return () => {
             clearTimeout(timer);
         };
@@ -252,7 +252,7 @@ export const ScheduleAdmin: React.FC = (): JSX.Element => {
                                 <div className="flex flex-col items-center py-10 px-10">
                                     <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">{user.firstName} {user.lastName}</h5>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">Groupe {user.groupName}</span>
-                                    {user.is_admin && (
+                                    {user.isAdmin && (
                                         <span className="text-sm mt-8 text-gray-500 dark:text-gray-400">Administrateur</span>
                                     )}
                                 </div>

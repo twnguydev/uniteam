@@ -46,7 +46,7 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                 firstName: firstName,
                 email: email,
                 password: '',
-                is_admin: admin,
+                isAdmin: admin,
                 groupId: groupId ? groupId : 1,
             }
 
@@ -123,7 +123,7 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                                 {error && (
                                     <span className="text-red-500 text-sm font-medium"> *</span>
                                 )}
-                                
+
                             </label>
                             <input
                                 value={email}
@@ -167,12 +167,12 @@ export const FormUser: React.FC<any> = (): JSX.Element => {
                         <div className="flex items-center mt-12">
                             <input
                                 type="checkbox"
-                                name="is_admin"
-                                id="is_admin"
+                                name="isAdmin"
+                                id="isAdmin"
                                 checked={admin}
                                 onChange={(e): any => setAdmin(e.target.checked)}
                             />
-                            <label htmlFor="is_admin" className="block uppercase text-sm ml-10 font-medium text-gray-900 dark:text-white">
+                            <label htmlFor="isAdmin" className="block uppercase text-sm ml-10 font-medium text-gray-900 dark:text-white">
                                 Cet utilisateur est un administrateur
                             </label>
                         </div>

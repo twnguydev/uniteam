@@ -125,7 +125,7 @@ export const Calendar: React.FC = (): JSX.Element => {
         setSelectedEvent(event);
         setOpenEventDetailsModal(true);
 
-        if (user?.is_admin || event.hostName === user?.lastName) {
+        if (user?.isAdmin || event.hostName === user?.lastName) {
             setDeleteButton(true);
         } else {
             setDeleteButton(false);
@@ -246,7 +246,7 @@ export const Calendar: React.FC = (): JSX.Element => {
             const isEmailsExist: boolean = await checkIfEmailsExist();
 
             if ((participantEmails.length > 0 && isEmailsExist) || participantEmails.length === 0) {
-                const isAdmin: boolean = user?.is_admin ?? false;
+                const isAdmin: boolean = user?.isAdmin ?? false;
                 let statusId: number = 0;
 
                 const fetchStatusId = async (): Promise<void> => {
@@ -336,7 +336,7 @@ export const Calendar: React.FC = (): JSX.Element => {
                             const hostId: number | undefined = await findUserId(user.lastName, user);
                             const lastNotificationId: number | undefined = await findLastNotificationId(user);
 
-                            const message: string = user.is_admin ? `L'événement "${newEvent.name}" a été validé.` : `Votre demande d'événement "${newEvent.name}" a été envoyée. Elle est en cours de traitement.`;
+                            const message: string = user.isAdmin ? `L'événement "${newEvent.name}" a été validé.` : `Votre demande d'événement "${newEvent.name}" a été envoyée. Elle est en cours de traitement.`;
 
                             const notification: Notification = {
                                 id: (lastNotificationId ?? 0) + 1,
@@ -588,7 +588,7 @@ export const Calendar: React.FC = (): JSX.Element => {
                                         className="bg-blue-500 hover:bg-blue-700 text-white font-semibold py-2 px-4 border border-blue-700 rounded-lg shadow-sm"
                                         onClick={handleSubmit}
                                     >
-                                        {user?.is_admin ? 'Enregistrer' : 'Faire une demande'}
+                                        {user?.isAdmin ? 'Enregistrer' : 'Faire une demande'}
                                     </button>
                                 </div>
                             </div>

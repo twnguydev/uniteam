@@ -6,7 +6,7 @@ import type { User } from '../../types/user';
 import { Badge } from '../../utils/badge';
 import { set } from 'date-fns';
 
-export const UserItem: React.FC<User> = ({ id, firstName, lastName, email, is_admin, groupId }: User): JSX.Element => {
+export const UserItem: React.FC<User> = ({ id, firstName, lastName, email, isAdmin, groupId }: User): JSX.Element => {
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [redirect, setRedirect] = useState<boolean>(false);
@@ -34,7 +34,7 @@ export const UserItem: React.FC<User> = ({ id, firstName, lastName, email, is_ad
         setIsOpen(!isOpen);
     };
 
-    const adminText: 'Administrateur' | 'Membre' = is_admin ? 'Administrateur' : 'Membre';
+    const adminText: 'Administrateur' | 'Membre' = isAdmin ? 'Administrateur' : 'Membre';
 
     if (redirect) {
         return <Navigate to={`/admin/schedule?success=true&type=user&message=L'utilisateur ${firstName} ${lastName} a été supprimé.`} />;

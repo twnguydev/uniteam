@@ -5,7 +5,7 @@ export interface User {
     email: string;
     password?: string | null;
     token?: string | null;
-    is_admin: boolean;
+    isAdmin: boolean;
     groupId: number;
     groupName?: string | null;
 }

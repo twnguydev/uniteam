@@ -14,16 +14,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     useEffect((): () => void => {
         const storedUser: string | null = localStorage.getItem('user');
         const storedToken: string | null = localStorage.getItem('token');
-    
+
         if (storedUser && storedToken) {
             setUser(JSON.parse(storedUser));
             setToken(storedToken);
         }
-    
+
         const tokenTimeout = setTimeout((): void => {
             logout();
         }, 30 * 60 * 1000);
-    
+
         return (): void => {
             clearTimeout(tokenTimeout);
         };
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 lastName: userData.lastName,
                 email: userData.email,
                 token: accessToken,
-                is_admin: userData.is_admin,
+                isAdmin: userData.isAdmin,
                 groupId: userData.groupId,
                 groupName: groupName
             };

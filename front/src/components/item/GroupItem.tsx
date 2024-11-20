@@ -21,6 +21,8 @@ export const GroupItem: React.FC<{ group: Group }> = ({ group }): JSX.Element =>
             },
         });
 
+        console.log(response);
+
         if (response.success) {
             setRedirect(true);
         } else {

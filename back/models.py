@@ -14,7 +14,7 @@ class User(Base):
         firstName (str): The first name of the user.
         lastName (str): The last name of the user.
         groupId (int): The ID of the group the user belongs to.
-        is_admin (bool): Indicates whether the user is an admin or not.
+        isAdmin (bool): Indicates whether the user is an admin or not.
     """
 
     __tablename__: str = "users"
@@ -25,7 +25,7 @@ class User(Base):
     firstName = Column(String)
     lastName = Column(String)
     groupId = Column(Integer, ForeignKey("groups.id"))
-    is_admin = Column(Boolean, default=False)
+    isAdmin = Column(Boolean, default=False)
 
 
 class Events(Base):

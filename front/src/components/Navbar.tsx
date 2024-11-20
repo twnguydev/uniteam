@@ -16,7 +16,7 @@ const MobileMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen
           <Link to="/calendar" onClick={onClose} className="text-white hover:text-gray-300 py-2 font-medium">Calendrier</Link>
           <Link to={user ? `/member/${user.id}/schedule` : '/'} onClick={onClose} className="text-white hover:text-gray-300 py-2 font-medium">Mon agenda</Link>
           <NotificationNavbar />
-          {user?.is_admin && (
+          {user?.isAdmin && (
             <Link to="/admin/schedule" onClick={onClose} className="text-white hover:text-gray-300 py-2 font-medium">Administration</Link>
           )}
           {user && (
@@ -66,7 +66,7 @@ export const Navbar: React.FC = () => {
                 <NotificationNavbar />
               </>
             )}
-            {user?.is_admin && (
+            {user?.isAdmin && (
               <Link to="/admin/schedule" className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium">Administration</Link>
             )}
             {user && (
